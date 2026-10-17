@@ -1,0 +1,1 @@
+-- Local development seed data (supabase db reset). Labels are seeded by migration.
