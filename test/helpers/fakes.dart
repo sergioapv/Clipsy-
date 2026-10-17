@@ -4,7 +4,7 @@ import 'package:clipsy/features/auth/data/auth_repository.dart';
 import 'package:clipsy/features/auth/domain/app_user.dart';
 
 class FakeAuthRepository implements AuthRepository {
-  FakeAuthRepository({AppUser? user}) : _user = user;
+  FakeAuthRepository({this._user});
 
   AppUser? _user;
   final _changes = StreamController<AppUser?>.broadcast();
