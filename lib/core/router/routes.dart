@@ -7,6 +7,9 @@ abstract final class Routes {
   static const unlock = '/unlock';
 
   static const playlists = '/playlists';
+  static const newPlaylist = '/playlists/new';
+  static String playlist(String id) => '/playlists/$id';
+  static String editPlaylist(String id) => '/playlists/$id/edit';
   static const community = '/community';
   static const settings = '/settings';
   static const changePin = '/settings/pin';

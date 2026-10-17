@@ -18,7 +18,7 @@ Flutter (Android first, then iOS) · Riverpod (codegen) · go_router · Supabase
 | Milestone | Scope | State |
 |---|---|---|
 | 1. Foundation | Project setup, theming, l10n (en, pt-PT), routing, Supabase auth, PIN, DB migrations + RLS + labels | ✅ |
-| 2. Playlists | CRUD, add by URL + oEmbed validation, reorder, labels, age range | ⏳ |
+| 2. Playlists | CRUD, add by URL + oEmbed validation, reorder, labels, age range | ✅ |
 | 3. Kid mode | Player, Android screen pinning / iOS Guided Access detection, exit gesture + PIN, timers, time's-up, persistence | ⏳ |
 | 4. Community | Publish, browse/filter/search, fork, ratings, reports + auto-hide, share-sheet intake, revalidation Edge Function | ⏳ |
 | 5. Polish | Tests, accessibility, account deletion UI, privacy policy, Families checklist | ⏳ |
@@ -147,7 +147,7 @@ lib/
     widgets/                 PinPad, PinEntryView, ParentShell, shared UI
   features/
     auth/      data/ domain/ presentation/   sign-in, PIN, onboarding, unlock
-    playlists/ …                             (M2)
+    playlists/ data/ domain/ presentation/   library, editor, detail, add-video sheet
     kid_mode/  …                             (M3)
     community/ …                             (M4)
     settings/  …
@@ -196,6 +196,22 @@ pure function, and it is unit-tested.
   name, counts, total duration and label slugs. It never includes an email.
 - `delete_my_account()` removes the auth user and cascades everything they
   own. Other parents' forks survive with `forked_from = null`.
+
+### Playlists
+- `YouTubeUrlParser` accepts watch, short (`youtu.be`), Shorts, embed, live,
+  mobile and music links, links inside shared text, and bare IDs. It rejects
+  channels, playlist-only links and lookalike domains.
+- Every video is validated with YouTube oEmbed before it is added. YouTube
+  answers 401/403 when embedding is disabled and 400/404 when the video is
+  gone; each gets its own friendly message. No API key is needed.
+- Thumbnails are always built from the video ID on `i.ytimg.com`, never
+  taken from the response.
+- The cover is the first available video's thumbnail. A database trigger
+  keeps it up to date (migration `20261018000000`).
+- The parent's playlist order is `sort_index`. New playlists go to the top,
+  and drag-and-drop saves through `reorder_my_playlists`.
+- Video duration isn't available from oEmbed, so it stays empty for now (see
+  Milestone 3).
 
 ### Compliance
 - Video playback only through the official YouTube IFrame player (M3). No

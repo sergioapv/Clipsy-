@@ -455,7 +455,7 @@ abstract class AppLocalizations {
   /// No description provided for @playlistsEmptyBody.
   ///
   /// In en, this message translates to:
-  /// **'Your playlists will appear here. Creating them arrives in the next update.'**
+  /// **'Create your first playlist, then add videos by pasting YouTube links.'**
   String get playlistsEmptyBody;
 
   /// No description provided for @communityComingTitle.
@@ -505,6 +505,372 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Privacy policy'**
   String get privacyPolicy;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get retry;
+
+  /// No description provided for @errorGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again.'**
+  String get errorGeneric;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @create.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get create;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @undo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get undo;
+
+  /// No description provided for @paste.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste'**
+  String get paste;
+
+  /// No description provided for @moreOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'More options'**
+  String get moreOptions;
+
+  /// No description provided for @dragToReorder.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag to reorder'**
+  String get dragToReorder;
+
+  /// No description provided for @newPlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'New playlist'**
+  String get newPlaylist;
+
+  /// No description provided for @editDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit details'**
+  String get editDetails;
+
+  /// No description provided for @deletePlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete playlist'**
+  String get deletePlaylist;
+
+  /// No description provided for @deletePlaylistTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete “{title}”?'**
+  String deletePlaylistTitle(String title);
+
+  /// No description provided for @deletePlaylistBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The playlist and its video list will be removed. The videos stay on YouTube.'**
+  String get deletePlaylistBody;
+
+  /// No description provided for @videoCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No videos} =1{1 video} other{{count} videos}}'**
+  String videoCount(int count);
+
+  /// No description provided for @ageRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Ages {min}–{max}'**
+  String ageRange(int min, int max);
+
+  /// No description provided for @ageYears.
+  ///
+  /// In en, this message translates to:
+  /// **'{years} years'**
+  String ageYears(int years);
+
+  /// No description provided for @playlistTitleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get playlistTitleLabel;
+
+  /// No description provided for @playlistTitleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Dinosaur facts'**
+  String get playlistTitleHint;
+
+  /// No description provided for @playlistTitleRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Give the playlist a title'**
+  String get playlistTitleRequired;
+
+  /// No description provided for @playlistDescriptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Description (optional)'**
+  String get playlistDescriptionLabel;
+
+  /// No description provided for @ageRangeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Age range'**
+  String get ageRangeTitle;
+
+  /// No description provided for @labelsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Labels'**
+  String get labelsTitle;
+
+  /// No description provided for @labelsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick up to {max}. They help other parents find your playlist if you share it later.'**
+  String labelsHint(int max);
+
+  /// No description provided for @createPlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'Create playlist'**
+  String get createPlaylist;
+
+  /// No description provided for @saveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get saveChanges;
+
+  /// No description provided for @playlistEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No videos yet'**
+  String get playlistEmptyTitle;
+
+  /// No description provided for @playlistEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap “Add video” and paste a YouTube link. You can also share videos to Clipsy from the YouTube app (coming soon).'**
+  String get playlistEmptyBody;
+
+  /// No description provided for @reorderHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag ☰ to reorder · swipe left to remove'**
+  String get reorderHint;
+
+  /// No description provided for @videoRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Video removed'**
+  String get videoRemoved;
+
+  /// No description provided for @removeVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove video'**
+  String get removeVideo;
+
+  /// No description provided for @videoUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No longer available on YouTube'**
+  String get videoUnavailable;
+
+  /// No description provided for @addVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Add video'**
+  String get addVideo;
+
+  /// No description provided for @addVideoHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste a link from YouTube. We\'ll check that it can be played in Clipsy.'**
+  String get addVideoHint;
+
+  /// No description provided for @youtubeLink.
+  ///
+  /// In en, this message translates to:
+  /// **'YouTube link'**
+  String get youtubeLink;
+
+  /// No description provided for @checkVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Check video'**
+  String get checkVideo;
+
+  /// No description provided for @addToPlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to playlist'**
+  String get addToPlaylist;
+
+  /// No description provided for @videosAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 video added} other{{count} videos added}}'**
+  String videosAdded(int count);
+
+  /// No description provided for @videoErrorInvalidUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'That doesn\'t look like a link to a YouTube video.'**
+  String get videoErrorInvalidUrl;
+
+  /// No description provided for @videoErrorNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t find that video. It may have been removed or made private.'**
+  String get videoErrorNotFound;
+
+  /// No description provided for @videoErrorNotEmbeddable.
+  ///
+  /// In en, this message translates to:
+  /// **'The owner of this video doesn\'t allow it to play outside YouTube, so it can\'t be added.'**
+  String get videoErrorNotEmbeddable;
+
+  /// No description provided for @videoErrorDuplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'This video is already in the playlist.'**
+  String get videoErrorDuplicate;
+
+  /// No description provided for @playlistErrorTooManyVideos.
+  ///
+  /// In en, this message translates to:
+  /// **'This playlist is full. Remove a video to add another.'**
+  String get playlistErrorTooManyVideos;
+
+  /// No description provided for @playlistErrorTooManyLabels.
+  ///
+  /// In en, this message translates to:
+  /// **'A playlist can have at most 3 labels.'**
+  String get playlistErrorTooManyLabels;
+
+  /// No description provided for @playlistErrorNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This playlist no longer exists.'**
+  String get playlistErrorNotFound;
+
+  /// No description provided for @labelScience.
+  ///
+  /// In en, this message translates to:
+  /// **'Science'**
+  String get labelScience;
+
+  /// No description provided for @labelNature.
+  ///
+  /// In en, this message translates to:
+  /// **'Nature'**
+  String get labelNature;
+
+  /// No description provided for @labelAnimals.
+  ///
+  /// In en, this message translates to:
+  /// **'Animals'**
+  String get labelAnimals;
+
+  /// No description provided for @labelFootball.
+  ///
+  /// In en, this message translates to:
+  /// **'Football'**
+  String get labelFootball;
+
+  /// No description provided for @labelSports.
+  ///
+  /// In en, this message translates to:
+  /// **'Sports'**
+  String get labelSports;
+
+  /// No description provided for @labelMusic.
+  ///
+  /// In en, this message translates to:
+  /// **'Music'**
+  String get labelMusic;
+
+  /// No description provided for @labelArt.
+  ///
+  /// In en, this message translates to:
+  /// **'Art'**
+  String get labelArt;
+
+  /// No description provided for @labelLanguages.
+  ///
+  /// In en, this message translates to:
+  /// **'Languages'**
+  String get labelLanguages;
+
+  /// No description provided for @labelMaths.
+  ///
+  /// In en, this message translates to:
+  /// **'Maths'**
+  String get labelMaths;
+
+  /// No description provided for @labelStories.
+  ///
+  /// In en, this message translates to:
+  /// **'Stories'**
+  String get labelStories;
+
+  /// No description provided for @labelBedtime.
+  ///
+  /// In en, this message translates to:
+  /// **'Bedtime'**
+  String get labelBedtime;
+
+  /// No description provided for @labelCartoons.
+  ///
+  /// In en, this message translates to:
+  /// **'Cartoons'**
+  String get labelCartoons;
+
+  /// No description provided for @labelHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get labelHistory;
+
+  /// No description provided for @labelSpace.
+  ///
+  /// In en, this message translates to:
+  /// **'Space'**
+  String get labelSpace;
+
+  /// No description provided for @labelCooking.
+  ///
+  /// In en, this message translates to:
+  /// **'Cooking'**
+  String get labelCooking;
+
+  /// No description provided for @labelCrafts.
+  ///
+  /// In en, this message translates to:
+  /// **'Crafts'**
+  String get labelCrafts;
 }
 
 class _AppLocalizationsDelegate

@@ -2,18 +2,15 @@
   "@@locale": "pt",
   "appTitle": "Clipsy",
   "tagline": "Cada vídeo escolhido por um pai ou mãe. Quando o tempo acaba, para.",
-
   "navPlaylists": "Listas",
   "navCommunity": "Comunidade",
   "navSettings": "Definições",
-
   "cancel": "Cancelar",
   "next": "Seguinte",
   "skip": "Saltar",
   "getStarted": "Começar",
   "or": "ou",
   "errorNetwork": "Sem ligação. Verifique a internet e tente novamente.",
-
   "signInParentsOnly": "Inicie sessão como pai ou mãe. As crianças não precisam de conta.",
   "emailLabel": "Email",
   "emailInvalid": "Introduza um endereço de email válido",
@@ -21,7 +18,13 @@
   "continueWithGoogle": "Continuar com Google",
   "checkYourEmail": "Verifique o seu email",
   "magicLinkSent": "Enviámos um link de início de sessão para {email}. Abra-o neste dispositivo.",
-  "@magicLinkSent": { "placeholders": { "email": { "type": "String" } } },
+  "@magicLinkSent": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
   "useDifferentEmail": "Usar outro email",
   "signInFailed": "Não foi possível iniciar sessão. Tente novamente.",
   "signInRateLimited": "Demasiados pedidos. Aguarde um minuto e tente novamente.",
@@ -29,7 +32,6 @@
   "signOutConfirmTitle": "Terminar sessão?",
   "signOutConfirmBody": "Isto também remove o PIN parental deste dispositivo. Vai definir um novo da próxima vez que iniciar sessão.",
   "signedInAs": "Sessão iniciada como",
-
   "pinCreateTitle": "Crie um PIN parental",
   "pinCreateSubtitle": "Vai precisar destes 4 dígitos para sair do Modo Criança e abrir as definições. Mantenha-o em segredo das crianças!",
   "pinConfirmTitle": "Introduza o PIN novamente",
@@ -40,19 +42,38 @@
   "changePin": "Alterar PIN",
   "pinWrong": "PIN incorreto",
   "pinWrongAttemptsLeft": "{count, plural, =1{PIN incorreto. Resta 1 tentativa antes de uma pequena espera.} other{PIN incorreto. Restam {count} tentativas antes de uma pequena espera.}}",
-  "@pinWrongAttemptsLeft": { "placeholders": { "count": { "type": "int" } } },
+  "@pinWrongAttemptsLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "pinLockedOut": "Demasiadas tentativas. Tente novamente dentro de {time}.",
-  "@pinLockedOut": { "placeholders": { "time": { "type": "String" } } },
+  "@pinLockedOut": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
   "pinDigitsEntered": "{entered} de {total} dígitos introduzidos",
-  "@pinDigitsEntered": { "placeholders": { "entered": { "type": "int" }, "total": { "type": "int" } } },
+  "@pinDigitsEntered": {
+    "placeholders": {
+      "entered": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "pinBackspace": "Apagar o último dígito",
-
   "unlockTitle": "Introduza o PIN parental",
   "forgotPin": "Esqueceu-se do PIN?",
   "forgotPinTitle": "Repor o PIN",
   "forgotPinBody": "Para repor o PIN, inicie sessão novamente com a sua conta e escolha um novo PIN.",
   "forgotPinConfirm": "Iniciar sessão novamente",
-
   "onboardingWelcomeTitle": "Bem-vindo ao Clipsy",
   "onboardingWelcomeBody": "Crie listas de vídeos do YouTube escolhidos por si e entregue o dispositivo sabendo exatamente o que a criança vai ver e durante quanto tempo.",
   "onboardingKidModeTitle": "Como funciona o Modo Criança",
@@ -68,17 +89,85 @@
   "onboardingGuidedAccessStep2": "Defina um código para o Acesso Guiado.",
   "onboardingGuidedAccessStep3": "No Modo Criança, prima três vezes o botão lateral (ou o botão principal) e toque em Iniciar.",
   "onboardingPageOf": "Página {current} de {total}",
-  "@onboardingPageOf": { "placeholders": { "current": { "type": "int" }, "total": { "type": "int" } } },
-
+  "@onboardingPageOf": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "playlistsEmptyTitle": "Ainda não há listas",
-  "playlistsEmptyBody": "As suas listas vão aparecer aqui. A criação de listas chega na próxima atualização.",
+  "playlistsEmptyBody": "Crie a sua primeira lista e adicione vídeos colando links do YouTube.",
   "communityComingTitle": "Biblioteca da comunidade",
   "communityComingBody": "Explore, guarde e avalie listas criadas por outros pais. Brevemente.",
-
   "settingsSecurity": "Segurança",
   "settingsAccount": "Conta",
   "settingsAbout": "Sobre",
   "lockParentMode": "Bloquear o modo parental agora",
   "lockParentModeHint": "É preciso o PIN para voltar a entrar",
-  "privacyPolicy": "Política de privacidade"
+  "privacyPolicy": "Política de privacidade",
+  "retry": "Tentar novamente",
+  "errorGeneric": "Algo correu mal. Tente novamente.",
+  "delete": "Eliminar",
+  "create": "Criar",
+  "save": "Guardar",
+  "undo": "Anular",
+  "paste": "Colar",
+  "moreOptions": "Mais opções",
+  "dragToReorder": "Arraste para reordenar",
+  "newPlaylist": "Nova lista",
+  "editDetails": "Editar detalhes",
+  "deletePlaylist": "Eliminar lista",
+  "deletePlaylistTitle": "Eliminar “{title}”?",
+  "deletePlaylistBody": "A lista e os seus vídeos serão removidos. Os vídeos continuam no YouTube.",
+  "videoCount": "{count, plural, =0{Sem vídeos} =1{1 vídeo} other{{count} vídeos}}",
+  "ageRange": "Idades {min}–{max}",
+  "ageYears": "{years} anos",
+  "playlistTitleLabel": "Título",
+  "playlistTitleHint": "ex.: Factos sobre dinossauros",
+  "playlistTitleRequired": "Dê um título à lista",
+  "playlistDescriptionLabel": "Descrição (opcional)",
+  "ageRangeTitle": "Faixa etária",
+  "labelsTitle": "Etiquetas",
+  "labelsHint": "Escolha até {max}. Ajudam outros pais a encontrar a sua lista se a partilhar mais tarde.",
+  "createPlaylist": "Criar lista",
+  "saveChanges": "Guardar alterações",
+  "playlistEmptyTitle": "Ainda não há vídeos",
+  "playlistEmptyBody": "Toque em “Adicionar vídeo” e cole um link do YouTube. Em breve também poderá partilhar vídeos da app do YouTube para o Clipsy.",
+  "reorderHint": "Arraste ☰ para reordenar · deslize para a esquerda para remover",
+  "videoRemoved": "Vídeo removido",
+  "removeVideo": "Remover vídeo",
+  "videoUnavailable": "Já não está disponível no YouTube",
+  "addVideo": "Adicionar vídeo",
+  "addVideoHint": "Cole um link do YouTube. Vamos confirmar que pode ser reproduzido no Clipsy.",
+  "youtubeLink": "Link do YouTube",
+  "checkVideo": "Verificar vídeo",
+  "addToPlaylist": "Adicionar à lista",
+  "videosAdded": "{count, plural, =1{1 vídeo adicionado} other{{count} vídeos adicionados}}",
+  "videoErrorInvalidUrl": "Isto não parece um link para um vídeo do YouTube.",
+  "videoErrorNotFound": "Não encontrámos esse vídeo. Pode ter sido removido ou tornado privado.",
+  "videoErrorNotEmbeddable": "O dono deste vídeo não permite que seja reproduzido fora do YouTube, por isso não pode ser adicionado.",
+  "videoErrorDuplicate": "Este vídeo já está na lista.",
+  "playlistErrorTooManyVideos": "Esta lista está cheia. Remova um vídeo para adicionar outro.",
+  "playlistErrorTooManyLabels": "Uma lista pode ter no máximo 3 etiquetas.",
+  "playlistErrorNotFound": "Esta lista já não existe.",
+  "labelScience": "Ciência",
+  "labelNature": "Natureza",
+  "labelAnimals": "Animais",
+  "labelFootball": "Futebol",
+  "labelSports": "Desporto",
+  "labelMusic": "Música",
+  "labelArt": "Arte",
+  "labelLanguages": "Línguas",
+  "labelMaths": "Matemática",
+  "labelStories": "Histórias",
+  "labelBedtime": "Hora de dormir",
+  "labelCartoons": "Desenhos animados",
+  "labelHistory": "História",
+  "labelSpace": "Espaço",
+  "labelCooking": "Culinária",
+  "labelCrafts": "Trabalhos manuais"
 }

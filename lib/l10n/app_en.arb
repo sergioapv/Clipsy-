@@ -2,18 +2,15 @@
   "@@locale": "en",
   "appTitle": "Clipsy",
   "tagline": "Every video, picked by a parent. When the time's up, it stops.",
-
   "navPlaylists": "Playlists",
   "navCommunity": "Community",
   "navSettings": "Settings",
-
   "cancel": "Cancel",
   "next": "Next",
   "skip": "Skip",
   "getStarted": "Get started",
   "or": "or",
   "errorNetwork": "No connection. Check your internet and try again.",
-
   "signInParentsOnly": "Sign in as a parent. Kids don't need an account.",
   "emailLabel": "Email",
   "emailInvalid": "Enter a valid email address",
@@ -21,7 +18,13 @@
   "continueWithGoogle": "Continue with Google",
   "checkYourEmail": "Check your email",
   "magicLinkSent": "We sent a sign-in link to {email}. Open it on this device.",
-  "@magicLinkSent": { "placeholders": { "email": { "type": "String" } } },
+  "@magicLinkSent": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
   "useDifferentEmail": "Use a different email",
   "signInFailed": "Couldn't sign in. Please try again.",
   "signInRateLimited": "Too many requests. Wait a minute and try again.",
@@ -29,7 +32,6 @@
   "signOutConfirmTitle": "Sign out?",
   "signOutConfirmBody": "This also removes the parent PIN from this device. You'll set a new one next time you sign in.",
   "signedInAs": "Signed in as",
-
   "pinCreateTitle": "Create a parent PIN",
   "pinCreateSubtitle": "You'll need these 4 digits to leave Kid mode and open parent settings. Keep it secret from the kids!",
   "pinConfirmTitle": "Enter the PIN again",
@@ -40,19 +42,38 @@
   "changePin": "Change PIN",
   "pinWrong": "Wrong PIN",
   "pinWrongAttemptsLeft": "{count, plural, =1{Wrong PIN. 1 try left before a short wait.} other{Wrong PIN. {count} tries left before a short wait.}}",
-  "@pinWrongAttemptsLeft": { "placeholders": { "count": { "type": "int" } } },
+  "@pinWrongAttemptsLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "pinLockedOut": "Too many tries. Try again in {time}.",
-  "@pinLockedOut": { "placeholders": { "time": { "type": "String" } } },
+  "@pinLockedOut": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
   "pinDigitsEntered": "{entered} of {total} digits entered",
-  "@pinDigitsEntered": { "placeholders": { "entered": { "type": "int" }, "total": { "type": "int" } } },
+  "@pinDigitsEntered": {
+    "placeholders": {
+      "entered": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "pinBackspace": "Delete last digit",
-
   "unlockTitle": "Enter parent PIN",
   "forgotPin": "Forgot PIN?",
   "forgotPinTitle": "Reset your PIN",
   "forgotPinBody": "To reset the PIN you'll sign in again with your parent account, then choose a new PIN.",
   "forgotPinConfirm": "Sign in again",
-
   "onboardingWelcomeTitle": "Welcome to Clipsy",
   "onboardingWelcomeBody": "Build playlists of YouTube videos you've chosen yourself, then hand over the device knowing exactly what your child will watch, and for how long.",
   "onboardingKidModeTitle": "How Kid mode works",
@@ -68,17 +89,130 @@
   "onboardingGuidedAccessStep2": "Set a Guided Access passcode.",
   "onboardingGuidedAccessStep3": "In Kid mode, triple-click the side (or Home) button and tap Start.",
   "onboardingPageOf": "Page {current} of {total}",
-  "@onboardingPageOf": { "placeholders": { "current": { "type": "int" }, "total": { "type": "int" } } },
-
+  "@onboardingPageOf": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "playlistsEmptyTitle": "No playlists yet",
-  "playlistsEmptyBody": "Your playlists will appear here. Creating them arrives in the next update.",
+  "playlistsEmptyBody": "Create your first playlist, then add videos by pasting YouTube links.",
   "communityComingTitle": "Community library",
   "communityComingBody": "Browse, save and rate playlists made by other parents. Coming soon.",
-
   "settingsSecurity": "Security",
   "settingsAccount": "Account",
   "settingsAbout": "About",
   "lockParentMode": "Lock parent mode now",
   "lockParentModeHint": "Requires the PIN to get back in",
-  "privacyPolicy": "Privacy policy"
+  "privacyPolicy": "Privacy policy",
+  "retry": "Try again",
+  "errorGeneric": "Something went wrong. Please try again.",
+  "delete": "Delete",
+  "create": "Create",
+  "save": "Save",
+  "undo": "Undo",
+  "paste": "Paste",
+  "moreOptions": "More options",
+  "dragToReorder": "Drag to reorder",
+  "newPlaylist": "New playlist",
+  "editDetails": "Edit details",
+  "deletePlaylist": "Delete playlist",
+  "deletePlaylistTitle": "Delete “{title}”?",
+  "@deletePlaylistTitle": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "deletePlaylistBody": "The playlist and its video list will be removed. The videos stay on YouTube.",
+  "videoCount": "{count, plural, =0{No videos} =1{1 video} other{{count} videos}}",
+  "@videoCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ageRange": "Ages {min}–{max}",
+  "@ageRange": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "ageYears": "{years} years",
+  "@ageYears": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
+  "playlistTitleLabel": "Title",
+  "playlistTitleHint": "e.g. Dinosaur facts",
+  "playlistTitleRequired": "Give the playlist a title",
+  "playlistDescriptionLabel": "Description (optional)",
+  "ageRangeTitle": "Age range",
+  "labelsTitle": "Labels",
+  "labelsHint": "Pick up to {max}. They help other parents find your playlist if you share it later.",
+  "@labelsHint": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "createPlaylist": "Create playlist",
+  "saveChanges": "Save changes",
+  "playlistEmptyTitle": "No videos yet",
+  "playlistEmptyBody": "Tap “Add video” and paste a YouTube link. You can also share videos to Clipsy from the YouTube app (coming soon).",
+  "reorderHint": "Drag ☰ to reorder · swipe left to remove",
+  "videoRemoved": "Video removed",
+  "removeVideo": "Remove video",
+  "videoUnavailable": "No longer available on YouTube",
+  "addVideo": "Add video",
+  "addVideoHint": "Paste a link from YouTube. We'll check that it can be played in Clipsy.",
+  "youtubeLink": "YouTube link",
+  "checkVideo": "Check video",
+  "addToPlaylist": "Add to playlist",
+  "videosAdded": "{count, plural, =1{1 video added} other{{count} videos added}}",
+  "@videosAdded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "videoErrorInvalidUrl": "That doesn't look like a link to a YouTube video.",
+  "videoErrorNotFound": "We couldn't find that video. It may have been removed or made private.",
+  "videoErrorNotEmbeddable": "The owner of this video doesn't allow it to play outside YouTube, so it can't be added.",
+  "videoErrorDuplicate": "This video is already in the playlist.",
+  "playlistErrorTooManyVideos": "This playlist is full. Remove a video to add another.",
+  "playlistErrorTooManyLabels": "A playlist can have at most 3 labels.",
+  "playlistErrorNotFound": "This playlist no longer exists.",
+  "labelScience": "Science",
+  "labelNature": "Nature",
+  "labelAnimals": "Animals",
+  "labelFootball": "Football",
+  "labelSports": "Sports",
+  "labelMusic": "Music",
+  "labelArt": "Art",
+  "labelLanguages": "Languages",
+  "labelMaths": "Maths",
+  "labelStories": "Stories",
+  "labelBedtime": "Bedtime",
+  "labelCartoons": "Cartoons",
+  "labelHistory": "History",
+  "labelSpace": "Space",
+  "labelCooking": "Cooking",
+  "labelCrafts": "Crafts"
 }

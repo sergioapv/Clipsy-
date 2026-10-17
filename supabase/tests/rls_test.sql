@@ -90,7 +90,7 @@ select pg_temp.throws(
 
 select pg_temp.throws(
   $$insert into public.playlists (title, cover_url) values ('x', 'https://evil.example/a.png')$$,
-  'check', 'cover must be a YouTube thumbnail');
+  'permission denied|check', 'clients cannot set arbitrary covers');
 
 select pg_temp.throws(
   $$insert into public.playlists (title, age_min, age_max) values ('x', 9, 4)$$,
@@ -360,6 +360,70 @@ select pg_temp.throws($$select * from public.admins$$, 'permission denied',
   'admins table is closed to clients');
 select pg_temp.throws($$select * from public.app_settings$$, 'permission denied',
   'app_settings is closed to clients');
+
+-- Playlist order and covers (M2) --------------------------------------------
+
+select pg_temp.login('00000000-0000-0000-0000-00000000000a');
+insert into public.playlists (id, title)
+values ('33333333-3333-3333-3333-333333333333', 'Newest');
+select pg_temp.ok(
+  (select id from public.playlists
+   where owner_id = '00000000-0000-0000-0000-00000000000a'
+   order by sort_index limit 1) = '33333333-3333-3333-3333-333333333333',
+  'new playlists go to the top of the library');
+
+select public.reorder_my_playlists(array[
+  '11111111-1111-1111-1111-111111111111',
+  '22222222-2222-2222-2222-222222222222',
+  '33333333-3333-3333-3333-333333333333']::uuid[]);
+select pg_temp.ok(
+  (select array_agg(id order by sort_index) from public.playlists
+   where owner_id = '00000000-0000-0000-0000-00000000000a')
+  = array['11111111-1111-1111-1111-111111111111',
+          '22222222-2222-2222-2222-222222222222',
+          '33333333-3333-3333-3333-333333333333']::uuid[],
+  'reorder_my_playlists persists the order');
+
+select pg_temp.ok(
+  (select cover_url from public.playlists
+   where id = '33333333-3333-3333-3333-333333333333') is null,
+  'empty playlist has no cover');
+insert into public.playlist_videos
+  (playlist_id, youtube_video_id, title, thumbnail_url, position)
+values
+  ('33333333-3333-3333-3333-333333333333', 'ccccccccccc', 'C',
+   'https://i.ytimg.com/vi/ccccccccccc/hqdefault.jpg', 0),
+  ('33333333-3333-3333-3333-333333333333', 'ddddddddddd', 'D',
+   'https://i.ytimg.com/vi/ddddddddddd/hqdefault.jpg', 1);
+select pg_temp.ok(
+  (select cover_url from public.playlists
+   where id = '33333333-3333-3333-3333-333333333333')
+  = 'https://i.ytimg.com/vi/ccccccccccc/hqdefault.jpg',
+  'cover follows the first video');
+select public.reorder_playlist_videos('33333333-3333-3333-3333-333333333333',
+  array(select id from public.playlist_videos
+        where playlist_id = '33333333-3333-3333-3333-333333333333'
+        order by position desc));
+select pg_temp.ok(
+  (select cover_url from public.playlists
+   where id = '33333333-3333-3333-3333-333333333333')
+  = 'https://i.ytimg.com/vi/ddddddddddd/hqdefault.jpg',
+  'cover updates after reordering');
+delete from public.playlist_videos
+where playlist_id = '33333333-3333-3333-3333-333333333333';
+select pg_temp.ok(
+  (select cover_url from public.playlists
+   where id = '33333333-3333-3333-3333-333333333333') is null,
+  'cover clears when the playlist is emptied');
+
+select pg_temp.login('00000000-0000-0000-0000-00000000000b');
+select public.reorder_my_playlists(array[
+  '33333333-3333-3333-3333-333333333333']::uuid[]);
+select pg_temp.logout();
+select pg_temp.ok(
+  (select sort_index from public.playlists
+   where id = '33333333-3333-3333-3333-333333333333') = 2,
+  'cannot reorder someone else''s playlists');
 
 -- Account deletion.
 select pg_temp.login('00000000-0000-0000-0000-00000000000a');

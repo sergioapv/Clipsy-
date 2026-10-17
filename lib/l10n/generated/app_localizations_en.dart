@@ -219,7 +219,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get playlistsEmptyBody =>
-      'Your playlists will appear here. Creating them arrives in the next update.';
+      'Create your first playlist, then add videos by pasting YouTube links.';
 
   @override
   String get communityComingTitle => 'Community library';
@@ -245,4 +245,220 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get privacyPolicy => 'Privacy policy';
+
+  @override
+  String get retry => 'Try again';
+
+  @override
+  String get errorGeneric => 'Something went wrong. Please try again.';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get create => 'Create';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get undo => 'Undo';
+
+  @override
+  String get paste => 'Paste';
+
+  @override
+  String get moreOptions => 'More options';
+
+  @override
+  String get dragToReorder => 'Drag to reorder';
+
+  @override
+  String get newPlaylist => 'New playlist';
+
+  @override
+  String get editDetails => 'Edit details';
+
+  @override
+  String get deletePlaylist => 'Delete playlist';
+
+  @override
+  String deletePlaylistTitle(String title) {
+    return 'Delete “$title”?';
+  }
+
+  @override
+  String get deletePlaylistBody =>
+      'The playlist and its video list will be removed. The videos stay on YouTube.';
+
+  @override
+  String videoCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count videos',
+      one: '1 video',
+      zero: 'No videos',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ageRange(int min, int max) {
+    return 'Ages $min–$max';
+  }
+
+  @override
+  String ageYears(int years) {
+    return '$years years';
+  }
+
+  @override
+  String get playlistTitleLabel => 'Title';
+
+  @override
+  String get playlistTitleHint => 'e.g. Dinosaur facts';
+
+  @override
+  String get playlistTitleRequired => 'Give the playlist a title';
+
+  @override
+  String get playlistDescriptionLabel => 'Description (optional)';
+
+  @override
+  String get ageRangeTitle => 'Age range';
+
+  @override
+  String get labelsTitle => 'Labels';
+
+  @override
+  String labelsHint(int max) {
+    return 'Pick up to $max. They help other parents find your playlist if you share it later.';
+  }
+
+  @override
+  String get createPlaylist => 'Create playlist';
+
+  @override
+  String get saveChanges => 'Save changes';
+
+  @override
+  String get playlistEmptyTitle => 'No videos yet';
+
+  @override
+  String get playlistEmptyBody =>
+      'Tap “Add video” and paste a YouTube link. You can also share videos to Clipsy from the YouTube app (coming soon).';
+
+  @override
+  String get reorderHint => 'Drag ☰ to reorder · swipe left to remove';
+
+  @override
+  String get videoRemoved => 'Video removed';
+
+  @override
+  String get removeVideo => 'Remove video';
+
+  @override
+  String get videoUnavailable => 'No longer available on YouTube';
+
+  @override
+  String get addVideo => 'Add video';
+
+  @override
+  String get addVideoHint =>
+      'Paste a link from YouTube. We\'ll check that it can be played in Clipsy.';
+
+  @override
+  String get youtubeLink => 'YouTube link';
+
+  @override
+  String get checkVideo => 'Check video';
+
+  @override
+  String get addToPlaylist => 'Add to playlist';
+
+  @override
+  String videosAdded(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count videos added',
+      one: '1 video added',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get videoErrorInvalidUrl =>
+      'That doesn\'t look like a link to a YouTube video.';
+
+  @override
+  String get videoErrorNotFound =>
+      'We couldn\'t find that video. It may have been removed or made private.';
+
+  @override
+  String get videoErrorNotEmbeddable =>
+      'The owner of this video doesn\'t allow it to play outside YouTube, so it can\'t be added.';
+
+  @override
+  String get videoErrorDuplicate => 'This video is already in the playlist.';
+
+  @override
+  String get playlistErrorTooManyVideos =>
+      'This playlist is full. Remove a video to add another.';
+
+  @override
+  String get playlistErrorTooManyLabels =>
+      'A playlist can have at most 3 labels.';
+
+  @override
+  String get playlistErrorNotFound => 'This playlist no longer exists.';
+
+  @override
+  String get labelScience => 'Science';
+
+  @override
+  String get labelNature => 'Nature';
+
+  @override
+  String get labelAnimals => 'Animals';
+
+  @override
+  String get labelFootball => 'Football';
+
+  @override
+  String get labelSports => 'Sports';
+
+  @override
+  String get labelMusic => 'Music';
+
+  @override
+  String get labelArt => 'Art';
+
+  @override
+  String get labelLanguages => 'Languages';
+
+  @override
+  String get labelMaths => 'Maths';
+
+  @override
+  String get labelStories => 'Stories';
+
+  @override
+  String get labelBedtime => 'Bedtime';
+
+  @override
+  String get labelCartoons => 'Cartoons';
+
+  @override
+  String get labelHistory => 'History';
+
+  @override
+  String get labelSpace => 'Space';
+
+  @override
+  String get labelCooking => 'Cooking';
+
+  @override
+  String get labelCrafts => 'Crafts';
 }

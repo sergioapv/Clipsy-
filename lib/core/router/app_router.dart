@@ -8,6 +8,8 @@ import '../../features/auth/presentation/sign_in_screen.dart';
 import '../../features/auth/presentation/splash_screen.dart';
 import '../../features/auth/presentation/unlock_screen.dart';
 import '../../features/community/presentation/community_screen.dart';
+import '../../features/playlists/presentation/playlist_detail_screen.dart';
+import '../../features/playlists/presentation/playlist_editor_screen.dart';
 import '../../features/playlists/presentation/playlists_screen.dart';
 import '../../features/settings/presentation/settings_screen.dart';
 import '../widgets/parent_shell.dart';
@@ -55,6 +57,27 @@ GoRouter appRouter(Ref ref) {
               GoRoute(
                 path: Routes.playlists,
                 builder: (context, state) => const PlaylistsScreen(),
+                routes: [
+                  // Before ':id' so "new" isn't read as an id.
+                  GoRoute(
+                    path: 'new',
+                    builder: (context, state) => const PlaylistEditorScreen(),
+                  ),
+                  GoRoute(
+                    path: ':id',
+                    builder: (context, state) => PlaylistDetailScreen(
+                      playlistId: state.pathParameters['id']!,
+                    ),
+                    routes: [
+                      GoRoute(
+                        path: 'edit',
+                        builder: (context, state) => PlaylistEditorScreen(
+                          playlistId: state.pathParameters['id'],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ],
           ),
