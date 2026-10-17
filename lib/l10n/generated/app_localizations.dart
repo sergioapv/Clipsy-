@@ -871,6 +871,228 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Crafts'**
   String get labelCrafts;
+
+  /// No description provided for @ok.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get ok;
+
+  /// No description provided for @gotIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get gotIt;
+
+  /// No description provided for @startKidMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Kid mode'**
+  String get startKidMode;
+
+  /// No description provided for @kidNeedsVideos.
+  ///
+  /// In en, this message translates to:
+  /// **'Add at least one video before starting Kid mode.'**
+  String get kidNeedsVideos;
+
+  /// No description provided for @kidConfirmPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your PIN to start Kid mode'**
+  String get kidConfirmPin;
+
+  /// No description provided for @useDefaultLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Use default: {minutes} min'**
+  String useDefaultLimit(int minutes);
+
+  /// No description provided for @orChooseLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Or choose a time limit'**
+  String get orChooseLimit;
+
+  /// No description provided for @customLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom…'**
+  String get customLimit;
+
+  /// No description provided for @minutesShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String minutesShort(int minutes);
+
+  /// No description provided for @minutesLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes, plural, =1{1 minute left} other{{minutes} minutes left}}'**
+  String minutesLeft(int minutes);
+
+  /// No description provided for @pinningDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clipsy will pin itself'**
+  String get pinningDialogTitle;
+
+  /// No description provided for @pinningDialogBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Android will now ask to pin Clipsy to the screen. Tap “Pin” (or “Got it”). While pinned, Home and Recents are blocked.\n\nTo leave Kid mode, hold the small lock in the corner and enter your PIN.\n\nTip: in Android Settings → Security → App pinning, turn on “Ask for PIN before unpinning” for extra safety.'**
+  String get pinningDialogBody;
+
+  /// No description provided for @guidedAccessOffBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Guided Access is off, so your child could leave Clipsy with the Home gesture. Kid mode still blocks everything inside the app.'**
+  String get guidedAccessOffBody;
+
+  /// No description provided for @startAnyway.
+  ///
+  /// In en, this message translates to:
+  /// **'Start anyway'**
+  String get startAnyway;
+
+  /// No description provided for @kidPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Play'**
+  String get kidPlay;
+
+  /// No description provided for @kidPause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get kidPause;
+
+  /// No description provided for @kidAlmostDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Almost done!'**
+  String get kidAlmostDone;
+
+  /// No description provided for @kidLastVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Last video!'**
+  String get kidLastVideo;
+
+  /// No description provided for @kidExitHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Parent exit. Hold for {seconds} seconds.'**
+  String kidExitHint(int seconds);
+
+  /// No description provided for @timeUpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'All done for now!'**
+  String get timeUpTitle;
+
+  /// No description provided for @timeUpBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Great watching! Time for something else.'**
+  String get timeUpBody;
+
+  /// No description provided for @timeUpParent.
+  ///
+  /// In en, this message translates to:
+  /// **'Parent'**
+  String get timeUpParent;
+
+  /// No description provided for @timeUpParentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'More time, or finish?'**
+  String get timeUpParentTitle;
+
+  /// No description provided for @addMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'+{minutes} min'**
+  String addMinutes(int minutes);
+
+  /// No description provided for @exitKidMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Exit Kid mode'**
+  String get exitKidMode;
+
+  /// No description provided for @settingsKidMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Kid mode'**
+  String get settingsKidMode;
+
+  /// No description provided for @defaultTimeLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Default time limit'**
+  String get defaultTimeLimit;
+
+  /// No description provided for @timerModeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Count'**
+  String get timerModeTitle;
+
+  /// No description provided for @timerModeWallClock.
+  ///
+  /// In en, this message translates to:
+  /// **'Clock time (includes pauses)'**
+  String get timerModeWallClock;
+
+  /// No description provided for @timerModePlayback.
+  ///
+  /// In en, this message translates to:
+  /// **'Watching time only'**
+  String get timerModePlayback;
+
+  /// No description provided for @endBehaviourTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'When time\'s up'**
+  String get endBehaviourTitle;
+
+  /// No description provided for @endHardStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop right away'**
+  String get endHardStop;
+
+  /// No description provided for @endFinishVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Let the current video finish (up to {minutes} min)'**
+  String endFinishVideo(int minutes);
+
+  /// No description provided for @exitGestureTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Exit button'**
+  String get exitGestureTitle;
+
+  /// No description provided for @exitGestureValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold for {seconds} seconds, then PIN'**
+  String exitGestureValue(int seconds);
+
+  /// No description provided for @guidedAccessOn.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get guidedAccessOn;
+
+  /// No description provided for @guidedAccessOffShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Off · tap for how to turn it on'**
+  String get guidedAccessOffShort;
 }
 
 class _AppLocalizationsDelegate

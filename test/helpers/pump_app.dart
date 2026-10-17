@@ -1,16 +1,19 @@
 import 'package:clipsy/app.dart';
 import 'package:clipsy/core/storage/secure_store.dart';
 import 'package:clipsy/core/storage/storage_providers.dart';
+import 'package:clipsy/core/utils/clock.dart';
 import 'package:clipsy/features/auth/data/auth_repository.dart';
 import 'package:clipsy/features/auth/data/pin_repository.dart';
 import 'package:clipsy/features/auth/domain/pin.dart';
 import 'package:clipsy/features/auth/presentation/auth_providers.dart';
+import 'package:clipsy/features/kid_mode/presentation/kid_mode_controller.dart';
 import 'package:clipsy/features/playlists/presentation/playlist_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'fake_kid_mode.dart';
 import 'fake_playlists.dart';
 
 /// Fast hasher for tests: few iterations, no isolate.
@@ -23,6 +26,9 @@ Future<void> pumpClipsy(
   Map<String, Object> prefs = const {},
   FakePlaylistRepository? playlists,
   FakeVideoLookupRepository? lookup,
+  FakeClock? clock,
+  FakeKidPlayer? player,
+  FakeDeviceLock? deviceLock,
 }) async {
   SharedPreferences.setMockInitialValues(prefs);
   final sharedPrefs = await SharedPreferences.getInstance();
@@ -38,6 +44,9 @@ Future<void> pumpClipsy(
         videoLookupRepositoryProvider.overrideWithValue(
           lookup ?? FakeVideoLookupRepository(),
         ),
+        clockProvider.overrideWithValue((clock ?? FakeClock()).call),
+        kidPlayerProvider.overrideWith((ref) => player ?? FakeKidPlayer()),
+        deviceLockProvider.overrideWithValue(deviceLock ?? FakeDeviceLock()),
         sharedPreferencesProvider.overrideWithValue(sharedPrefs),
         secureStoreProvider.overrideWithValue(secure),
         authRepositoryProvider.overrideWithValue(auth),
@@ -66,6 +75,10 @@ Future<void> pumpUnlockedClipsy(
   required AuthRepository auth,
   FakePlaylistRepository? playlists,
   FakeVideoLookupRepository? lookup,
+  FakeClock? clock,
+  FakeKidPlayer? player,
+  FakeDeviceLock? deviceLock,
+  Map<String, Object> prefs = const {},
 }) async {
   final store = InMemorySecureStore({
     'pin.hash': await testHasher.hash('2468'),
@@ -74,9 +87,12 @@ Future<void> pumpUnlockedClipsy(
     tester,
     auth: auth,
     store: store,
-    prefs: {'onboarding.complete': true},
+    prefs: {'onboarding.complete': true, ...prefs},
     playlists: playlists,
     lookup: lookup,
+    clock: clock,
+    player: player,
+    deviceLock: deviceLock,
   );
   await enterPin(tester, '2468');
 }

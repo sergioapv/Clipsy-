@@ -48,4 +48,22 @@ void main() {
       expect(go(AppGate.signedOut, path), Routes.signIn);
     }
   });
+
+  test('Kid mode overrides everything and nothing else is reachable', () {
+    for (final path in [
+      Routes.playlists,
+      Routes.settings,
+      Routes.signIn,
+      Routes.unlock,
+      Routes.changePin,
+    ]) {
+      expect(go(AppGate.kidMode, path), Routes.kid, reason: path);
+    }
+    expect(go(AppGate.kidMode, Routes.kid), isNull);
+  });
+
+  test('leaving Kid mode leaves the kid screen', () {
+    expect(go(AppGate.ready, Routes.kid), Routes.home);
+    expect(go(AppGate.locked, Routes.kid), Routes.unlock);
+  });
 }

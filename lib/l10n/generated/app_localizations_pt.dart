@@ -466,4 +466,139 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get labelCrafts => 'Trabalhos manuais';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get gotIt => 'Percebi';
+
+  @override
+  String get startKidMode => 'Iniciar Modo Criança';
+
+  @override
+  String get kidNeedsVideos =>
+      'Adicione pelo menos um vídeo antes de iniciar o Modo Criança.';
+
+  @override
+  String get kidConfirmPin => 'Introduza o PIN para iniciar o Modo Criança';
+
+  @override
+  String useDefaultLimit(int minutes) {
+    return 'Usar predefinição: $minutes min';
+  }
+
+  @override
+  String get orChooseLimit => 'Ou escolha um limite de tempo';
+
+  @override
+  String get customLimit => 'Personalizar…';
+
+  @override
+  String minutesShort(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String minutesLeft(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: 'Faltam $minutes minutos',
+      one: 'Falta 1 minuto',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get pinningDialogTitle => 'O Clipsy vai fixar-se no ecrã';
+
+  @override
+  String get pinningDialogBody =>
+      'O Android vai pedir para fixar o Clipsy no ecrã. Toque em “Fixar” (ou “Percebi”). Enquanto estiver fixado, os botões Início e Recentes ficam bloqueados.\n\nPara sair do Modo Criança, mantenha premido o pequeno cadeado no canto e introduza o PIN.\n\nDica: em Definições do Android → Segurança → Fixação de apps, ative “Pedir PIN antes de soltar” para mais segurança.';
+
+  @override
+  String get guidedAccessOffBody =>
+      'O Acesso Guiado está desativado, por isso a criança pode sair do Clipsy com o gesto de Início. O Modo Criança continua a bloquear tudo dentro da app.';
+
+  @override
+  String get startAnyway => 'Iniciar mesmo assim';
+
+  @override
+  String get kidPlay => 'Reproduzir';
+
+  @override
+  String get kidPause => 'Pausa';
+
+  @override
+  String get kidAlmostDone => 'Quase a acabar!';
+
+  @override
+  String get kidLastVideo => 'Último vídeo!';
+
+  @override
+  String kidExitHint(int seconds) {
+    return 'Saída para pais. Mantenha premido $seconds segundos.';
+  }
+
+  @override
+  String get timeUpTitle => 'Por agora acabou!';
+
+  @override
+  String get timeUpBody =>
+      'Viste muito bem! Agora é hora de fazer outra coisa.';
+
+  @override
+  String get timeUpParent => 'Pais';
+
+  @override
+  String get timeUpParentTitle => 'Mais tempo ou terminar?';
+
+  @override
+  String addMinutes(int minutes) {
+    return '+$minutes min';
+  }
+
+  @override
+  String get exitKidMode => 'Sair do Modo Criança';
+
+  @override
+  String get settingsKidMode => 'Modo Criança';
+
+  @override
+  String get defaultTimeLimit => 'Limite de tempo predefinido';
+
+  @override
+  String get timerModeTitle => 'Contar';
+
+  @override
+  String get timerModeWallClock => 'Tempo de relógio (inclui pausas)';
+
+  @override
+  String get timerModePlayback => 'Só o tempo a ver';
+
+  @override
+  String get endBehaviourTitle => 'Quando o tempo acaba';
+
+  @override
+  String get endHardStop => 'Parar imediatamente';
+
+  @override
+  String endFinishVideo(int minutes) {
+    return 'Deixar acabar o vídeo atual (até $minutes min)';
+  }
+
+  @override
+  String get exitGestureTitle => 'Botão de saída';
+
+  @override
+  String exitGestureValue(int seconds) {
+    return 'Manter premido $seconds segundos e depois PIN';
+  }
+
+  @override
+  String get guidedAccessOn => 'Ativado';
+
+  @override
+  String get guidedAccessOffShort => 'Desativado · toque para ver como ativar';
 }

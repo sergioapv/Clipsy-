@@ -19,7 +19,7 @@ Flutter (Android first, then iOS) · Riverpod (codegen) · go_router · Supabase
 |---|---|---|
 | 1. Foundation | Project setup, theming, l10n (en, pt-PT), routing, Supabase auth, PIN, DB migrations + RLS + labels | ✅ |
 | 2. Playlists | CRUD, add by URL + oEmbed validation, reorder, labels, age range | ✅ |
-| 3. Kid mode | Player, Android screen pinning / iOS Guided Access detection, exit gesture + PIN, timers, time's-up, persistence | ⏳ |
+| 3. Kid mode | Player, Android screen pinning / iOS Guided Access detection, exit gesture + PIN, timers, time's-up, persistence | ✅ |
 | 4. Community | Publish, browse/filter/search, fork, ratings, reports + auto-hide, share-sheet intake, revalidation Edge Function | ⏳ |
 | 5. Polish | Tests, accessibility, account deletion UI, privacy policy, Families checklist | ⏳ |
 
@@ -97,7 +97,17 @@ cp .env.example .env
 The publishable key is designed to ship in apps: Row Level Security protects
 the data. Never put the `service_role` key in the app or in `.env`.
 
-### 4. Run
+### 4. Test APK from GitHub Actions
+
+1. In GitHub → **Settings → Secrets and variables → Actions**, add
+   `SUPABASE_URL` and `SUPABASE_ANON_KEY` (and optionally `PRIVACY_POLICY_URL`).
+2. **Actions → Android APK → Run workflow** (it also runs on every push to `main`).
+3. Download the `clipsy-apk` artifact, unzip it, and install `app-release.apk`
+   on your phone (allow "Install unknown apps").
+
+The APK is signed with the debug key: fine for testing, not for the Play Store.
+
+### 5. Run locally
 
 ```bash
 flutter run --dart-define-from-file=.env
@@ -148,7 +158,7 @@ lib/
   features/
     auth/      data/ domain/ presentation/   sign-in, PIN, onboarding, unlock
     playlists/ data/ domain/ presentation/   library, editor, detail, add-video sheet
-    kid_mode/  …                             (M3)
+    kid_mode/  data/ domain/ presentation/   player, lock, timer, time's-up
     community/ …                             (M4)
     settings/  …
   l10n/                      app_en.arb, app_pt.arb (+ generated/)
@@ -212,6 +222,37 @@ pure function, and it is unit-tested.
   and drag-and-drop saves through `reorder_my_playlists`.
 - Video duration isn't available from oEmbed, so it stays empty for now (see
   Milestone 3).
+
+### Kid mode
+- **Session state** (playlist snapshot, timer, current video, status) is
+  saved to SharedPreferences on every change. On launch, an active session
+  takes over the router before auth, so Kid mode comes back even offline or
+  signed out.
+- **Timer** (`ScreenTimeClock`, a pure class): wall-clock mode counts from
+  the start, including time while the app was killed. Playback mode counts
+  only while a video plays, with a checkpoint every 5 s. When time is up the
+  clock stops exactly at the limit, so "+5 min" always means 5 more minutes.
+- **End behaviour**: stop right away, or let the current video finish.
+  Finishing is capped at 10 minutes, and pausing or picking another video
+  during it ends the session.
+- **Exit paths blocked**: `PopScope` for system back, immersive mode for the
+  system bars, and on Android screen pinning (`startLockTask`) for Home and
+  Recents.
+  - Taps never reach the YouTube player (`pointer-events: none`); Clipsy's
+    own big buttons control playback.
+  - Every web-view navigation other than the player page and `/embed/` is
+    blocked (`KidNavigationPolicy`). Blocked links are never opened
+    externally.
+  - Ads and YouTube branding are never covered.
+- **Leaving Kid mode**: hold the corner lock (3 s by default, configurable),
+  then enter the PIN. The time's-up screen has a "Parent" button that asks
+  for the PIN, then offers +5/+10/+15 minutes or exit.
+- **iOS**: apps can't lock themselves. Clipsy detects Guided Access over a
+  platform channel and explains how to turn it on.
+- **Forgot the PIN while in Kid mode**: unpin the app (Back + Overview),
+  then Android Settings → Apps → Clipsy → Clear storage, and sign in again.
+  A child can't reach this while the app is pinned. If they do it while
+  unpinned, they still need the parent's account to sign back in.
 
 ### Compliance
 - Video playback only through the official YouTube IFrame player (M3). No

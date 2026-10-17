@@ -84,6 +84,9 @@ void main() {
     // Settings → lock sends the parent back to the gate.
     await tester.tap(find.text('Settings'));
     await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.text('Lock parent mode now'), 100);
+    await tester.ensureVisible(find.text('Lock parent mode now'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Lock parent mode now'));
     await tester.pumpAndSettle();
     expect(find.byType(UnlockScreen), findsOneWidget);

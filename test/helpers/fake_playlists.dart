@@ -175,6 +175,14 @@ class FakePlaylistRepository implements PlaylistRepository {
     ];
   }
 
+  final durations = <String, int>{};
+
+  @override
+  Future<void> recordDuration(String videoId, int seconds) async {
+    _maybeFail('recordDuration');
+    durations[videoId] = seconds;
+  }
+
   List<String> videoIdsOf(String playlistId) => [
     for (final v in [
       ...videos[playlistId]!,

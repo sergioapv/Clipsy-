@@ -9,9 +9,9 @@ import '../../../core/config/env.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/router/routes.dart';
 import '../../auth/presentation/auth_providers.dart';
+import 'kid_mode_settings_section.dart';
 
-/// Parent settings. Time limits and Kid mode options join in Milestone 3;
-/// account deletion in Milestone 5.
+/// Parent settings. Account deletion joins in Milestone 5.
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
@@ -45,6 +45,8 @@ class SettingsScreen extends ConsumerWidget {
       appBar: AppBar(title: Text(l10n.navSettings)),
       body: ListView(
         children: [
+          _Header(l10n.settingsKidMode),
+          const KidModeSettingsSection(),
           _Header(l10n.settingsSecurity),
           ListTile(
             leading: const Icon(Icons.pin_outlined),

@@ -461,4 +461,138 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get labelCrafts => 'Crafts';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get gotIt => 'Got it';
+
+  @override
+  String get startKidMode => 'Start Kid mode';
+
+  @override
+  String get kidNeedsVideos =>
+      'Add at least one video before starting Kid mode.';
+
+  @override
+  String get kidConfirmPin => 'Enter your PIN to start Kid mode';
+
+  @override
+  String useDefaultLimit(int minutes) {
+    return 'Use default: $minutes min';
+  }
+
+  @override
+  String get orChooseLimit => 'Or choose a time limit';
+
+  @override
+  String get customLimit => 'Custom…';
+
+  @override
+  String minutesShort(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String minutesLeft(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes minutes left',
+      one: '1 minute left',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get pinningDialogTitle => 'Clipsy will pin itself';
+
+  @override
+  String get pinningDialogBody =>
+      'Android will now ask to pin Clipsy to the screen. Tap “Pin” (or “Got it”). While pinned, Home and Recents are blocked.\n\nTo leave Kid mode, hold the small lock in the corner and enter your PIN.\n\nTip: in Android Settings → Security → App pinning, turn on “Ask for PIN before unpinning” for extra safety.';
+
+  @override
+  String get guidedAccessOffBody =>
+      'Guided Access is off, so your child could leave Clipsy with the Home gesture. Kid mode still blocks everything inside the app.';
+
+  @override
+  String get startAnyway => 'Start anyway';
+
+  @override
+  String get kidPlay => 'Play';
+
+  @override
+  String get kidPause => 'Pause';
+
+  @override
+  String get kidAlmostDone => 'Almost done!';
+
+  @override
+  String get kidLastVideo => 'Last video!';
+
+  @override
+  String kidExitHint(int seconds) {
+    return 'Parent exit. Hold for $seconds seconds.';
+  }
+
+  @override
+  String get timeUpTitle => 'All done for now!';
+
+  @override
+  String get timeUpBody => 'Great watching! Time for something else.';
+
+  @override
+  String get timeUpParent => 'Parent';
+
+  @override
+  String get timeUpParentTitle => 'More time, or finish?';
+
+  @override
+  String addMinutes(int minutes) {
+    return '+$minutes min';
+  }
+
+  @override
+  String get exitKidMode => 'Exit Kid mode';
+
+  @override
+  String get settingsKidMode => 'Kid mode';
+
+  @override
+  String get defaultTimeLimit => 'Default time limit';
+
+  @override
+  String get timerModeTitle => 'Count';
+
+  @override
+  String get timerModeWallClock => 'Clock time (includes pauses)';
+
+  @override
+  String get timerModePlayback => 'Watching time only';
+
+  @override
+  String get endBehaviourTitle => 'When time\'s up';
+
+  @override
+  String get endHardStop => 'Stop right away';
+
+  @override
+  String endFinishVideo(int minutes) {
+    return 'Let the current video finish (up to $minutes min)';
+  }
+
+  @override
+  String get exitGestureTitle => 'Exit button';
+
+  @override
+  String exitGestureValue(int seconds) {
+    return 'Hold for $seconds seconds, then PIN';
+  }
+
+  @override
+  String get guidedAccessOn => 'On';
+
+  @override
+  String get guidedAccessOffShort => 'Off · tap for how to turn it on';
 }

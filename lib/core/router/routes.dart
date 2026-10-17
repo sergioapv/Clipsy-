@@ -5,6 +5,7 @@ abstract final class Routes {
   static const pinSetup = '/pin/setup';
   static const onboarding = '/onboarding';
   static const unlock = '/unlock';
+  static const kid = '/kid';
 
   static const playlists = '/playlists';
   static const newPlaylist = '/playlists/new';
@@ -17,5 +18,5 @@ abstract final class Routes {
   static const home = playlists;
 
   /// Screens that only exist to get through the [AppGate].
-  static const gatePages = {splash, signIn, pinSetup, onboarding, unlock};
+  static const gatePages = {splash, signIn, pinSetup, onboarding, unlock, kid};
 }

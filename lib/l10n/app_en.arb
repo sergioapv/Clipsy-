@@ -214,5 +214,91 @@
   "labelHistory": "History",
   "labelSpace": "Space",
   "labelCooking": "Cooking",
-  "labelCrafts": "Crafts"
+  "labelCrafts": "Crafts",
+  "ok": "OK",
+  "gotIt": "Got it",
+  "startKidMode": "Start Kid mode",
+  "kidNeedsVideos": "Add at least one video before starting Kid mode.",
+  "kidConfirmPin": "Enter your PIN to start Kid mode",
+  "useDefaultLimit": "Use default: {minutes} min",
+  "@useDefaultLimit": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "orChooseLimit": "Or choose a time limit",
+  "customLimit": "Custom…",
+  "minutesShort": "{minutes} min",
+  "@minutesShort": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "minutesLeft": "{minutes, plural, =1{1 minute left} other{{minutes} minutes left}}",
+  "@minutesLeft": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "pinningDialogTitle": "Clipsy will pin itself",
+  "pinningDialogBody": "Android will now ask to pin Clipsy to the screen. Tap “Pin” (or “Got it”). While pinned, Home and Recents are blocked.\n\nTo leave Kid mode, hold the small lock in the corner and enter your PIN.\n\nTip: in Android Settings → Security → App pinning, turn on “Ask for PIN before unpinning” for extra safety.",
+  "guidedAccessOffBody": "Guided Access is off, so your child could leave Clipsy with the Home gesture. Kid mode still blocks everything inside the app.",
+  "startAnyway": "Start anyway",
+  "kidPlay": "Play",
+  "kidPause": "Pause",
+  "kidAlmostDone": "Almost done!",
+  "kidLastVideo": "Last video!",
+  "kidExitHint": "Parent exit. Hold for {seconds} seconds.",
+  "@kidExitHint": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "timeUpTitle": "All done for now!",
+  "timeUpBody": "Great watching! Time for something else.",
+  "timeUpParent": "Parent",
+  "timeUpParentTitle": "More time, or finish?",
+  "addMinutes": "+{minutes} min",
+  "@addMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "exitKidMode": "Exit Kid mode",
+  "settingsKidMode": "Kid mode",
+  "defaultTimeLimit": "Default time limit",
+  "timerModeTitle": "Count",
+  "timerModeWallClock": "Clock time (includes pauses)",
+  "timerModePlayback": "Watching time only",
+  "endBehaviourTitle": "When time's up",
+  "endHardStop": "Stop right away",
+  "endFinishVideo": "Let the current video finish (up to {minutes} min)",
+  "@endFinishVideo": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "exitGestureTitle": "Exit button",
+  "exitGestureValue": "Hold for {seconds} seconds, then PIN",
+  "@exitGestureValue": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "guidedAccessOn": "On",
+  "guidedAccessOffShort": "Off · tap for how to turn it on"
 }

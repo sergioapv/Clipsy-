@@ -64,11 +64,15 @@ abstract final class AppTheme {
     final base = ThemeData(colorScheme: scheme, useMaterial3: true);
     return base.copyWith(
       scaffoldBackgroundColor: const Color(0xFFFFFBF2),
-      textTheme: base.textTheme.apply(
-        bodyColor: const Color(0xFF1F2340),
-        displayColor: const Color(0xFF1F2340),
-        fontSizeFactor: 1.25,
-      ),
+      // ThemeData's text theme has no sizes until Theme localizes it, so
+      // resolve the geometry first or fontSizeFactor can't apply.
+      textTheme: Typography.englishLike2021
+          .merge(base.textTheme)
+          .apply(
+            bodyColor: const Color(0xFF1F2340),
+            displayColor: const Color(0xFF1F2340),
+            fontSizeFactor: 1.25,
+          ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           minimumSize: const Size(88, 72),

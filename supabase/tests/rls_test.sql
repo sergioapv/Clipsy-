@@ -425,6 +425,28 @@ select pg_temp.ok(
    where id = '33333333-3333-3333-3333-333333333333') = 2,
   'cannot reorder someone else''s playlists');
 
+-- Video durations (M3) ---------------------------------------------------------
+
+select pg_temp.login('00000000-0000-0000-0000-00000000000a');
+update public.playlist_videos set duration_seconds = 95
+where youtube_video_id = 'dQw4w9WgXcQ'
+  and playlist_id = '11111111-1111-1111-1111-111111111111';
+select pg_temp.ok(
+  (select duration_seconds from public.playlist_videos
+   where youtube_video_id = 'dQw4w9WgXcQ'
+     and playlist_id = '11111111-1111-1111-1111-111111111111') = 95,
+  'owners can record a video duration');
+
+select pg_temp.login('00000000-0000-0000-0000-00000000000c');
+update public.playlist_videos set duration_seconds = 1
+where playlist_id = '11111111-1111-1111-1111-111111111111';
+select pg_temp.login('00000000-0000-0000-0000-00000000000a');
+select pg_temp.ok(
+  (select duration_seconds from public.playlist_videos
+   where youtube_video_id = 'dQw4w9WgXcQ'
+     and playlist_id = '11111111-1111-1111-1111-111111111111') = 95,
+  'other parents cannot change durations');
+
 -- Account deletion.
 select pg_temp.login('00000000-0000-0000-0000-00000000000a');
 select public.delete_my_account();

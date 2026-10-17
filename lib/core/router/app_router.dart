@@ -8,6 +8,7 @@ import '../../features/auth/presentation/sign_in_screen.dart';
 import '../../features/auth/presentation/splash_screen.dart';
 import '../../features/auth/presentation/unlock_screen.dart';
 import '../../features/community/presentation/community_screen.dart';
+import '../../features/kid_mode/presentation/kid_mode_screen.dart';
 import '../../features/playlists/presentation/playlist_detail_screen.dart';
 import '../../features/playlists/presentation/playlist_editor_screen.dart';
 import '../../features/playlists/presentation/playlists_screen.dart';
@@ -48,6 +49,10 @@ GoRouter appRouter(Ref ref) {
       GoRoute(
         path: Routes.unlock,
         builder: (context, state) => const UnlockScreen(),
+      ),
+      GoRoute(
+        path: Routes.kid,
+        builder: (context, state) => const KidModeScreen(),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) => ParentShell(shell: shell),

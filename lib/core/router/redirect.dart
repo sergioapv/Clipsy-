@@ -7,6 +7,7 @@ import 'routes.dart';
 String? redirectFor(AppGate gate, Uri location) {
   final path = location.path;
   final gatePage = switch (gate) {
+    AppGate.kidMode => Routes.kid,
     AppGate.loading => Routes.splash,
     AppGate.signedOut => Routes.signIn,
     AppGate.needsPin => Routes.pinSetup,

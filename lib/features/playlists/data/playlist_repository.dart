@@ -29,6 +29,9 @@ abstract interface class PlaylistRepository {
   });
   Future<void> removeVideo(String videoId);
   Future<void> reorderVideos(String playlistId, List<String> videoIds);
+
+  /// Stores a video's length the first time the player learns it.
+  Future<void> recordDuration(String videoId, int seconds);
 }
 
 abstract interface class LabelRepository {
@@ -141,6 +144,15 @@ class SupabasePlaylistRepository implements PlaylistRepository {
           params: {'p_playlist_id': playlistId, 'p_video_ids': videoIds},
         ),
       );
+
+  @override
+  Future<void> recordDuration(String videoId, int seconds) => _guard(
+    () => _client
+        .from('playlist_videos')
+        .update({'duration_seconds': seconds})
+        .eq('id', videoId)
+        .isFilter('duration_seconds', null),
+  );
 
   Future<void> _setLabels(String id, List<int> labelIds) => _client.rpc<void>(
     'set_playlist_labels',

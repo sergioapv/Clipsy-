@@ -9,6 +9,7 @@ import '../../../core/l10n/l10n.dart';
 import '../../../core/router/routes.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/error_view.dart';
+import '../../kid_mode/presentation/start_kid_mode.dart';
 import '../domain/playlist.dart';
 import 'add_video_sheet.dart';
 import 'playlist_dialogs.dart';
@@ -143,6 +144,19 @@ class _VideoList extends ConsumerWidget {
     return CustomScrollView(
       slivers: [
         SliverToBoxAdapter(child: _Header(playlist: detail.playlist)),
+        if (videos.isNotEmpty)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+              child: FilledButton.icon(
+                key: const Key('start-kid-mode'),
+                onPressed: () =>
+                    unawaited(startKidModeFlow(context, ref, detail)),
+                icon: const Icon(Icons.child_care_rounded),
+                label: Text(l10n.startKidMode),
+              ),
+            ),
+          ),
         if (videos.isEmpty)
           SliverFillRemaining(
             hasScrollBody: false,

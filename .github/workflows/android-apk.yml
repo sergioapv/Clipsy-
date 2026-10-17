@@ -1,0 +1,55 @@
+name: Android APK
+
+# Builds an installable APK for testing. Run it from the Actions tab
+# ("Run workflow"), or it runs on pushes to main.
+#
+# Needs repository secrets (Settings → Secrets and variables → Actions):
+#   SUPABASE_URL        e.g. https://abcd.supabase.co
+#   SUPABASE_ANON_KEY   the publishable/anon key
+#   PRIVACY_POLICY_URL  optional
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Check secrets
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "::error::Set the SUPABASE_URL and SUPABASE_ANON_KEY repository secrets first."
+            exit 1
+          fi
+      - run: flutter pub get
+      - run: dart run build_runner build --delete-conflicting-outputs
+      - name: Build APK
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          PRIVACY_POLICY_URL: ${{ secrets.PRIVACY_POLICY_URL }}
+        # Release build signed with the debug key (see android/app/build.gradle.kts):
+        # fine for sideloading/testing, not for the Play Store.
+        run: |
+          flutter build apk --release \
+            --dart-define=SUPABASE_URL="$SUPABASE_URL" \
+            --dart-define=SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY" \
+            --dart-define=PRIVACY_POLICY_URL="$PRIVACY_POLICY_URL"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: clipsy-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 14
