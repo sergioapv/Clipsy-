@@ -268,6 +268,13 @@ void main() {
         if (c.method == 'SystemChrome.setPreferredOrientations') c.arguments,
     ];
 
+    void phone(WidgetTester tester, {Size physical = const Size(2400, 1080)}) {
+      // A typical 20:9 phone in landscape: 873 x 393 logical pixels.
+      tester.view.physicalSize = physical;
+      tester.view.devicePixelRatio = 2.75;
+      addTearDown(tester.view.reset);
+    }
+
     testWidgets('enter and leave full screen without reloading the video', (
       tester,
     ) async {
@@ -285,38 +292,78 @@ void main() {
         'DeviceOrientation.landscapeRight',
       ]);
 
-      // Still Kid mode: back does nothing, exit is still hold + PIN.
-      await tester.binding.handlePopRoute();
-      await tester.pumpAndSettle();
-      expect(find.byType(KidFullscreenView), findsOneWidget);
-
       await tester.tap(find.byKey(const Key('kid-exit-fullscreen')));
       await tester.pumpAndSettle();
       expect(find.byType(KidFullscreenView), findsNothing);
-      expect(orientations(calls).last, isEmpty);
+      expect(find.byType(KidModeScreen), findsOneWidget);
       expect(kid.player.loaded.length, loadsBefore, reason: 'no reload');
     });
 
-    testWidgets('wide screens put the controls in the side bars', (
-      tester,
-    ) async {
-      tester.view.physicalSize = const Size(2700, 1080); // 900 x 360
-      tester.view.devicePixelRatio = 3;
-      addTearDown(tester.view.reset);
+    testWidgets('back leaves full screen, but never Kid mode', (tester) async {
+      phone(tester);
+      final calls = await recordPlatformCalls(tester);
       final clock = FakeClock();
       await _pumpInKidMode(tester, clock);
       await tester.tap(find.byKey(const Key('kid-fullscreen')));
       await tester.pumpAndSettle();
 
-      final video = tester.getRect(find.byKey(const Key('fake-player')));
-      final play = tester.getRect(find.byKey(const Key('kid-play-pause')));
-      final lock = tester.getRect(find.byKey(const Key('kid-exit-button')));
-      expect(video.overlaps(play), isFalse);
-      expect(video.overlaps(lock), isFalse);
-      expect(find.byKey(const Key('kid-fullscreen-tap')), findsNothing);
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(find.byType(KidFullscreenView), findsNothing);
+      expect(find.byType(KidModeScreen), findsOneWidget);
+      // Phones go back to portrait, so leaving full screen is obvious.
+      expect(orientations(calls).last, ['DeviceOrientation.portraitUp']);
+
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(find.byType(KidModeScreen), findsOneWidget);
     });
 
-    testWidgets('narrow screens show controls on tap, then hide them', (
+    testWidgets('on a typical phone the controls sit beside the video, '
+        'and next / pick a video work', (tester) async {
+      phone(tester);
+      final clock = FakeClock();
+      final kid = await _pumpInKidMode(tester, clock);
+      await tester.tap(find.byKey(const Key('kid-fullscreen')));
+      await tester.pumpAndSettle();
+
+      final video = tester.getRect(find.byKey(const Key('fake-player')));
+      for (final key in [
+        'kid-play-pause',
+        'kid-next',
+        'kid-pick-video',
+        'kid-exit-fullscreen',
+        'kid-exit-button',
+      ]) {
+        final r = tester.getRect(find.byKey(Key(key)));
+        expect(video.overlaps(r), isFalse, reason: key);
+      }
+      expect(find.byKey(const Key('kid-fullscreen-tap')), findsNothing);
+
+      // Still there long after the auto-hide delay.
+      await tester.pump(KidFullscreenView.controlsTimeout * 2);
+      await tester.tap(find.byKey(const Key('kid-next')));
+      await tester.pump();
+      expect(kid.player.loaded.last, ('bbbbbbbbbbb', true));
+
+      await tester.tap(find.byKey(const Key('kid-pick-video')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('kid-video-picker')), findsOneWidget);
+      await tester.tap(find.byKey(const Key('kid-thumb-0')));
+      await tester.pumpAndSettle();
+      expect(kid.player.loaded.last, ('aaaaaaaaaaa', true));
+      expect(find.byKey(const Key('kid-video-picker')), findsNothing);
+      expect(find.byType(KidFullscreenView), findsOneWidget);
+
+      // Next wraps round from the last video to the first.
+      await tester.tap(find.byKey(const Key('kid-next')));
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('kid-next')));
+      await tester.pump();
+      expect(kid.player.loaded.last, ('aaaaaaaaaaa', true));
+    });
+
+    testWidgets('16:9 screens show controls on tap; the picker keeps them up', (
       tester,
     ) async {
       tester.view.physicalSize = const Size(1920, 1080); // 640 x 360: 16:9
@@ -335,14 +382,21 @@ void main() {
       await tester.pumpAndSettle();
       expect(opacity(), 0);
 
-      // Hidden controls can't be pressed by accident...
       await tester.tap(find.byKey(const Key('kid-fullscreen-tap')));
       await tester.pumpAndSettle();
       expect(opacity(), 1);
-      // ...and once shown, they work.
       await tester.tap(find.byKey(const Key('kid-play-pause')));
       await tester.pump();
       expect(kid.player.plays, 1);
+
+      await tester.tap(find.byKey(const Key('kid-pick-video')));
+      await tester.pumpAndSettle();
+      await tester.pump(KidFullscreenView.controlsTimeout * 2);
+      await tester.pumpAndSettle();
+      expect(opacity(), 1, reason: 'no auto-hide while choosing');
+      await tester.tap(find.byKey(const Key('kid-thumb-1')));
+      await tester.pumpAndSettle();
+      expect(kid.player.loaded.last, ('bbbbbbbbbbb', true));
     });
 
     testWidgets("time's up leaves full screen", (tester) async {

@@ -227,5 +227,7 @@
   "kidFullscreen": "Ecrã inteiro",
   "kidExitFullscreen": "Sair do ecrã inteiro",
   "importFindingVideos": "A procurar os vídeos da lista…",
-  "importCheckingVideos": "A verificar vídeos… {checked} de {total}"
+  "importCheckingVideos": "A verificar vídeos… {checked} de {total}",
+  "kidNextVideo": "Próximo vídeo",
+  "kidPickVideo": "Escolher um vídeo"
 }

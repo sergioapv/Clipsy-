@@ -46,16 +46,23 @@ class _KidModeScreenState extends ConsumerState<KidModeScreen> {
   void _setFullscreen(bool on) {
     if (_fullscreen == on) return;
     setState(() => _fullscreen = on);
-    unawaited(
-      SystemChrome.setPreferredOrientations(
-        on
-            ? const [
-                DeviceOrientation.landscapeLeft,
-                DeviceOrientation.landscapeRight,
-              ]
-            : const [],
-      ),
-    );
+    unawaited(SystemChrome.setPreferredOrientations(_orientations()));
+  }
+
+  /// Full screen is landscape. On phones the normal view is portrait, so
+  /// leaving full screen visibly turns the screen back; tablets may rotate.
+  List<DeviceOrientation> _orientations() {
+    if (_fullscreen) {
+      return const [
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ];
+    }
+    final view = WidgetsBinding.instance.platformDispatcher.views.firstOrNull;
+    final shortest = view == null
+        ? 0.0
+        : (view.physicalSize / view.devicePixelRatio).shortestSide;
+    return shortest < 600 ? const [DeviceOrientation.portraitUp] : const [];
   }
 
   KidMode get _controller => ref.read(kidModeProvider.notifier);
@@ -82,6 +89,7 @@ class _KidModeScreenState extends ConsumerState<KidModeScreen> {
     unawaited(WakelockPlus.enable().catchError((Object _) {}));
     unawaited(ref.read(deviceLockProvider).startPinning());
     WidgetsBinding.instance.addPostFrameCallback((_) => _syncPlayer());
+    unawaited(SystemChrome.setPreferredOrientations(_orientations()));
   }
 
   @override
@@ -126,6 +134,10 @@ class _KidModeScreenState extends ConsumerState<KidModeScreen> {
 
     return PopScope(
       canPop: false,
+      // Back never leaves Kid mode; in full screen it leaves full screen.
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop && _fullscreen) _setFullscreen(false);
+      },
       child: Theme(
         data: AppTheme.kid(),
         child: Builder(
@@ -155,6 +167,8 @@ class _KidModeScreenState extends ConsumerState<KidModeScreen> {
                 player: player,
                 exitButton: exit,
                 onPlayPause: playPause,
+                onNext: _controller.next,
+                onSelect: _controller.select,
                 onExitFullscreen: () => _setFullscreen(false),
               );
             }

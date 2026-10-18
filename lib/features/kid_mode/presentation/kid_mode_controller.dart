@@ -263,6 +263,13 @@ class KidMode extends _$KidMode {
     unawaited(_persist());
   }
 
+  /// Next video, wrapping round to the first.
+  void next() {
+    final s = state;
+    if (s == null || s.session.videos.isEmpty) return;
+    select((s.session.currentIndex + 1) % s.session.videos.length);
+  }
+
   // -- Time --------------------------------------------------------------
 
   /// Called every second by the Kid mode screen.

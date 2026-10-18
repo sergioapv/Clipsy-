@@ -1219,6 +1219,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Checking videos… {checked} of {total}'**
   String importCheckingVideos(int checked, int total);
+
+  /// No description provided for @kidNextVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Next video'**
+  String get kidNextVideo;
+
+  /// No description provided for @kidPickVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a video'**
+  String get kidPickVideo;
 }
 
 class _AppLocalizationsDelegate

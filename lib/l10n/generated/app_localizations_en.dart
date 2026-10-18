@@ -693,4 +693,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String importCheckingVideos(int checked, int total) {
     return 'Checking videos… $checked of $total';
   }
+
+  @override
+  String get kidNextVideo => 'Next video';
+
+  @override
+  String get kidPickVideo => 'Choose a video';
 }

@@ -373,5 +373,7 @@
         "type": "int"
       }
     }
-  }
+  },
+  "kidNextVideo": "Next video",
+  "kidPickVideo": "Choose a video"
 }

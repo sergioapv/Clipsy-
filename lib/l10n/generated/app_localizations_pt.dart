@@ -699,4 +699,10 @@ class AppLocalizationsPt extends AppLocalizations {
   String importCheckingVideos(int checked, int total) {
     return 'A verificar vídeos… $checked de $total';
   }
+
+  @override
+  String get kidNextVideo => 'Próximo vídeo';
+
+  @override
+  String get kidPickVideo => 'Escolher um vídeo';
 }
