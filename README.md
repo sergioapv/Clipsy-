@@ -80,17 +80,6 @@ supabase db reset       # applies migrations + seed
 Use `http://10.0.2.2:54321` as `SUPABASE_URL` from the Android emulator.
 Magic-link emails land in Inbucket/Mailpit at <http://127.0.0.1:54324>.
 
-#### YouTube playlist import (optional)
-
-1. In Google Cloud Console, create a project, enable **YouTube Data API v3**,
-   and create an **API key** (restrict it to that API).
-2. Supabase Dashboard → Edge Functions → Secrets: add `YOUTUBE_API_KEY`.
-3. Deploy the function: `supabase functions deploy youtube-playlist`.
-   Test it with `npx deno test supabase/functions/youtube-playlist`.
-
-Without the key, everything else works and "Add whole playlist" explains it
-isn't set up.
-
 ### 3. App configuration
 
 Secrets never go in the repo. Copy the template and fill it in:
@@ -232,14 +221,6 @@ pure function, and it is unit-tested.
   every video page and runs the same oEmbed checks as a pasted link. The
   browser stays on YouTube (`YouTubeBrowsePolicy`): app hand-offs and other
   sites are blocked. Kid mode never gets a browser.
-- **Whole YouTube playlists**: from a playlist page in the browser, or a
-  pasted playlist link, Clipsy previews the playlist and adds every video
-  that can play (it skips private, removed and non-embeddable ones, plus
-  duplicates, up to the 200-video limit). The video list comes from the
-  `youtube-playlist` Edge Function, which calls the YouTube Data API v3 with
-  the `YOUTUBE_API_KEY` secret, so the key never ships in the app. Mixes
-  (`RD…`) and personal lists (Watch later, Likes) can't be read by the API.
-  Durations come along, so they're known straight away.
 - The cover is the first available video's thumbnail. A database trigger
   keeps it up to date (migration `20261018000000`).
 - The parent's playlist order is `sort_index`. New playlists go to the top,

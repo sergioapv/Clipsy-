@@ -27,33 +27,6 @@ abstract final class YouTubeUrlParser {
     return null;
   }
 
-  static final _playlistId = RegExp(r'^[A-Za-z0-9_-]{10,64}$');
-
-  /// Auto-generated mixes (RD…) and personal lists (watch later, likes, …)
-  /// can't be read through the YouTube Data API.
-  static const _unsupportedPlaylistPrefixes = ['RD', 'UL', 'LL', 'WL', 'LM'];
-
-  /// The playlist id (`list=`) of a YouTube link, or `null`. Works for
-  /// playlist pages and for videos opened from a playlist.
-  static String? extractPlaylistId(String input) {
-    for (final match in _link.allMatches(input.trim())) {
-      final raw = match.group(0)!;
-      final uri = Uri.tryParse(
-        raw.toLowerCase().startsWith('http') ? raw : 'https://$raw',
-      );
-      if (uri == null) continue;
-      final host = uri.host.toLowerCase();
-      if (!_isHost(host, 'youtube.com') && !_isHost(host, 'youtu.be')) continue;
-      final id = uri.queryParameters['list'];
-      if (id != null && _playlistId.hasMatch(id)) return id;
-    }
-    return null;
-  }
-
-  /// Whether a playlist id can be imported (not a mix or personal list).
-  static bool isImportablePlaylist(String playlistId) =>
-      !_unsupportedPlaylistPrefixes.any(playlistId.startsWith);
-
   /// Canonical watch URL, used for oEmbed lookups.
   static Uri watchUrl(String videoId) =>
       Uri.https('www.youtube.com', '/watch', {'v': videoId});

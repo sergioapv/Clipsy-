@@ -30,7 +30,6 @@ Future<void> pumpClipsy(
   FakeKidPlayer? player,
   FakeDeviceLock? deviceLock,
   FakeInAppBrowser? browser,
-  FakeYouTubePlaylistRepository? youtubePlaylists,
 }) async {
   SharedPreferences.setMockInitialValues(prefs);
   final sharedPrefs = await SharedPreferences.getInstance();
@@ -51,9 +50,6 @@ Future<void> pumpClipsy(
         deviceLockProvider.overrideWithValue(deviceLock ?? FakeDeviceLock()),
         inAppBrowserProvider.overrideWith(
           (ref) => browser ?? FakeInAppBrowser(),
-        ),
-        youTubePlaylistRepositoryProvider.overrideWithValue(
-          youtubePlaylists ?? FakeYouTubePlaylistRepository(),
         ),
         sharedPreferencesProvider.overrideWithValue(sharedPrefs),
         secureStoreProvider.overrideWithValue(secure),
@@ -87,7 +83,6 @@ Future<void> pumpUnlockedClipsy(
   FakeKidPlayer? player,
   FakeDeviceLock? deviceLock,
   FakeInAppBrowser? browser,
-  FakeYouTubePlaylistRepository? youtubePlaylists,
   Map<String, Object> prefs = const {},
 }) async {
   final store = InMemorySecureStore({
@@ -104,7 +99,6 @@ Future<void> pumpUnlockedClipsy(
     player: player,
     deviceLock: deviceLock,
     browser: browser,
-    youtubePlaylists: youtubePlaylists,
   );
   await enterPin(tester, '2468');
 }

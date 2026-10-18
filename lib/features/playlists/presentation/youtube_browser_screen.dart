@@ -8,7 +8,6 @@ import '../domain/in_app_browser.dart';
 import '../domain/video_metadata.dart';
 import '../domain/youtube_browse_policy.dart';
 import '../domain/youtube_url_parser.dart';
-import 'import_playlist_sheet.dart';
 import 'playlist_l10n.dart';
 import 'playlist_providers.dart';
 
@@ -80,57 +79,6 @@ class _YouTubeBrowserScreenState extends ConsumerState<YouTubeBrowserScreen> {
     }
   }
 
-  Future<void> _importPlaylist(String listId) async {
-    final l10n = context.l10n;
-    final messenger = ScaffoldMessenger.of(context);
-    final added = await showImportPlaylistSheet(
-      context,
-      playlistId: widget.playlistId,
-      youtubePlaylistId: listId,
-    );
-    if (added > 0) {
-      messenger
-        ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text(l10n.videosAdded(added))));
-    }
-  }
-
-  Widget _videoButton(String id, Uri url, String? playlistTitle) {
-    final l10n = context.l10n;
-    final added = ref
-        .read(playlistDetailControllerProvider(widget.playlistId).notifier)
-        .contains(id);
-    if (added) {
-      return FloatingActionButton.extended(
-        key: const Key('browser-added'),
-        heroTag: 'browser-video',
-        onPressed: null,
-        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-        icon: const Icon(Icons.check),
-        label: Text(l10n.inPlaylist),
-      );
-    }
-    return FloatingActionButton.extended(
-      key: const Key('browser-add'),
-      heroTag: 'browser-video',
-      onPressed: _addState == _AddState.adding
-          ? null
-          : () => unawaited(_add(url)),
-      icon: _addState == _AddState.adding
-          ? const SizedBox.square(
-              dimension: 20,
-              child: CircularProgressIndicator(strokeWidth: 2.5),
-            )
-          : const Icon(Icons.playlist_add),
-      label: Text(
-        playlistTitle == null
-            ? l10n.addToPlaylist
-            : l10n.addToNamedPlaylist(playlistTitle),
-        overflow: TextOverflow.ellipsis,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -175,34 +123,45 @@ class _YouTubeBrowserScreenState extends ConsumerState<YouTubeBrowserScreen> {
         floatingActionButton: ValueListenableBuilder<Uri?>(
           valueListenable: _browser.url,
           builder: (context, url, _) {
-            if (url == null || detail.value == null) {
+            final id = url == null
+                ? null
+                : YouTubeUrlParser.extractVideoId(url.toString());
+            if (id == null || detail.value == null) {
               return const SizedBox.shrink();
             }
-            final text = url.toString();
-            final videoId = YouTubeUrlParser.extractVideoId(text);
-            final listId = YouTubeUrlParser.extractPlaylistId(text);
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (listId != null &&
-                    YouTubeUrlParser.isImportablePlaylist(listId)) ...[
-                  FloatingActionButton.extended(
-                    key: const Key('browser-add-playlist'),
-                    heroTag: 'browser-add-playlist',
-                    backgroundColor: Theme.of(context)
-                        .colorScheme
-                        .secondaryContainer,
-                    foregroundColor: Theme.of(context)
-                        .colorScheme
-                        .onSecondaryContainer,
-                    onPressed: () => unawaited(_importPlaylist(listId)),
-                    icon: const Icon(Icons.playlist_add_check),
-                    label: Text(l10n.addWholePlaylist),
-                  ),
-                  if (videoId != null) const SizedBox(height: 12),
-                ],
-                if (videoId != null) _videoButton(videoId, url, playlistTitle),
-              ],
+            final added = ref
+                .read(
+                  playlistDetailControllerProvider(widget.playlistId).notifier,
+                )
+                .contains(id);
+            if (added) {
+              return FloatingActionButton.extended(
+                key: const Key('browser-added'),
+                onPressed: null,
+                backgroundColor: Theme.of(context)
+                    .colorScheme
+                    .secondaryContainer,
+                icon: const Icon(Icons.check),
+                label: Text(l10n.inPlaylist),
+              );
+            }
+            return FloatingActionButton.extended(
+              key: const Key('browser-add'),
+              onPressed: _addState == _AddState.adding
+                  ? null
+                  : () => unawaited(_add(url!)),
+              icon: _addState == _AddState.adding
+                  ? const SizedBox.square(
+                      dimension: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2.5),
+                    )
+                  : const Icon(Icons.playlist_add),
+              label: Text(
+                playlistTitle == null
+                    ? l10n.addToPlaylist
+                    : l10n.addToNamedPlaylist(playlistTitle),
+                overflow: TextOverflow.ellipsis,
+              ),
             );
           },
         ),

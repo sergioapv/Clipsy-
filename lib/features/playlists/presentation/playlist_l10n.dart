@@ -1,5 +1,4 @@
 import '../../../core/l10n/l10n.dart';
-import '../domain/imported_playlist.dart';
 import '../domain/label.dart';
 import '../domain/playlist.dart';
 import '../domain/playlist_exception.dart';
@@ -40,15 +39,6 @@ extension PlaylistL10n on AppLocalizations {
     PlaylistException(error: PlaylistError.notFound) => playlistErrorNotFound,
     PlaylistException(error: PlaylistError.network) => errorNetwork,
     _ => errorGeneric,
-  };
-
-  String playlistImportError(PlaylistImportError error) => switch (error) {
-    PlaylistImportError.unsupported => importErrorUnsupported,
-    PlaylistImportError.notFound => importErrorNotFound,
-    PlaylistImportError.notConfigured => importErrorNotConfigured,
-    PlaylistImportError.quota => importErrorQuota,
-    PlaylistImportError.network => errorNetwork,
-    PlaylistImportError.unknown => errorGeneric,
   };
 
   String videoLookupError(VideoLookupError error) => switch (error) {

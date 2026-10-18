@@ -27,13 +27,6 @@ abstract interface class PlaylistRepository {
     VideoMetadata video, {
     required int position,
   });
-
-  /// Adds several videos in one request, positioned from [startPosition].
-  Future<List<PlaylistVideo>> addVideos(
-    String playlistId,
-    List<VideoMetadata> videos, {
-    required int startPosition,
-  });
   Future<void> removeVideo(String videoId);
   Future<void> reorderVideos(String playlistId, List<String> videoIds);
 
@@ -137,28 +130,6 @@ class SupabasePlaylistRepository implements PlaylistRepository {
         .select()
         .single();
     return PlaylistVideo.fromJson(row);
-  });
-
-  @override
-  Future<List<PlaylistVideo>> addVideos(
-    String playlistId,
-    List<VideoMetadata> videos, {
-    required int startPosition,
-  }) => _guard(() async {
-    if (videos.isEmpty) return const <PlaylistVideo>[];
-    final rows = await _client.from('playlist_videos').insert([
-      for (final (i, v) in videos.indexed)
-        {
-          'playlist_id': playlistId,
-          'youtube_video_id': v.videoId,
-          'title': v.title,
-          'channel_name': v.channelName,
-          'thumbnail_url': v.thumbnailUrl,
-          'duration_seconds': v.durationSeconds,
-          'position': startPosition + i,
-        },
-    ]).select();
-    return [for (final r in rows) PlaylistVideo.fromJson(r)];
   });
 
   @override
