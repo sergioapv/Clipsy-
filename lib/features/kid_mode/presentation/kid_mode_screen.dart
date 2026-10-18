@@ -10,9 +10,11 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/pin_dialog.dart';
 import '../domain/kid_player.dart';
 import '../domain/kid_session.dart';
+import 'kid_fullscreen_view.dart';
 import 'kid_mode_controller.dart';
 import 'time_up_view.dart';
 import 'widgets/hold_to_exit_button.dart';
+import 'widgets/kid_round_button.dart';
 import 'widgets/kid_thumbnail_strip.dart';
 import 'widgets/time_badge.dart';
 
@@ -35,6 +37,26 @@ class _KidModeScreenState extends ConsumerState<KidModeScreen> {
   Timer? _ticker;
   late final AppLifecycleListener _lifecycle;
   int _loaded = 0;
+
+  /// Keeps the same player (and its web view) when moving between the normal
+  /// and full-screen layouts, so playback doesn't restart.
+  final _playerKey = GlobalKey();
+  bool _fullscreen = false;
+
+  void _setFullscreen(bool on) {
+    if (_fullscreen == on) return;
+    setState(() => _fullscreen = on);
+    unawaited(
+      SystemChrome.setPreferredOrientations(
+        on
+            ? const [
+                DeviceOrientation.landscapeLeft,
+                DeviceOrientation.landscapeRight,
+              ]
+            : const [],
+      ),
+    );
+  }
 
   KidMode get _controller => ref.read(kidModeProvider.notifier);
 
@@ -69,6 +91,7 @@ class _KidModeScreenState extends ConsumerState<KidModeScreen> {
     _lifecycle.dispose();
     _playerSub.close();
     unawaited(SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge));
+    unawaited(SystemChrome.setPreferredOrientations(const []));
     unawaited(WakelockPlus.disable().catchError((Object _) {}));
     super.dispose();
   }
@@ -95,6 +118,7 @@ class _KidModeScreenState extends ConsumerState<KidModeScreen> {
       if (next.loadRequest != prev?.loadRequest) _syncPlayer();
       if (next.session.isTimeUp && !(prev?.session.isTimeUp ?? false)) {
         unawaited(_player.pause());
+        _setFullscreen(false);
       }
     });
     final state = ref.watch(kidModeProvider);
@@ -119,15 +143,29 @@ class _KidModeScreenState extends ConsumerState<KidModeScreen> {
                 ),
               );
             }
+            final player = KeyedSubtree(
+              key: _playerKey,
+              child: _player.buildView(context),
+            );
+            void playPause() =>
+                unawaited(state.isPlaying ? _player.pause() : _player.play());
+            if (_fullscreen) {
+              return KidFullscreenView(
+                state: state,
+                player: player,
+                exitButton: exit,
+                onPlayPause: playPause,
+                onExitFullscreen: () => _setFullscreen(false),
+              );
+            }
             return Scaffold(
               body: SafeArea(
                 child: _KidLayout(
                   state: state,
-                  player: _player.buildView(context),
+                  player: player,
                   exitButton: exit,
-                  onPlayPause: () => unawaited(
-                    state.isPlaying ? _player.pause() : _player.play(),
-                  ),
+                  onPlayPause: playPause,
+                  onFullscreen: () => _setFullscreen(true),
                   onSelect: _controller.select,
                 ),
               ),
@@ -145,6 +183,7 @@ class _KidLayout extends StatelessWidget {
     required this.player,
     required this.exitButton,
     required this.onPlayPause,
+    required this.onFullscreen,
     required this.onSelect,
   });
 
@@ -152,6 +191,7 @@ class _KidLayout extends StatelessWidget {
   final Widget player;
   final Widget exitButton;
   final VoidCallback onPlayPause;
+  final VoidCallback onFullscreen;
   final ValueChanged<int> onSelect;
 
   @override
@@ -183,9 +223,18 @@ class _KidLayout extends StatelessWidget {
       borderRadius: BorderRadius.circular(24),
       child: AspectRatio(aspectRatio: 16 / 9, child: player),
     );
-    final playButton = _PlayPauseButton(
-      isPlaying: state.isPlaying,
-      onPressed: onPlayPause,
+    final playButton = Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _PlayPauseButton(isPlaying: state.isPlaying, onPressed: onPlayPause),
+        const SizedBox(width: 20),
+        KidRoundButton(
+          key: const Key('kid-fullscreen'),
+          icon: Icons.fullscreen_rounded,
+          label: context.l10n.kidFullscreen,
+          onPressed: onFullscreen,
+        ),
+      ],
     );
     final strip = KidThumbnailStrip(
       videos: session.videos,

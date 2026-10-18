@@ -5,6 +5,7 @@ import '../../../core/supabase/supabase_providers.dart';
 import '../data/oembed_client.dart';
 import '../data/playlist_repository.dart';
 import '../data/webview_in_app_browser.dart';
+import '../data/youtube_playlist_repository.dart';
 import '../domain/in_app_browser.dart';
 import '../domain/label.dart';
 import '../domain/playlist.dart';
@@ -32,6 +33,10 @@ InAppBrowser inAppBrowser(Ref ref) {
   ref.onDispose(browser.dispose);
   return browser;
 }
+
+@Riverpod(keepAlive: true)
+YouTubePlaylistRepository youTubePlaylistRepository(Ref ref) =>
+    SupabaseYouTubePlaylistRepository(ref.watch(supabaseClientProvider));
 
 /// All labels, in display order. Rarely changes, so kept for the session.
 @Riverpod(keepAlive: true)
@@ -99,14 +104,45 @@ class PlaylistDetailController extends _$PlaylistDetailController {
       state.value?.videos.any((v) => v.youtubeVideoId == youtubeVideoId) ??
       false;
 
+  int _nextPosition(PlaylistDetail d) => d.videos.isEmpty
+      ? 0
+      : d.videos.map((v) => v.position).reduce((a, b) => a > b ? a : b) + 1;
+
+  /// How many more videos this playlist can hold.
+  int get remainingCapacity =>
+      PlaylistDraft.maxVideos - (state.value?.videos.length ?? 0);
+
+  Set<String> get youtubeIds => {
+    for (final v in state.value?.videos ?? const <PlaylistVideo>[])
+      v.youtubeVideoId,
+  };
+
+  /// Adds [videos] in one request, skipping ones already in the playlist.
+  /// Returns how many were added.
+  Future<int> addMany(List<VideoMetadata> videos) async {
+    final current = state.requireValue;
+    final existing = youtubeIds;
+    final fresh = <VideoMetadata>[
+      for (final v in videos)
+        if (existing.add(v.videoId)) v,
+    ];
+    if (fresh.isEmpty) return 0;
+    final added = await _repo.addVideos(
+      playlistId,
+      fresh,
+      startPosition: _nextPosition(current),
+    );
+    _libraryChanged();
+    if (ref.mounted) {
+      final latest = state.requireValue;
+      state = AsyncData(latest.copyWith(videos: [...latest.videos, ...added]));
+    }
+    return added.length;
+  }
+
   Future<void> addVideo(VideoMetadata video) async {
     final current = state.requireValue;
-    final position = current.videos.isEmpty
-        ? 0
-        : current.videos
-                  .map((v) => v.position)
-                  .reduce((a, b) => a > b ? a : b) +
-              1;
+    final position = _nextPosition(current);
     final added = await _repo.addVideo(playlistId, video, position: position);
     _libraryChanged();
     if (!ref.mounted) return;

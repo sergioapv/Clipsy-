@@ -321,5 +321,47 @@
         "type": "String"
       }
     }
-  }
+  },
+  "addWholePlaylist": "Add whole playlist",
+  "addWholePlaylistInstead": "Add the whole playlist instead",
+  "importPlaylistTitle": "Add a YouTube playlist",
+  "importAddVideos": "{count, plural, =1{Add 1 video} other{Add {count} videos}}",
+  "@importAddVideos": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importNothingToAdd": "Nothing new to add",
+  "importAlreadyThere": "{count, plural, =1{1 video is already in this playlist} other{{count} videos are already in this playlist}}",
+  "@importAlreadyThere": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importUnavailable": "{count, plural, =1{1 video can't play in Clipsy (private, removed or not embeddable) and will be skipped} other{{count} videos can't play in Clipsy (private, removed or not embeddable) and will be skipped}}",
+  "@importUnavailable": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importOverLimit": "A playlist can hold up to {max} videos, so some will be left out.",
+  "@importOverLimit": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "importErrorUnsupported": "Mixes and personal lists (like Watch later) can't be added. Open a regular playlist instead.",
+  "importErrorNotFound": "We couldn't find that playlist. It may be private or deleted.",
+  "importErrorNotConfigured": "Adding whole playlists isn't set up yet on the server (it needs a YouTube API key).",
+  "importErrorQuota": "YouTube's daily limit for Clipsy was reached. Try again tomorrow.",
+  "kidFullscreen": "Full screen",
+  "kidExitFullscreen": "Exit full screen"
 }

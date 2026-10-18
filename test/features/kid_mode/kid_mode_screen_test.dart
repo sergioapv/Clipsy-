@@ -7,9 +7,11 @@ import 'package:clipsy/features/kid_mode/domain/kid_player.dart';
 import 'package:clipsy/features/kid_mode/domain/kid_session.dart';
 import 'package:clipsy/features/kid_mode/domain/kid_settings.dart';
 import 'package:clipsy/features/kid_mode/domain/screen_time.dart';
+import 'package:clipsy/features/kid_mode/presentation/kid_fullscreen_view.dart';
 import 'package:clipsy/features/kid_mode/presentation/kid_mode_screen.dart';
 import 'package:clipsy/features/playlists/presentation/playlists_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/fake_kid_mode.dart';
@@ -240,5 +242,120 @@ void main() {
     );
     await tester.pump(const Duration(seconds: 1));
     expect(find.text('All done for now!'), findsOneWidget);
+  });
+
+  group('full screen', () {
+    Future<List<MethodCall>> recordPlatformCalls(WidgetTester tester) async {
+      final calls = <MethodCall>[];
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        (call) async {
+          calls.add(call);
+          return null;
+        },
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.platform,
+          null,
+        ),
+      );
+      return calls;
+    }
+
+    List<Object?> orientations(List<MethodCall> calls) => [
+      for (final c in calls)
+        if (c.method == 'SystemChrome.setPreferredOrientations') c.arguments,
+    ];
+
+    testWidgets('enter and leave full screen without reloading the video', (
+      tester,
+    ) async {
+      final calls = await recordPlatformCalls(tester);
+      final clock = FakeClock();
+      final kid = await _pumpInKidMode(tester, clock);
+      final loadsBefore = kid.player.loaded.length;
+
+      await tester.tap(find.byKey(const Key('kid-fullscreen')));
+      await tester.pumpAndSettle();
+      expect(find.byType(KidFullscreenView), findsOneWidget);
+      expect(find.byKey(const Key('fake-player')), findsOneWidget);
+      expect(orientations(calls).last, [
+        'DeviceOrientation.landscapeLeft',
+        'DeviceOrientation.landscapeRight',
+      ]);
+
+      // Still Kid mode: back does nothing, exit is still hold + PIN.
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(find.byType(KidFullscreenView), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('kid-exit-fullscreen')));
+      await tester.pumpAndSettle();
+      expect(find.byType(KidFullscreenView), findsNothing);
+      expect(orientations(calls).last, isEmpty);
+      expect(kid.player.loaded.length, loadsBefore, reason: 'no reload');
+    });
+
+    testWidgets('wide screens put the controls in the side bars', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(2700, 1080); // 900 x 360
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      final clock = FakeClock();
+      await _pumpInKidMode(tester, clock);
+      await tester.tap(find.byKey(const Key('kid-fullscreen')));
+      await tester.pumpAndSettle();
+
+      final video = tester.getRect(find.byKey(const Key('fake-player')));
+      final play = tester.getRect(find.byKey(const Key('kid-play-pause')));
+      final lock = tester.getRect(find.byKey(const Key('kid-exit-button')));
+      expect(video.overlaps(play), isFalse);
+      expect(video.overlaps(lock), isFalse);
+      expect(find.byKey(const Key('kid-fullscreen-tap')), findsNothing);
+    });
+
+    testWidgets('narrow screens show controls on tap, then hide them', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(1920, 1080); // 640 x 360: 16:9
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      final clock = FakeClock();
+      final kid = await _pumpInKidMode(tester, clock);
+      await tester.tap(find.byKey(const Key('kid-fullscreen')));
+      await tester.pumpAndSettle();
+
+      double opacity() => tester
+          .widget<AnimatedOpacity>(find.byType(AnimatedOpacity).last)
+          .opacity;
+      expect(opacity(), 1);
+      await tester.pump(KidFullscreenView.controlsTimeout);
+      await tester.pumpAndSettle();
+      expect(opacity(), 0);
+
+      // Hidden controls can't be pressed by accident...
+      await tester.tap(find.byKey(const Key('kid-fullscreen-tap')));
+      await tester.pumpAndSettle();
+      expect(opacity(), 1);
+      // ...and once shown, they work.
+      await tester.tap(find.byKey(const Key('kid-play-pause')));
+      await tester.pump();
+      expect(kid.player.plays, 1);
+    });
+
+    testWidgets("time's up leaves full screen", (tester) async {
+      final calls = await recordPlatformCalls(tester);
+      final clock = FakeClock();
+      await _pumpInKidMode(tester, clock, limit: const Duration(minutes: 1));
+      await tester.tap(find.byKey(const Key('kid-fullscreen')));
+      await tester.pumpAndSettle();
+
+      await _elapse(tester, clock, const Duration(seconds: 61));
+      await tester.pumpAndSettle();
+      expect(find.text('All done for now!'), findsOneWidget);
+      expect(orientations(calls).last, isEmpty);
+    });
   });
 }

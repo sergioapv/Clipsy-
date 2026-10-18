@@ -213,6 +213,9 @@ class PlaylistDraft {
   });
 
   static const maxTitleLength = 80;
+
+  /// Mirrors app_settings.max_videos_per_playlist in the database.
+  static const maxVideos = 200;
   static const maxDescriptionLength = 500;
   static const maxLabels = 3;
 

@@ -620,4 +620,77 @@ class AppLocalizationsEn extends AppLocalizations {
   String videoAddedNamed(String title) {
     return 'Added “$title”';
   }
+
+  @override
+  String get addWholePlaylist => 'Add whole playlist';
+
+  @override
+  String get addWholePlaylistInstead => 'Add the whole playlist instead';
+
+  @override
+  String get importPlaylistTitle => 'Add a YouTube playlist';
+
+  @override
+  String importAddVideos(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Add $count videos',
+      one: 'Add 1 video',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importNothingToAdd => 'Nothing new to add';
+
+  @override
+  String importAlreadyThere(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count videos are already in this playlist',
+      one: '1 video is already in this playlist',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importUnavailable(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count videos can\'t play in Clipsy (private, removed or not embeddable) and will be skipped',
+      one: '1 video can\'t play in Clipsy (private, removed or not embeddable) and will be skipped',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importOverLimit(int max) {
+    return 'A playlist can hold up to $max videos, so some will be left out.';
+  }
+
+  @override
+  String get importErrorUnsupported =>
+      'Mixes and personal lists (like Watch later) can\'t be added. Open a regular playlist instead.';
+
+  @override
+  String get importErrorNotFound =>
+      'We couldn\'t find that playlist. It may be private or deleted.';
+
+  @override
+  String get importErrorNotConfigured =>
+      'Adding whole playlists isn\'t set up yet on the server (it needs a YouTube API key).';
+
+  @override
+  String get importErrorQuota =>
+      'YouTube\'s daily limit for Clipsy was reached. Try again tomorrow.';
+
+  @override
+  String get kidFullscreen => 'Full screen';
+
+  @override
+  String get kidExitFullscreen => 'Exit full screen';
 }
