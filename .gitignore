@@ -55,3 +55,4 @@ app.*.map.json
 # Supabase local
 supabase/.branches
 supabase/.temp
+/dist/
