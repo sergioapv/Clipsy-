@@ -266,13 +266,13 @@ pure function, and it is unit-tested.
   for the PIN, then offers +5/+10/+15 minutes or exit.
 - **Full screen**: a button next to play/pause switches to landscape full
   screen without reloading the video (the player is moved with a GlobalKey).
-  - Everything stays visible on every phone. A column each side of the video
-    holds the countdown (minutes in a ring, m:ss in the last minute) and the
-    parent lock on the left, and pause/play, next video, a video picker and
-    exit full screen on the right.
-  - Where the screen's black bars are too narrow (16:9 phones, camera
-    cutouts), the video shrinks a little to make room, so controls never
-    cover it.
+  - Everything sits in one panel to the right of the video, always visible:
+    countdown (minutes in a ring, m:ss in the last minute) and parent lock,
+    pause/play and next, choose a video and exit full screen. "Choose a
+    video" turns the panel into a scrolling list of thumbnails.
+  - Nothing is ever drawn over the YouTube player. It's a native web view,
+    and overlays on it are unreliable on some Android devices. Where the
+    spare width is under 160 px, the video shrinks to make room.
   - System back leaves full screen, never Kid mode. On phones the normal view
     is portrait. Time's up leaves full screen.
 - **iOS**: apps can't lock themselves. Clipsy detects Guided Access over a

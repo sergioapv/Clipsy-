@@ -358,6 +358,11 @@ void main() {
           expect(finder, findsOneWidget, reason: key);
           final r = tester.getRect(finder);
           expect(video.overlaps(r), isFalse, reason: '$key covers the video');
+          expect(
+            r.left,
+            greaterThanOrEqualTo(video.right),
+            reason: '$key is not on the right-hand panel',
+          );
           expect(screen.contains(r.center), isTrue, reason: '$key off screen');
           expect(r.left, greaterThanOrEqualTo(inset), reason: '$key in cutout');
         }
@@ -376,6 +381,22 @@ void main() {
         expect(kid.player.loaded.last, ('bbbbbbbbbbb', true));
 
         // Pick a video from the thumbnails.
+        await tester.tap(find.byKey(const Key('kid-pick-video')));
+        await tester.pumpAndSettle();
+        // The picker replaces the panel; nothing is drawn over the video.
+        final pickerRect = tester.getRect(
+          find.byKey(const Key('kid-video-picker')),
+        );
+        expect(pickerRect.overlaps(video), isFalse);
+        expect(
+          tester.getRect(find.byKey(const Key('fake-player'))),
+          video,
+          reason: 'the video stays put',
+        );
+        // Close without choosing, then open again and choose.
+        await tester.tap(find.byKey(const Key('kid-close-picker')));
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('kid-video-picker')), findsNothing);
         await tester.tap(find.byKey(const Key('kid-pick-video')));
         await tester.pumpAndSettle();
         await tester.tap(find.byKey(const Key('kid-thumb-0')));

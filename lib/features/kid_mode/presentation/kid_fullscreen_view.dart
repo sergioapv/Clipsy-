@@ -11,13 +11,16 @@ import 'widgets/kid_thumbnail_strip.dart';
 
 /// Full-screen playback in Kid mode (landscape).
 ///
-/// Everything stays visible, on every phone: a column on each side of the
-/// video holds the countdown and the parent lock (left) and pause/play, next
-/// video, the video picker and exit full screen (right). When the screen's
-/// own black bars are too narrow, the video shrinks a little to make room,
-/// so controls never sit on the video, its ads or YouTube's branding.
-/// System back also leaves full screen (handled by the Kid mode screen),
-/// never Kid mode.
+/// The video sits on the left; one panel on the right holds everything,
+/// always visible: the countdown and parent lock, pause/play and next video,
+/// the video picker and exit full screen. Choosing a video turns the panel
+/// into a list of thumbnails.
+///
+/// Nothing is ever drawn over the YouTube player: it's a native web view, and
+/// overlays on it are unreliable on some Android devices (and could cover
+/// ads or branding). When the screen's spare width is too narrow for the
+/// panel, the video shrinks to make room. System back leaves full screen
+/// (handled by the Kid mode screen), never Kid mode.
 class KidFullscreenView extends StatefulWidget {
   const KidFullscreenView({
     required this.state,
@@ -38,8 +41,8 @@ class KidFullscreenView extends StatefulWidget {
   final ValueChanged<int> onSelect;
   final VoidCallback onExitFullscreen;
 
-  /// Each side column is at least this wide.
-  static const columnWidth = 88.0;
+  /// The control panel is at least this wide.
+  static const panelMinWidth = 160.0;
 
   @override
   State<KidFullscreenView> createState() => _KidFullscreenViewState();
@@ -55,141 +58,158 @@ class _KidFullscreenViewState extends State<KidFullscreenView> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final s = widget.state;
-    final watching = s.session.status == KidSessionStatus.watching;
-    final multiple = s.session.videos.length > 1;
-
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, c) {
-            final column = math.max(
-              KidFullscreenView.columnWidth,
-              (c.maxWidth - c.maxHeight * 16 / 9) / 2,
+            final panel = math.max(
+              KidFullscreenView.panelMinWidth,
+              c.maxWidth - c.maxHeight * 16 / 9,
             );
-            final videoWidth = math.max(0.0, c.maxWidth - 2 * column);
+            final videoWidth = math.max(0.0, c.maxWidth - panel);
             final videoHeight = math.min(c.maxHeight, videoWidth * 9 / 16);
-            // Four buttons stacked in the right column must fit the height.
-            final buttonSize = math.min(
-              60.0,
-              math.min(column - 16, (c.maxHeight - 48) / 4.4),
-            );
-
-            Widget button(
-              String key,
-              IconData icon,
-              String label,
-              VoidCallback onPressed,
-            ) => KidRoundButton(
-              key: Key(key),
-              icon: icon,
-              label: label,
-              onPressed: onPressed,
-              size: buttonSize,
-              dark: true,
-            );
-
             return Row(
               children: [
-                SizedBox(
-                  width: column,
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 8),
-                      widget.exitButton,
-                      const Spacer(),
-                      CompactTimeBadge(
-                        remaining: s.remaining,
-                        limit: s.session.clock.limit,
-                        almostDone: s.isAlmostDone,
-                        lastVideo:
-                            s.session.status == KidSessionStatus.finishingVideo,
-                        size: math.min(72, column - 12),
-                      ),
-                      const SizedBox(height: 16),
-                    ],
-                  ),
-                ),
                 Expanded(
-                  child: Stack(
-                    children: [
-                      Center(
-                        child: SizedBox(
-                          width: videoWidth,
-                          height: videoHeight,
-                          child: widget.player,
-                        ),
-                      ),
-                      if (_pickerOpen)
-                        Positioned(
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          child: Container(
-                            key: const Key('kid-video-picker'),
-                            height: math.min(150, c.maxHeight * 0.45),
-                            color: Colors.black87,
-                            padding: const EdgeInsets.all(12),
-                            child: LayoutBuilder(
-                              // Fit 16:9 thumbnails (plus their highlight
-                              // border) to the strip's height.
-                              builder: (context, strip) => KidThumbnailStrip(
-                                videos: s.session.videos,
-                                currentIndex: s.session.currentIndex,
-                                onSelect: _pick,
-                                tileWidth: (strip.maxHeight - 10) * 16 / 9,
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
+                  child: Center(
+                    child: SizedBox(
+                      width: videoWidth,
+                      height: videoHeight,
+                      child: widget.player,
+                    ),
                   ),
                 ),
                 SizedBox(
-                  width: column,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      button(
-                        'kid-play-pause',
-                        s.isPlaying
-                            ? Icons.pause_rounded
-                            : Icons.play_arrow_rounded,
-                        s.isPlaying ? l10n.kidPause : l10n.kidPlay,
-                        widget.onPlayPause,
-                      ),
-                      if (watching && multiple) ...[
-                        button(
-                          'kid-next',
-                          Icons.skip_next_rounded,
-                          l10n.kidNextVideo,
-                          widget.onNext,
-                        ),
-                        button(
-                          'kid-pick-video',
-                          _pickerOpen
-                              ? Icons.close_rounded
-                              : Icons.video_library_rounded,
-                          l10n.kidPickVideo,
-                          () => setState(() => _pickerOpen = !_pickerOpen),
-                        ),
-                      ],
-                      button(
-                        'kid-exit-fullscreen',
-                        Icons.fullscreen_exit_rounded,
-                        l10n.kidExitFullscreen,
-                        widget.onExitFullscreen,
-                      ),
-                    ],
-                  ),
+                  width: panel,
+                  height: c.maxHeight,
+                  child: _pickerOpen
+                      ? _picker(panel)
+                      : _controls(panel, c.maxHeight),
                 ),
               ],
             );
           },
         ),
       ),
+    );
+  }
+
+  /// Three rows of two: countdown + lock, pause/play + next,
+  /// choose a video + exit full screen.
+  Widget _controls(double width, double height) {
+    final l10n = context.l10n;
+    final s = widget.state;
+    final watching = s.session.status == KidSessionStatus.watching;
+    final multiple = s.session.videos.length > 1;
+    final size = math.min(64.0, math.min((width - 36) / 2, (height - 48) / 3));
+
+    Widget button(
+      String key,
+      IconData icon,
+      String label,
+      VoidCallback onPressed,
+    ) => KidRoundButton(
+      key: Key(key),
+      icon: icon,
+      label: label,
+      onPressed: onPressed,
+      size: size,
+      dark: true,
+    );
+
+    Widget row(Widget a, Widget? b) => Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        SizedBox(
+          width: size,
+          child: Center(child: a),
+        ),
+        SizedBox(
+          width: size,
+          child: b == null ? null : Center(child: b),
+        ),
+      ],
+    );
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        row(
+          CompactTimeBadge(
+            remaining: s.remaining,
+            limit: s.session.clock.limit,
+            almostDone: s.isAlmostDone,
+            lastVideo: s.session.status == KidSessionStatus.finishingVideo,
+            size: size,
+          ),
+          widget.exitButton,
+        ),
+        row(
+          button(
+            'kid-play-pause',
+            s.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+            s.isPlaying ? l10n.kidPause : l10n.kidPlay,
+            widget.onPlayPause,
+          ),
+          watching && multiple
+              ? button(
+                  'kid-next',
+                  Icons.skip_next_rounded,
+                  l10n.kidNextVideo,
+                  widget.onNext,
+                )
+              : null,
+        ),
+        row(
+          watching && multiple
+              ? button(
+                  'kid-pick-video',
+                  Icons.video_library_rounded,
+                  l10n.kidPickVideo,
+                  () => setState(() => _pickerOpen = true),
+                )
+              : const SizedBox.shrink(),
+          button(
+            'kid-exit-fullscreen',
+            Icons.fullscreen_exit_rounded,
+            l10n.kidExitFullscreen,
+            widget.onExitFullscreen,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// The panel as a scrolling list of thumbnails, with a close button.
+  Widget _picker(double width) {
+    final l10n = context.l10n;
+    return Column(
+      key: const Key('kid-video-picker'),
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8),
+          child: KidRoundButton(
+            key: const Key('kid-close-picker'),
+            icon: Icons.close_rounded,
+            label: l10n.close,
+            onPressed: () => setState(() => _pickerOpen = false),
+            size: 48,
+            dark: true,
+          ),
+        ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: KidThumbnailStrip(
+              videos: widget.state.session.videos,
+              currentIndex: widget.state.session.currentIndex,
+              onSelect: _pick,
+              axis: Axis.vertical,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
