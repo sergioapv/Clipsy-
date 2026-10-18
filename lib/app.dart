@@ -63,26 +63,3 @@ class _ClipsyAppState extends ConsumerState<ClipsyApp> {
     );
   }
 }
-
-/// Shown instead of the app when the build is missing its Supabase config.
-class ConfigMissingApp extends StatelessWidget {
-  const ConfigMissingApp({super.key});
-
-  @override
-  Widget build(BuildContext context) => MaterialApp(
-    theme: AppTheme.light(),
-    home: const Scaffold(
-      body: Padding(
-        padding: EdgeInsets.all(32),
-        child: Center(
-          child: Text(
-            'Clipsy is missing its Supabase configuration.\n\n'
-            'Run with:\nflutter run --dart-define-from-file=.env\n\n'
-            'See README.md → Setup.',
-            textAlign: TextAlign.center,
-          ),
-        ),
-      ),
-    ),
-  );
-}
