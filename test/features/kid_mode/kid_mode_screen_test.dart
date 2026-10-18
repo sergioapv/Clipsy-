@@ -319,86 +319,93 @@ void main() {
       expect(find.byType(KidModeScreen), findsOneWidget);
     });
 
-    testWidgets('on a typical phone the controls sit beside the video, '
-        'and next / pick a video work', (tester) async {
-      phone(tester);
-      final clock = FakeClock();
-      final kid = await _pumpInKidMode(tester, clock);
-      await tester.tap(find.byKey(const Key('kid-fullscreen')));
-      await tester.pumpAndSettle();
+    /// Landscape screens: a 20:9 phone, the same with a camera cutout
+    /// (safe-area inset), and a 16:9 phone that has no natural side bars.
+    const screens = {
+      '20:9 phone': (Size(2400, 1080), 2.75, 0.0),
+      '20:9 phone with cutout': (Size(2400, 1080), 2.75, 80.0),
+      '16:9 phone': (Size(1920, 1080), 3.0, 0.0),
+    };
+    const controls = [
+      'kid-play-pause',
+      'kid-next',
+      'kid-pick-video',
+      'kid-exit-fullscreen',
+      'kid-exit-button',
+      'kid-countdown',
+    ];
 
-      final video = tester.getRect(find.byKey(const Key('fake-player')));
-      for (final key in [
-        'kid-play-pause',
-        'kid-next',
-        'kid-pick-video',
-        'kid-exit-fullscreen',
-        'kid-exit-button',
-      ]) {
-        final r = tester.getRect(find.byKey(Key(key)));
-        expect(video.overlaps(r), isFalse, reason: key);
-      }
-      expect(find.byKey(const Key('kid-fullscreen-tap')), findsNothing);
+    for (final MapEntry(key: name, value: (size, dpr, inset))
+        in screens.entries) {
+      testWidgets('$name: every control and the countdown stay visible, '
+          'beside the video', (tester) async {
+        tester.view.physicalSize = size;
+        tester.view.devicePixelRatio = dpr;
+        tester.view.padding = FakeViewPadding(left: inset * dpr);
+        addTearDown(tester.view.reset);
+        final clock = FakeClock();
+        final kid = await _pumpInKidMode(tester, clock);
+        await tester.tap(find.byKey(const Key('kid-fullscreen')));
+        await tester.pumpAndSettle();
 
-      // Still there long after the auto-hide delay.
-      await tester.pump(KidFullscreenView.controlsTimeout * 2);
-      await tester.tap(find.byKey(const Key('kid-next')));
-      await tester.pump();
-      expect(kid.player.loaded.last, ('bbbbbbbbbbb', true));
+        // Long after any auto-hide would have kicked in.
+        await _elapse(tester, clock, const Duration(seconds: 30));
+        final screen = Offset.zero & (size / dpr);
+        final video = tester.getRect(find.byKey(const Key('fake-player')));
+        expect(video.width, greaterThan(200));
+        for (final key in controls) {
+          final finder = find.byKey(Key(key));
+          expect(finder, findsOneWidget, reason: key);
+          final r = tester.getRect(finder);
+          expect(video.overlaps(r), isFalse, reason: '$key covers the video');
+          expect(screen.contains(r.center), isTrue, reason: '$key off screen');
+          expect(r.left, greaterThanOrEqualTo(inset), reason: '$key in cutout');
+        }
 
-      await tester.tap(find.byKey(const Key('kid-pick-video')));
-      await tester.pumpAndSettle();
-      expect(find.byKey(const Key('kid-video-picker')), findsOneWidget);
-      await tester.tap(find.byKey(const Key('kid-thumb-0')));
-      await tester.pumpAndSettle();
-      expect(kid.player.loaded.last, ('aaaaaaaaaaa', true));
-      expect(find.byKey(const Key('kid-video-picker')), findsNothing);
-      expect(find.byType(KidFullscreenView), findsOneWidget);
+        // Play, then pause ("stop").
+        await tester.tap(find.byKey(const Key('kid-play-pause')));
+        await tester.pump();
+        expect(kid.player.plays, 1);
+        await tester.tap(find.byKey(const Key('kid-play-pause')));
+        await tester.pump();
+        expect(kid.player.pauses, greaterThanOrEqualTo(1));
 
-      // Next wraps round from the last video to the first.
-      await tester.tap(find.byKey(const Key('kid-next')));
-      await tester.pump();
-      await tester.tap(find.byKey(const Key('kid-next')));
-      await tester.pump();
-      expect(kid.player.loaded.last, ('aaaaaaaaaaa', true));
-    });
+        // Next video.
+        await tester.tap(find.byKey(const Key('kid-next')));
+        await tester.pump();
+        expect(kid.player.loaded.last, ('bbbbbbbbbbb', true));
 
-    testWidgets('16:9 screens show controls on tap; the picker keeps them up', (
+        // Pick a video from the thumbnails.
+        await tester.tap(find.byKey(const Key('kid-pick-video')));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const Key('kid-thumb-0')));
+        await tester.pumpAndSettle();
+        expect(kid.player.loaded.last, ('aaaaaaaaaaa', true));
+        expect(find.byKey(const Key('kid-video-picker')), findsNothing);
+
+        // Go back to the normal view.
+        await tester.tap(find.byKey(const Key('kid-exit-fullscreen')));
+        await tester.pumpAndSettle();
+        expect(find.byType(KidFullscreenView), findsNothing);
+        expect(find.byType(KidModeScreen), findsOneWidget);
+      });
+    }
+
+    testWidgets('the countdown shows minutes, then m:ss in the last minute', (
       tester,
     ) async {
-      tester.view.physicalSize = const Size(1920, 1080); // 640 x 360: 16:9
-      tester.view.devicePixelRatio = 3;
-      addTearDown(tester.view.reset);
       final clock = FakeClock();
-      final kid = await _pumpInKidMode(tester, clock);
+      await _pumpInKidMode(tester, clock, limit: const Duration(minutes: 3));
       await tester.tap(find.byKey(const Key('kid-fullscreen')));
       await tester.pumpAndSettle();
-
-      double opacity() => tester
-          .widget<AnimatedOpacity>(find.byType(AnimatedOpacity).last)
-          .opacity;
-      expect(opacity(), 1);
-      await tester.pump(KidFullscreenView.controlsTimeout);
-      await tester.pumpAndSettle();
-      expect(opacity(), 0);
-
-      await tester.tap(find.byKey(const Key('kid-fullscreen-tap')));
-      await tester.pumpAndSettle();
-      expect(opacity(), 1);
-      await tester.tap(find.byKey(const Key('kid-play-pause')));
-      await tester.pump();
-      expect(kid.player.plays, 1);
-
-      await tester.tap(find.byKey(const Key('kid-pick-video')));
-      await tester.pumpAndSettle();
-      await tester.pump(KidFullscreenView.controlsTimeout * 2);
-      await tester.pumpAndSettle();
-      expect(opacity(), 1, reason: 'no auto-hide while choosing');
-      await tester.tap(find.byKey(const Key('kid-thumb-1')));
-      await tester.pumpAndSettle();
-      expect(kid.player.loaded.last, ('bbbbbbbbbbb', true));
+      Finder inCountdown(String text) => find.descendant(
+        of: find.byKey(const Key('kid-countdown')),
+        matching: find.text(text),
+      );
+      expect(inCountdown('3'), findsOneWidget);
+      await _elapse(tester, clock, const Duration(minutes: 2, seconds: 15));
+      expect(inCountdown('0:45'), findsOneWidget);
     });
-
     testWidgets("time's up leaves full screen", (tester) async {
       final calls = await recordPlatformCalls(tester);
       final clock = FakeClock();

@@ -705,4 +705,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get kidPickVideo => 'Escolher um vídeo';
+
+  @override
+  String get minutesUnit => 'min';
 }

@@ -12,6 +12,7 @@ class KidThumbnailStrip extends StatelessWidget {
     required this.onSelect,
     this.enabled = true,
     this.axis = Axis.horizontal,
+    this.tileWidth = 220,
     super.key,
   });
 
@@ -20,6 +21,9 @@ class KidThumbnailStrip extends StatelessWidget {
   final ValueChanged<int> onSelect;
   final bool enabled;
   final Axis axis;
+
+  /// Width of each thumbnail in a horizontal strip.
+  final double tileWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +71,7 @@ class KidThumbnailStrip extends StatelessWidget {
         return horizontal
             ? Align(
                 alignment: Alignment.topCenter,
-                child: SizedBox(width: 220, child: tile),
+                child: SizedBox(width: tileWidth, child: tile),
               )
             : tile;
       },

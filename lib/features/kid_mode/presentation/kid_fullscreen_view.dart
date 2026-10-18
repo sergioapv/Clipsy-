@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -6,18 +5,19 @@ import 'package:flutter/material.dart';
 import '../../../core/l10n/l10n.dart';
 import '../domain/kid_session.dart';
 import 'kid_mode_controller.dart';
+import 'widgets/compact_time_badge.dart';
 import 'widgets/kid_round_button.dart';
 import 'widgets/kid_thumbnail_strip.dart';
-import 'widgets/time_badge.dart';
 
 /// Full-screen playback in Kid mode (landscape).
 ///
-/// Controls: play/pause, next video, a video picker, and exit full screen,
-/// plus the timer and the parent lock. On most phones they live in the black
-/// bars beside the 16:9 video, so nothing covers it. On screens without room
-/// for that they appear on tap and hide again after a few seconds, so ads and
-/// YouTube branding stay visible. System back leaves full screen (handled by
-/// the Kid mode screen), never Kid mode.
+/// Everything stays visible, on every phone: a column on each side of the
+/// video holds the countdown and the parent lock (left) and pause/play, next
+/// video, the video picker and exit full screen (right). When the screen's
+/// own black bars are too narrow, the video shrinks a little to make room,
+/// so controls never sit on the video, its ads or YouTube's branding.
+/// System back also leaves full screen (handled by the Kid mode screen),
+/// never Kid mode.
 class KidFullscreenView extends StatefulWidget {
   const KidFullscreenView({
     required this.state,
@@ -38,242 +38,153 @@ class KidFullscreenView extends StatefulWidget {
   final ValueChanged<int> onSelect;
   final VoidCallback onExitFullscreen;
 
-  /// Black bars at least this wide hold the controls.
-  static const sideBarMinWidth = 72.0;
-
-  /// How long tap-revealed controls stay visible.
-  static const controlsTimeout = Duration(seconds: 4);
+  /// Each side column is at least this wide.
+  static const columnWidth = 88.0;
 
   @override
   State<KidFullscreenView> createState() => _KidFullscreenViewState();
 }
 
 class _KidFullscreenViewState extends State<KidFullscreenView> {
-  bool _controlsVisible = true;
   bool _pickerOpen = false;
-  Timer? _hide;
-
-  @override
-  void initState() {
-    super.initState();
-    _scheduleHide();
-  }
-
-  @override
-  void dispose() {
-    _hide?.cancel();
-    super.dispose();
-  }
-
-  void _scheduleHide() {
-    _hide?.cancel();
-    _hide = Timer(KidFullscreenView.controlsTimeout, () {
-      // Never hide while the child is choosing a video.
-      if (mounted && !_pickerOpen) setState(() => _controlsVisible = false);
-    });
-  }
-
-  void _showControls() {
-    setState(() => _controlsVisible = true);
-    _scheduleHide();
-  }
-
-  void _togglePicker() {
-    setState(() {
-      _pickerOpen = !_pickerOpen;
-      _controlsVisible = true;
-    });
-    _scheduleHide();
-  }
 
   void _pick(int index) {
     widget.onSelect(index);
     setState(() => _pickerOpen = false);
-    _scheduleHide();
   }
 
-  /// Wraps a control so using it also keeps the controls on screen.
-  VoidCallback _keepAlive(VoidCallback action) => () {
-    action();
-    _scheduleHide();
-  };
-
-  List<Widget> _buttons(double size) {
+  @override
+  Widget build(BuildContext context) {
     final l10n = context.l10n;
     final s = widget.state;
     final watching = s.session.status == KidSessionStatus.watching;
     final multiple = s.session.videos.length > 1;
-    return [
-      KidRoundButton(
-        key: const Key('kid-play-pause'),
-        icon: s.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
-        label: s.isPlaying ? l10n.kidPause : l10n.kidPlay,
-        onPressed: _keepAlive(widget.onPlayPause),
-        size: size,
-        dark: true,
-      ),
-      if (watching && multiple) ...[
-        KidRoundButton(
-          key: const Key('kid-next'),
-          icon: Icons.skip_next_rounded,
-          label: l10n.kidNextVideo,
-          onPressed: _keepAlive(widget.onNext),
-          size: size,
-          dark: true,
-        ),
-        KidRoundButton(
-          key: const Key('kid-pick-video'),
-          icon: Icons.video_library_rounded,
-          label: l10n.kidPickVideo,
-          onPressed: _togglePicker,
-          size: size,
-          dark: true,
-        ),
-      ],
-      KidRoundButton(
-        key: const Key('kid-exit-fullscreen'),
-        icon: Icons.fullscreen_exit_rounded,
-        label: l10n.kidExitFullscreen,
-        onPressed: widget.onExitFullscreen,
-        size: size,
-        dark: true,
-      ),
-    ];
-  }
-
-  Widget _picker() => Container(
-    key: const Key('kid-video-picker'),
-    height: 150,
-    color: Colors.black87,
-    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-    child: KidThumbnailStrip(
-      videos: widget.state.session.videos,
-      currentIndex: widget.state.session.currentIndex,
-      onSelect: _pick,
-    ),
-  );
-
-  @override
-  Widget build(BuildContext context) {
-    final s = widget.state;
-    final badge = FittedBox(
-      fit: BoxFit.scaleDown,
-      child: TimeBadge(
-        remaining: s.remaining,
-        limit: s.session.clock.limit,
-        almostDone: s.isAlmostDone,
-        lastVideo: s.session.status == KidSessionStatus.finishingVideo,
-      ),
-    );
 
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, c) {
-            final videoWidth = math.min(c.maxWidth, c.maxHeight * 16 / 9);
-            final sideBar = (c.maxWidth - videoWidth) / 2;
-            final video = Center(
-              child: SizedBox(
-                width: videoWidth,
-                height: videoWidth * 9 / 16,
-                child: widget.player,
-              ),
+            final column = math.max(
+              KidFullscreenView.columnWidth,
+              (c.maxWidth - c.maxHeight * 16 / 9) / 2,
             );
-            final picker = Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: _picker(),
+            final videoWidth = math.max(0.0, c.maxWidth - 2 * column);
+            final videoHeight = math.min(c.maxHeight, videoWidth * 9 / 16);
+            // Four buttons stacked in the right column must fit the height.
+            final buttonSize = math.min(
+              60.0,
+              math.min(column - 16, (c.maxHeight - 48) / 4.4),
             );
 
-            if (sideBar >= KidFullscreenView.sideBarMinWidth) {
-              // Controls live in the black bars; nothing covers the video
-              // unless the child opens the video picker.
-              final size = math.min(64.0, sideBar - 16);
-              final buttons = _buttons(size);
-              return Stack(
-                children: [
-                  Row(
+            Widget button(
+              String key,
+              IconData icon,
+              String label,
+              VoidCallback onPressed,
+            ) => KidRoundButton(
+              key: Key(key),
+              icon: icon,
+              label: label,
+              onPressed: onPressed,
+              size: buttonSize,
+              dark: true,
+            );
+
+            return Row(
+              children: [
+                SizedBox(
+                  width: column,
+                  child: Column(
                     children: [
-                      SizedBox(
-                        width: sideBar,
-                        child: Column(
-                          children: [
-                            const SizedBox(height: 8),
-                            widget.exitButton,
-                            const Spacer(),
-                            Padding(
-                              padding: const EdgeInsets.all(4),
-                              child: badge,
-                            ),
-                            const SizedBox(height: 8),
-                          ],
+                      const SizedBox(height: 8),
+                      widget.exitButton,
+                      const Spacer(),
+                      CompactTimeBadge(
+                        remaining: s.remaining,
+                        limit: s.session.clock.limit,
+                        almostDone: s.isAlmostDone,
+                        lastVideo:
+                            s.session.status == KidSessionStatus.finishingVideo,
+                        size: math.min(72, column - 12),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Stack(
+                    children: [
+                      Center(
+                        child: SizedBox(
+                          width: videoWidth,
+                          height: videoHeight,
+                          child: widget.player,
                         ),
                       ),
-                      Expanded(child: video),
-                      SizedBox(
-                        width: sideBar,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: buttons,
+                      if (_pickerOpen)
+                        Positioned(
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          child: Container(
+                            key: const Key('kid-video-picker'),
+                            height: math.min(150, c.maxHeight * 0.45),
+                            color: Colors.black87,
+                            padding: const EdgeInsets.all(12),
+                            child: LayoutBuilder(
+                              // Fit 16:9 thumbnails (plus their highlight
+                              // border) to the strip's height.
+                              builder: (context, strip) => KidThumbnailStrip(
+                                videos: s.session.videos,
+                                currentIndex: s.session.currentIndex,
+                                onSelect: _pick,
+                                tileWidth: (strip.maxHeight - 10) * 16 / 9,
+                              ),
+                            ),
+                          ),
                         ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  width: column,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      button(
+                        'kid-play-pause',
+                        s.isPlaying
+                            ? Icons.pause_rounded
+                            : Icons.play_arrow_rounded,
+                        s.isPlaying ? l10n.kidPause : l10n.kidPlay,
+                        widget.onPlayPause,
+                      ),
+                      if (watching && multiple) ...[
+                        button(
+                          'kid-next',
+                          Icons.skip_next_rounded,
+                          l10n.kidNextVideo,
+                          widget.onNext,
+                        ),
+                        button(
+                          'kid-pick-video',
+                          _pickerOpen
+                              ? Icons.close_rounded
+                              : Icons.video_library_rounded,
+                          l10n.kidPickVideo,
+                          () => setState(() => _pickerOpen = !_pickerOpen),
+                        ),
+                      ],
+                      button(
+                        'kid-exit-fullscreen',
+                        Icons.fullscreen_exit_rounded,
+                        l10n.kidExitFullscreen,
+                        widget.onExitFullscreen,
                       ),
                     ],
                   ),
-                  if (_pickerOpen) picker,
-                ],
-              );
-            }
-
-            // No room beside the video: controls over it, shown on tap.
-            final buttons = _buttons(64);
-            return Stack(
-              children: [
-                video,
-                Positioned.fill(
-                  child: GestureDetector(
-                    key: const Key('kid-fullscreen-tap'),
-                    behavior: HitTestBehavior.opaque,
-                    onTap: _showControls,
-                  ),
                 ),
-                Positioned.fill(
-                  child: IgnorePointer(
-                    ignoring: !_controlsVisible,
-                    child: AnimatedOpacity(
-                      opacity: _controlsVisible ? 1 : 0,
-                      duration: const Duration(milliseconds: 250),
-                      child: Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                badge,
-                                const Spacer(),
-                                widget.exitButton,
-                              ],
-                            ),
-                            const Spacer(),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                for (final (i, b) in buttons.indexed) ...[
-                                  if (i > 0) const SizedBox(width: 20),
-                                  b,
-                                ],
-                              ],
-                            ),
-                            // Keep the buttons above the open picker.
-                            if (_pickerOpen) const SizedBox(height: 150),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                if (_pickerOpen) picker,
               ],
             );
           },

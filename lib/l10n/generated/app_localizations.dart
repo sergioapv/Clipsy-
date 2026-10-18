@@ -1231,6 +1231,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose a video'**
   String get kidPickVideo;
+
+  /// No description provided for @minutesUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'min'**
+  String get minutesUnit;
 }
 
 class _AppLocalizationsDelegate

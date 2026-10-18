@@ -699,4 +699,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get kidPickVideo => 'Choose a video';
+
+  @override
+  String get minutesUnit => 'min';
 }

@@ -375,5 +375,6 @@
     }
   },
   "kidNextVideo": "Next video",
-  "kidPickVideo": "Choose a video"
+  "kidPickVideo": "Choose a video",
+  "minutesUnit": "min"
 }

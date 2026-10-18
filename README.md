@@ -266,14 +266,15 @@ pure function, and it is unit-tested.
   for the PIN, then offers +5/+10/+15 minutes or exit.
 - **Full screen**: a button next to play/pause switches to landscape full
   screen without reloading the video (the player is moved with a GlobalKey).
-  Full-screen controls are play/pause, next video, a video picker (big
-  thumbnails), and exit full screen, plus the timer and the parent lock.
-  - On most phones (black bars at least 72 px wide) the controls sit beside
-    the 16:9 video. On 16:9 screens they appear on tap and hide after 4 s,
-    but never while the picker is open.
-  - System back leaves full screen, never Kid mode.
-  - On phones the normal view is portrait, so leaving full screen visibly
-    rotates back. Time's up leaves full screen.
+  - Everything stays visible on every phone. A column each side of the video
+    holds the countdown (minutes in a ring, m:ss in the last minute) and the
+    parent lock on the left, and pause/play, next video, a video picker and
+    exit full screen on the right.
+  - Where the screen's black bars are too narrow (16:9 phones, camera
+    cutouts), the video shrinks a little to make room, so controls never
+    cover it.
+  - System back leaves full screen, never Kid mode. On phones the normal view
+    is portrait. Time's up leaves full screen.
 - **iOS**: apps can't lock themselves. Clipsy detects Guided Access over a
   platform channel and explains how to turn it on.
 - **Forgot the PIN while in Kid mode**: unpin the app (Back + Overview),
