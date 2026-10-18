@@ -47,6 +47,39 @@ class OEmbedClient {
     }
   }
 
+  /// Title and channel of a playlist (oEmbed accepts playlist links too).
+  /// Throws [VideoLookupError.notFound] when YouTube says it doesn't exist;
+  /// `null` for anything else, since the title is only nice to have.
+  Future<({String title, String? channelName})?> fetchPlaylistInfo(
+    String playlistId,
+  ) async {
+    final uri = Uri.https('www.youtube.com', '/oembed', {
+      'url': Uri.https('www.youtube.com', '/playlist', {
+        'list': playlistId,
+      }).toString(),
+      'format': 'json',
+    });
+    try {
+      final res = await _http.get(uri).timeout(timeout);
+      if (res.statusCode == 404 || res.statusCode == 401) {
+        throw const VideoLookupException(VideoLookupError.notFound);
+      }
+      if (res.statusCode != 200) return null;
+      final json = jsonDecode(res.body);
+      if (json is! Map<String, Object?>) return null;
+      final title = (json['title'] as String?)?.trim();
+      if (title == null || title.isEmpty) return null;
+      return (
+        title: _clip(title, 300),
+        channelName: (json['author_name'] as String?)?.trim(),
+      );
+    } on VideoLookupException {
+      rethrow;
+    } on Exception {
+      return null;
+    }
+  }
+
   static VideoMetadata _parse(String videoId, String body) {
     final Object? json;
     try {

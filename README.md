@@ -221,6 +221,18 @@ pure function, and it is unit-tested.
   every video page and runs the same oEmbed checks as a pasted link. The
   browser stays on YouTube (`YouTubeBrowsePolicy`): app hand-offs and other
   sites are blocked. Kid mode never gets a browser.
+- **Whole YouTube playlists, without the YouTube Data API**: from a playlist
+  page in the browser, or a pasted playlist link. An invisible, muted
+  official IFrame player (inside the import sheet) cues the playlist and
+  `getPlaylist()` returns its video IDs. oEmbed then gives the playlist title
+  and checks every video (4 at a time, with progress), so private, removed
+  and non-embeddable ones are skipped. No API key and no server involved.
+  - Tested against real YouTube in Chromium: a 41-video playlist listed in
+    0.5 s; the player returns at most 200 IDs, which matches the 200-video
+    limit, and a full list is flagged as possibly cut off.
+  - Auto-generated lists (mixes `RD…`, YouTube Music charts) and personal
+    lists aren't listed by the player. Unknown playlists fail fast through
+    oEmbed; others give up after 12 s.
 - The cover is the first available video's thumbnail. A database trigger
   keeps it up to date (migration `20261018000000`).
 - The parent's playlist order is `sort_index`. New playlists go to the top,

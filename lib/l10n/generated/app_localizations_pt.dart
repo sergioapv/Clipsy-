@@ -628,8 +628,75 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
+  String get addWholePlaylist => 'Adicionar a lista toda';
+
+  @override
+  String get addWholePlaylistInstead => 'Adicionar antes a lista toda';
+
+  @override
+  String get importPlaylistTitle => 'Adicionar uma lista do YouTube';
+
+  @override
+  String importAddVideos(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Adicionar $count vídeos',
+      one: 'Adicionar 1 vídeo',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importNothingToAdd => 'Nada de novo para adicionar';
+
+  @override
+  String importAlreadyThere(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count vídeos já estão nesta lista',
+      one: '1 vídeo já está nesta lista',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importUnavailable(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count vídeos não podem ser reproduzidos no Clipsy (privados, removidos ou sem incorporação) e serão ignorados',
+      one: '1 vídeo não pode ser reproduzido no Clipsy (privado, removido ou sem incorporação) e será ignorado',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importOverLimit(int max) {
+    return 'Uma lista pode ter até $max vídeos, por isso alguns ficam de fora.';
+  }
+
+  @override
+  String get importErrorUnsupported =>
+      'Misturas e listas pessoais (como Ver mais tarde) não podem ser adicionadas. Abra uma lista normal.';
+
+  @override
+  String get importErrorNotFound =>
+      'Não conseguimos ler essa lista. Pode ser privada, ter sido eliminada ou estar vazia.';
+
+  @override
   String get kidFullscreen => 'Ecrã inteiro';
 
   @override
   String get kidExitFullscreen => 'Sair do ecrã inteiro';
+
+  @override
+  String get importFindingVideos => 'A procurar os vídeos da lista…';
+
+  @override
+  String importCheckingVideos(int checked, int total) {
+    return 'A verificar vídeos… $checked de $total';
+  }
 }

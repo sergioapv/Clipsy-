@@ -1136,6 +1136,66 @@ abstract class AppLocalizations {
   /// **'Added “{title}”'**
   String videoAddedNamed(String title);
 
+  /// No description provided for @addWholePlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'Add whole playlist'**
+  String get addWholePlaylist;
+
+  /// No description provided for @addWholePlaylistInstead.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the whole playlist instead'**
+  String get addWholePlaylistInstead;
+
+  /// No description provided for @importPlaylistTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a YouTube playlist'**
+  String get importPlaylistTitle;
+
+  /// No description provided for @importAddVideos.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Add 1 video} other{Add {count} videos}}'**
+  String importAddVideos(int count);
+
+  /// No description provided for @importNothingToAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing new to add'**
+  String get importNothingToAdd;
+
+  /// No description provided for @importAlreadyThere.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 video is already in this playlist} other{{count} videos are already in this playlist}}'**
+  String importAlreadyThere(int count);
+
+  /// No description provided for @importUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 video can\'t play in Clipsy (private, removed or not embeddable) and will be skipped} other{{count} videos can\'t play in Clipsy (private, removed or not embeddable) and will be skipped}}'**
+  String importUnavailable(int count);
+
+  /// No description provided for @importOverLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'A playlist can hold up to {max} videos, so some will be left out.'**
+  String importOverLimit(int max);
+
+  /// No description provided for @importErrorUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'Mixes and personal lists (like Watch later) can\'t be added. Open a regular playlist instead.'**
+  String get importErrorUnsupported;
+
+  /// No description provided for @importErrorNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t read that playlist. It may be private, deleted or empty.'**
+  String get importErrorNotFound;
+
   /// No description provided for @kidFullscreen.
   ///
   /// In en, this message translates to:
@@ -1147,6 +1207,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Exit full screen'**
   String get kidExitFullscreen;
+
+  /// No description provided for @importFindingVideos.
+  ///
+  /// In en, this message translates to:
+  /// **'Finding the playlist\'s videos…'**
+  String get importFindingVideos;
+
+  /// No description provided for @importCheckingVideos.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking videos… {checked} of {total}'**
+  String importCheckingVideos(int checked, int total);
 }
 
 class _AppLocalizationsDelegate

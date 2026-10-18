@@ -193,6 +193,59 @@ final class InAppBrowserProvider
 
 String _$inAppBrowserHash() => r'20917f43ea6aae396e47f14716ab255989b77e70';
 
+/// Playlist import; holds a hidden player, so it lives with the import sheet.
+
+@ProviderFor(youTubePlaylistRepository)
+final youTubePlaylistRepositoryProvider = YouTubePlaylistRepositoryProvider._();
+
+/// Playlist import; holds a hidden player, so it lives with the import sheet.
+
+final class YouTubePlaylistRepositoryProvider
+    extends
+        $FunctionalProvider<
+          YouTubePlaylistRepository,
+          YouTubePlaylistRepository,
+          YouTubePlaylistRepository
+        >
+    with $Provider<YouTubePlaylistRepository> {
+  /// Playlist import; holds a hidden player, so it lives with the import sheet.
+  YouTubePlaylistRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'youTubePlaylistRepositoryProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$youTubePlaylistRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<YouTubePlaylistRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  YouTubePlaylistRepository create(Ref ref) {
+    return youTubePlaylistRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(YouTubePlaylistRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<YouTubePlaylistRepository>(value),
+    );
+  }
+}
+
+String _$youTubePlaylistRepositoryHash() =>
+    r'b2a1589d91e6a3d2af0e08a90694697b324396db';
+
 /// All labels, in display order. Rarely changes, so kept for the session.
 
 @ProviderFor(labels)
@@ -334,7 +387,7 @@ final class PlaylistDetailControllerProvider
 }
 
 String _$playlistDetailControllerHash() =>
-    r'98d24892beae8f12cc102801b20496ac89a59d07';
+    r'58a61630fb35eff936c1433df19ab3b273393764';
 
 /// One playlist with its videos, plus the edits made on its screen.
 

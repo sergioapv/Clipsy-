@@ -1,5 +1,7 @@
 import 'package:clipsy/features/playlists/data/oembed_client.dart';
 import 'package:clipsy/features/playlists/data/playlist_repository.dart';
+import 'package:clipsy/features/playlists/data/youtube_playlist_repository.dart';
+import 'package:clipsy/features/playlists/domain/imported_playlist.dart';
 import 'package:clipsy/features/playlists/domain/in_app_browser.dart';
 import 'package:clipsy/features/playlists/domain/label.dart';
 import 'package:clipsy/features/playlists/domain/playlist.dart';
@@ -149,6 +151,19 @@ class FakePlaylistRepository implements PlaylistRepository {
   }
 
   @override
+  Future<List<PlaylistVideo>> addVideos(
+    String playlistId,
+    List<VideoMetadata> videos, {
+    required int startPosition,
+  }) async {
+    _maybeFail('addVideos');
+    return [
+      for (final (i, v) in videos.indexed)
+        await addVideo(playlistId, v, position: startPosition + i),
+    ];
+  }
+
+  @override
   Future<void> removeVideo(String videoId) async {
     _maybeFail('removeVideo');
     for (final list in videos.values) {
@@ -267,4 +282,28 @@ class FakeInAppBrowser implements InAppBrowser {
 
   @override
   Future<void> dispose() async {}
+}
+
+class FakeYouTubePlaylistRepository implements YouTubePlaylistRepository {
+  final playlists = <String, ImportedPlaylist>{};
+  PlaylistImportError? error;
+
+  @override
+  Widget buildHost(BuildContext context) =>
+      const SizedBox(key: Key('fake-playlist-host'));
+
+  @override
+  Future<ImportedPlaylist> fetch(
+    String playlistId, {
+    void Function(int checked, int total)? onProgress,
+  }) async {
+    final e = error;
+    if (e != null) throw PlaylistImportException(e);
+    final p = playlists[playlistId];
+    if (p == null) {
+      throw const PlaylistImportException(PlaylistImportError.notFound);
+    }
+    onProgress?.call(p.videos.length, p.videos.length);
+    return p;
+  }
 }
