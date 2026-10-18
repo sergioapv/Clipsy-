@@ -48,6 +48,8 @@ jobs:
             --dart-define=SUPABASE_URL="$SUPABASE_URL" \
             --dart-define=SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY" \
             --dart-define=PRIVACY_POLICY_URL="$PRIVACY_POLICY_URL"
+      - name: Verify JNI lookups survived R8
+        run: tool/check_jni_keep.sh build/app/outputs/flutter-apk/app-release.apk
       - uses: actions/upload-artifact@v4
         with:
           name: clipsy-apk
