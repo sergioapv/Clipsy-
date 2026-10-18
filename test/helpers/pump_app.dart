@@ -29,6 +29,7 @@ Future<void> pumpClipsy(
   FakeClock? clock,
   FakeKidPlayer? player,
   FakeDeviceLock? deviceLock,
+  FakeInAppBrowser? browser,
 }) async {
   SharedPreferences.setMockInitialValues(prefs);
   final sharedPrefs = await SharedPreferences.getInstance();
@@ -47,6 +48,9 @@ Future<void> pumpClipsy(
         clockProvider.overrideWithValue((clock ?? FakeClock()).call),
         kidPlayerProvider.overrideWith((ref) => player ?? FakeKidPlayer()),
         deviceLockProvider.overrideWithValue(deviceLock ?? FakeDeviceLock()),
+        inAppBrowserProvider.overrideWith(
+          (ref) => browser ?? FakeInAppBrowser(),
+        ),
         sharedPreferencesProvider.overrideWithValue(sharedPrefs),
         secureStoreProvider.overrideWithValue(secure),
         authRepositoryProvider.overrideWithValue(auth),
@@ -78,6 +82,7 @@ Future<void> pumpUnlockedClipsy(
   FakeClock? clock,
   FakeKidPlayer? player,
   FakeDeviceLock? deviceLock,
+  FakeInAppBrowser? browser,
   Map<String, Object> prefs = const {},
 }) async {
   final store = InMemorySecureStore({
@@ -93,6 +98,7 @@ Future<void> pumpUnlockedClipsy(
     clock: clock,
     player: player,
     deviceLock: deviceLock,
+    browser: browser,
   );
   await enterPin(tester, '2468');
 }

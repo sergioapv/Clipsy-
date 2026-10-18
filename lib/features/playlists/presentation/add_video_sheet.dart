@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/l10n/l10n.dart';
+import '../../../core/router/routes.dart';
 import '../domain/video_metadata.dart';
 import '../domain/youtube_url_parser.dart';
 import 'playlist_l10n.dart';
@@ -122,7 +124,33 @@ class _AddVideoSheetState extends ConsumerState<AddVideoSheet> {
           Text(l10n.addVideo, style: theme.textTheme.titleLarge),
           const SizedBox(height: 4),
           Text(l10n.addVideoHint, style: theme.textTheme.bodyMedium),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
+          OutlinedButton.icon(
+            key: const Key('browse-youtube'),
+            onPressed: _busy
+                ? null
+                : () {
+                    final router = GoRouter.of(context);
+                    Navigator.of(context).pop();
+                    unawaited(
+                      router.push(Routes.browseYouTube(widget.playlistId)),
+                    );
+                  },
+            icon: const Icon(Icons.travel_explore),
+            label: Text(l10n.browseYouTube),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              const Expanded(child: Divider()),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Text(l10n.orPasteLink),
+              ),
+              const Expanded(child: Divider()),
+            ],
+          ),
+          const SizedBox(height: 12),
           TextField(
             key: const Key('video-url-field'),
             controller: _input,

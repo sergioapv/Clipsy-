@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -12,6 +12,7 @@ import '../../features/kid_mode/presentation/kid_mode_screen.dart';
 import '../../features/playlists/presentation/playlist_detail_screen.dart';
 import '../../features/playlists/presentation/playlist_editor_screen.dart';
 import '../../features/playlists/presentation/playlists_screen.dart';
+import '../../features/playlists/presentation/youtube_browser_screen.dart';
 import '../../features/settings/presentation/settings_screen.dart';
 import '../widgets/parent_shell.dart';
 import 'app_gate.dart';
@@ -20,12 +21,16 @@ import 'routes.dart';
 
 part 'app_router.g.dart';
 
+/// The app's top-level navigator, for routes shown above the parent shell.
+final rootNavigatorKey = GlobalKey<NavigatorState>();
+
 @Riverpod(keepAlive: true)
 GoRouter appRouter(Ref ref) {
   final gate = ValueNotifier<AppGate>(ref.read(appGateProvider));
   ref.listen(appGateProvider, (_, next) => gate.value = next);
 
   final router = GoRouter(
+    navigatorKey: rootNavigatorKey,
     initialLocation: Routes.home,
     refreshListenable: gate,
     redirect: (context, state) => redirectFor(gate.value, state.uri),
@@ -78,6 +83,14 @@ GoRouter appRouter(Ref ref) {
                         path: 'edit',
                         builder: (context, state) => PlaylistEditorScreen(
                           playlistId: state.pathParameters['id'],
+                        ),
+                      ),
+                      GoRoute(
+                        path: 'browse',
+                        // Full screen, above the bottom navigation.
+                        parentNavigatorKey: rootNavigatorKey,
+                        builder: (context, state) => YouTubeBrowserScreen(
+                          playlistId: state.pathParameters['id']!,
                         ),
                       ),
                     ],

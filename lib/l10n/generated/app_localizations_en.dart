@@ -595,4 +595,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guidedAccessOffShort => 'Off · tap for how to turn it on';
+
+  @override
+  String get browseYouTube => 'Browse YouTube';
+
+  @override
+  String get orPasteLink => 'or paste a link';
+
+  @override
+  String get close => 'Close';
+
+  @override
+  String get back => 'Back';
+
+  @override
+  String get inPlaylist => 'In this playlist';
+
+  @override
+  String addToNamedPlaylist(String title) {
+    return 'Add to “$title”';
+  }
+
+  @override
+  String videoAddedNamed(String title) {
+    return 'Added “$title”';
+  }
 }

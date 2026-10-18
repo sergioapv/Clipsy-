@@ -216,6 +216,11 @@ pure function, and it is unit-tested.
   gone; each gets its own friendly message. No API key is needed.
 - Thumbnails are always built from the video ID on `i.ytimg.com`, never
   taken from the response.
+- **Browse YouTube** (parent mode only): from "Add video", parents can browse
+  YouTube's mobile site inside Clipsy. An "Add to playlist" button appears on
+  every video page and runs the same oEmbed checks as a pasted link. The
+  browser stays on YouTube (`YouTubeBrowsePolicy`): app hand-offs and other
+  sites are blocked. Kid mode never gets a browser.
 - The cover is the first available video's thumbnail. A database trigger
   keeps it up to date (migration `20261018000000`).
 - The parent's playlist order is `sort_index`. New playlists go to the top,

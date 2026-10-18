@@ -147,6 +147,52 @@ final class VideoLookupRepositoryProvider
 String _$videoLookupRepositoryHash() =>
     r'49eed8a1faf2a77eb6bf5ba08b68513f9cfed9c4';
 
+/// The parent-mode YouTube browser; disposed with its screen.
+
+@ProviderFor(inAppBrowser)
+final inAppBrowserProvider = InAppBrowserProvider._();
+
+/// The parent-mode YouTube browser; disposed with its screen.
+
+final class InAppBrowserProvider
+    extends $FunctionalProvider<InAppBrowser, InAppBrowser, InAppBrowser>
+    with $Provider<InAppBrowser> {
+  /// The parent-mode YouTube browser; disposed with its screen.
+  InAppBrowserProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'inAppBrowserProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$inAppBrowserHash();
+
+  @$internal
+  @override
+  $ProviderElement<InAppBrowser> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  InAppBrowser create(Ref ref) {
+    return inAppBrowser(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(InAppBrowser value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<InAppBrowser>(value),
+    );
+  }
+}
+
+String _$inAppBrowserHash() => r'20917f43ea6aae396e47f14716ab255989b77e70';
+
 /// All labels, in display order. Rarely changes, so kept for the session.
 
 @ProviderFor(labels)

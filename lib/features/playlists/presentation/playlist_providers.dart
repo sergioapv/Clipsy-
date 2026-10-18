@@ -4,6 +4,8 @@ import '../../../core/network/http_providers.dart';
 import '../../../core/supabase/supabase_providers.dart';
 import '../data/oembed_client.dart';
 import '../data/playlist_repository.dart';
+import '../data/webview_in_app_browser.dart';
+import '../domain/in_app_browser.dart';
 import '../domain/label.dart';
 import '../domain/playlist.dart';
 import '../domain/video_metadata.dart';
@@ -22,6 +24,14 @@ LabelRepository labelRepository(Ref ref) =>
 @Riverpod(keepAlive: true)
 VideoLookupRepository videoLookupRepository(Ref ref) =>
     VideoLookupRepository(OEmbedClient(ref.watch(httpClientProvider)));
+
+/// The parent-mode YouTube browser; disposed with its screen.
+@riverpod
+InAppBrowser inAppBrowser(Ref ref) {
+  final browser = WebViewInAppBrowser();
+  ref.onDispose(browser.dispose);
+  return browser;
+}
 
 /// All labels, in display order. Rarely changes, so kept for the session.
 @Riverpod(keepAlive: true)

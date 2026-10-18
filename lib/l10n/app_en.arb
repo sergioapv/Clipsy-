@@ -300,5 +300,26 @@
     }
   },
   "guidedAccessOn": "On",
-  "guidedAccessOffShort": "Off · tap for how to turn it on"
+  "guidedAccessOffShort": "Off · tap for how to turn it on",
+  "browseYouTube": "Browse YouTube",
+  "orPasteLink": "or paste a link",
+  "close": "Close",
+  "back": "Back",
+  "inPlaylist": "In this playlist",
+  "addToNamedPlaylist": "Add to “{title}”",
+  "@addToNamedPlaylist": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "videoAddedNamed": "Added “{title}”",
+  "@videoAddedNamed": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -1,10 +1,12 @@
 import 'package:clipsy/features/playlists/data/oembed_client.dart';
 import 'package:clipsy/features/playlists/data/playlist_repository.dart';
+import 'package:clipsy/features/playlists/domain/in_app_browser.dart';
 import 'package:clipsy/features/playlists/domain/label.dart';
 import 'package:clipsy/features/playlists/domain/playlist.dart';
 import 'package:clipsy/features/playlists/domain/playlist_exception.dart';
 import 'package:clipsy/features/playlists/domain/video_metadata.dart';
 import 'package:clipsy/features/playlists/domain/youtube_url_parser.dart';
+import 'package:flutter/widgets.dart';
 
 /// In-memory playlist store that mimics the database rules the UI relies on.
 class FakePlaylistRepository implements PlaylistRepository {
@@ -227,4 +229,42 @@ class FakeVideoLookupRepository implements VideoLookupRepository {
     return known[id] ??
         (throw const VideoLookupException(VideoLookupError.notFound));
   }
+}
+
+/// Scriptable browser: tests set [url] to simulate navigation.
+class FakeInAppBrowser implements InAppBrowser {
+  @override
+  final ValueNotifier<Uri?> url = ValueNotifier(null);
+  @override
+  final ValueNotifier<int> progress = ValueNotifier(100);
+  final loads = <Uri>[];
+  var history = 0;
+  var backs = 0;
+
+  void visit(String u) {
+    history++;
+    url.value = Uri.parse(u);
+  }
+
+  @override
+  Widget buildView(BuildContext context) =>
+      const ColoredBox(key: Key('fake-browser'), color: Color(0xFF000000));
+
+  @override
+  Future<void> load(Uri uri) async {
+    loads.add(uri);
+    url.value = uri;
+  }
+
+  @override
+  Future<bool> canGoBack() async => history > 0;
+
+  @override
+  Future<void> goBack() async {
+    backs++;
+    history--;
+  }
+
+  @override
+  Future<void> dispose() async {}
 }

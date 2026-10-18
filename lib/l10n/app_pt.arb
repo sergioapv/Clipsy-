@@ -206,5 +206,12 @@
   "exitGestureTitle": "Botão de saída",
   "exitGestureValue": "Manter premido {seconds} segundos e depois PIN",
   "guidedAccessOn": "Ativado",
-  "guidedAccessOffShort": "Desativado · toque para ver como ativar"
+  "guidedAccessOffShort": "Desativado · toque para ver como ativar",
+  "browseYouTube": "Explorar o YouTube",
+  "orPasteLink": "ou cole um link",
+  "close": "Fechar",
+  "back": "Voltar",
+  "inPlaylist": "Já está nesta lista",
+  "addToNamedPlaylist": "Adicionar a “{title}”",
+  "videoAddedNamed": "“{title}” adicionado"
 }

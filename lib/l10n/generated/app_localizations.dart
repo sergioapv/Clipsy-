@@ -1093,6 +1093,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Off · tap for how to turn it on'**
   String get guidedAccessOffShort;
+
+  /// No description provided for @browseYouTube.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse YouTube'**
+  String get browseYouTube;
+
+  /// No description provided for @orPasteLink.
+  ///
+  /// In en, this message translates to:
+  /// **'or paste a link'**
+  String get orPasteLink;
+
+  /// No description provided for @close.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
+
+  /// No description provided for @back.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get back;
+
+  /// No description provided for @inPlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'In this playlist'**
+  String get inPlaylist;
+
+  /// No description provided for @addToNamedPlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to “{title}”'**
+  String addToNamedPlaylist(String title);
+
+  /// No description provided for @videoAddedNamed.
+  ///
+  /// In en, this message translates to:
+  /// **'Added “{title}”'**
+  String videoAddedNamed(String title);
 }
 
 class _AppLocalizationsDelegate

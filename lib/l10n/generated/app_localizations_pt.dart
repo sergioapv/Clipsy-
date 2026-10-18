@@ -601,4 +601,29 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get guidedAccessOffShort => 'Desativado · toque para ver como ativar';
+
+  @override
+  String get browseYouTube => 'Explorar o YouTube';
+
+  @override
+  String get orPasteLink => 'ou cole um link';
+
+  @override
+  String get close => 'Fechar';
+
+  @override
+  String get back => 'Voltar';
+
+  @override
+  String get inPlaylist => 'Já está nesta lista';
+
+  @override
+  String addToNamedPlaylist(String title) {
+    return 'Adicionar a “$title”';
+  }
+
+  @override
+  String videoAddedNamed(String title) {
+    return '“$title” adicionado';
+  }
 }
