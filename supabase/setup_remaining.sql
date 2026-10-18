@@ -1,47 +1,10 @@
--- Clipsy: remaining database setup.
-
--- Paste all of this into Supabase → SQL Editor and click Run.
-
--- (The tables were already created through the connector.)
+-- Clipsy: final database setup step.
+-- Paste ALL of this into Supabase → SQL Editor and click Run.
+-- (Tables, read/insert policies, labels and safe functions were already
+-- applied through the connector; this adds triggers, update/delete rules,
+-- the remaining functions and column-level permissions.)
 
 begin;
-
-create function public.is_admin()
-returns boolean
-language sql
-stable
-security definer
-set search_path = ''
-as $$
-  select exists (select 1 from public.admins where user_id = auth.uid());
-$$;
-
-create function public.handle_new_user()
-returns trigger
-language plpgsql
-security definer
-set search_path = ''
-as $$
-begin
-  insert into public.profiles (id) values (new.id);
-  return new;
-end;
-$$;
-
-create trigger on_auth_user_created
-  after insert on auth.users
-  for each row execute function public.handle_new_user();
-
-create function public.set_updated_at()
-returns trigger
-language plpgsql
-set search_path = ''
-as $$
-begin
-  new.updated_at := now();
-  return new;
-end;
-$$;
 
 create trigger playlists_set_updated_at
   before update on public.playlists
@@ -50,22 +13,6 @@ create trigger playlists_set_updated_at
 create trigger ratings_set_updated_at
   before update on public.ratings
   for each row execute function public.set_updated_at();
-
-create function public.playlists_track_publish()
-returns trigger
-language plpgsql
-set search_path = ''
-as $$
-begin
-  if new.visibility = 'public'
-     and (tg_op = 'INSERT' or old.visibility is distinct from 'public') then
-    new.published_at := now();
-  elsif new.visibility = 'private' then
-    new.published_at := null;
-  end if;
-  return new;
-end;
-$$;
 
 create trigger playlists_track_publish
   before insert or update of visibility on public.playlists
@@ -164,23 +111,6 @@ $$;
 create trigger playlist_videos_limit
   before insert on public.playlist_videos
   for each row execute function public.enforce_video_limit();
-
-create function public.forbid_self_rating()
-returns trigger
-language plpgsql
-security definer
-set search_path = ''
-as $$
-begin
-  if exists (
-    select 1 from public.playlists
-    where id = new.playlist_id and owner_id = new.user_id
-  ) then
-    raise exception 'cannot_rate_own_playlist' using errcode = 'check_violation';
-  end if;
-  return new;
-end;
-$$;
 
 create trigger ratings_forbid_self
   before insert or update on public.ratings
@@ -281,50 +211,6 @@ as $$
   where v.id = o.id and v.playlist_id = p_playlist_id;
 $$;
 
-create function public.fork_playlist(p_source_id uuid)
-returns uuid
-language plpgsql
-security definer
-set search_path = ''
-as $$
-declare
-  uid uuid := auth.uid();
-  src public.playlists;
-  new_id uuid;
-begin
-  if uid is null then
-    raise exception 'not_authenticated' using errcode = 'insufficient_privilege';
-  end if;
-
-  select * into src from public.playlists
-  where id = p_source_id
-    and ((visibility = 'public' and not is_hidden) or owner_id = uid);
-  if not found then
-    raise exception 'playlist_not_found' using errcode = 'no_data_found';
-  end if;
-
-  insert into public.playlists
-    (owner_id, title, description, cover_url, age_min, age_max, forked_from)
-  values
-    (uid, src.title, src.description, src.cover_url, src.age_min, src.age_max,
-     src.id)
-  returning id into new_id;
-
-  insert into public.playlist_videos
-    (playlist_id, youtube_video_id, title, channel_name, thumbnail_url,
-     duration_seconds, position)
-  select new_id, youtube_video_id, title, channel_name, thumbnail_url,
-         duration_seconds, row_number() over (order by position) - 1
-  from public.playlist_videos
-  where playlist_id = src.id and is_available;
-
-  insert into public.playlist_labels (playlist_id, label_id)
-  select new_id, label_id from public.playlist_labels where playlist_id = src.id;
-
-  return new_id;
-end;
-$$;
-
 create function public.admin_review_playlist(p_playlist_id uuid, p_hide boolean)
 returns void
 language plpgsql
@@ -359,43 +245,89 @@ begin
 end;
 $$;
 
-create view public.community_playlists
-with (security_invoker = true)
-as
-select
-  p.id,
-  p.title,
-  p.description,
-  p.cover_url,
-  p.age_min,
-  p.age_max,
-  p.rating_avg,
-  p.rating_count,
-  p.published_at,
-  p.forked_from,
-  p.owner_id,
-  pr.display_name as author_name,
-  v.video_count,
-  v.total_duration_seconds,
-  coalesce(l.label_slugs, '{}') as label_slugs
-from public.playlists p
-join public.profiles pr on pr.id = p.owner_id
-cross join lateral (
-  select
-    count(*)::integer as video_count,
-    
-    case when count(*) filter (where duration_seconds is null) = 0
-      then sum(duration_seconds)::integer end as total_duration_seconds
+create policy "parents update their own profile"
+  on public.profiles for update to authenticated
+  using (id = (select auth.uid()))
+  with check (id = (select auth.uid()));
+
+create policy "update own playlists"
+  on public.playlists for update to authenticated
+  using (owner_id = (select auth.uid()))
+  with check (owner_id = (select auth.uid()));
+
+create policy "delete own playlists"
+  on public.playlists for delete to authenticated
+  using (owner_id = (select auth.uid()));
+
+create policy "owners update videos"
+  on public.playlist_videos for update to authenticated
+  using (exists (
+    select 1 from public.playlists p
+    where p.id = playlist_id and p.owner_id = (select auth.uid())
+  ));
+
+create policy "owners remove videos"
+  on public.playlist_videos for delete to authenticated
+  using (exists (
+    select 1 from public.playlists p
+    where p.id = playlist_id and p.owner_id = (select auth.uid())
+  ));
+
+create policy "owners remove labels"
+  on public.playlist_labels for delete to authenticated
+  using (exists (
+    select 1 from public.playlists p
+    where p.id = playlist_id and p.owner_id = (select auth.uid())
+  ));
+
+create policy "update own ratings"
+  on public.ratings for update to authenticated
+  using (user_id = (select auth.uid()))
+  with check (user_id = (select auth.uid()));
+
+create policy "delete own ratings"
+  on public.ratings for delete to authenticated
+  using (user_id = (select auth.uid()));
+
+create function public.reorder_my_playlists(p_playlist_ids uuid[])
+returns void
+language sql
+security invoker
+set search_path = ''
+as $$
+  update public.playlists p
+  set sort_index = o.ord - 1
+  from unnest(p_playlist_ids) with ordinality as o(id, ord)
+  where p.id = o.id and p.owner_id = auth.uid();
+$$;
+
+create function public.refresh_playlist_cover()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  target uuid := coalesce(new.playlist_id, old.playlist_id);
+  first_thumb text;
+begin
+  select thumbnail_url into first_thumb
   from public.playlist_videos
-  where playlist_id = p.id and is_available
-) v
-left join lateral (
-  select array_agg(lb.slug order by lb.sort_order, lb.slug) as label_slugs
-  from public.playlist_labels pl
-  join public.labels lb on lb.id = pl.label_id
-  where pl.playlist_id = p.id
-) l on true
-where p.visibility = 'public' and not p.is_hidden;
+  where playlist_id = target and is_available
+  order by position, added_at
+  limit 1;
+
+  update public.playlists
+  set cover_url = first_thumb
+  where id = target and cover_url is distinct from first_thumb;
+  return null;
+end;
+$$;
+
+create trigger playlist_videos_refresh_cover
+  after insert or delete or update of position, is_available, thumbnail_url
+  on public.playlist_videos
+  for each row execute function public.refresh_playlist_cover();
 
 revoke all on all tables in schema public from anon, authenticated;
 
@@ -446,216 +378,7 @@ grant execute on function
   public.delete_my_account()
 to authenticated;
 
-create policy "labels are readable by parents"
-  on public.labels for select to authenticated
-  using (true);
-
-create policy "profiles are readable by parents"
-  on public.profiles for select to authenticated
-  using (true);
-
-create policy "parents update their own profile"
-  on public.profiles for update to authenticated
-  using (id = (select auth.uid()))
-  with check (id = (select auth.uid()));
-
-create policy "read own, community or (admin) any playlist"
-  on public.playlists for select to authenticated
-  using (
-    owner_id = (select auth.uid())
-    or (visibility = 'public' and not is_hidden)
-    or (select public.is_admin())
-  );
-
-create policy "create own playlists"
-  on public.playlists for insert to authenticated
-  with check (owner_id = (select auth.uid()));
-
-create policy "update own playlists"
-  on public.playlists for update to authenticated
-  using (owner_id = (select auth.uid()))
-  with check (owner_id = (select auth.uid()));
-
-create policy "delete own playlists"
-  on public.playlists for delete to authenticated
-  using (owner_id = (select auth.uid()));
-
-create policy "read videos of readable playlists"
-  on public.playlist_videos for select to authenticated
-  using (exists (
-    select 1 from public.playlists p where p.id = playlist_id
-  ));
-
-create policy "owners add videos"
-  on public.playlist_videos for insert to authenticated
-  with check (exists (
-    select 1 from public.playlists p
-    where p.id = playlist_id and p.owner_id = (select auth.uid())
-  ));
-
-create policy "owners update videos"
-  on public.playlist_videos for update to authenticated
-  using (exists (
-    select 1 from public.playlists p
-    where p.id = playlist_id and p.owner_id = (select auth.uid())
-  ));
-
-create policy "owners remove videos"
-  on public.playlist_videos for delete to authenticated
-  using (exists (
-    select 1 from public.playlists p
-    where p.id = playlist_id and p.owner_id = (select auth.uid())
-  ));
-
-create policy "read labels of readable playlists"
-  on public.playlist_labels for select to authenticated
-  using (exists (
-    select 1 from public.playlists p where p.id = playlist_id
-  ));
-
-create policy "owners add labels"
-  on public.playlist_labels for insert to authenticated
-  with check (exists (
-    select 1 from public.playlists p
-    where p.id = playlist_id and p.owner_id = (select auth.uid())
-  ));
-
-create policy "owners remove labels"
-  on public.playlist_labels for delete to authenticated
-  using (exists (
-    select 1 from public.playlists p
-    where p.id = playlist_id and p.owner_id = (select auth.uid())
-  ));
-
-create policy "read own ratings"
-  on public.ratings for select to authenticated
-  using (user_id = (select auth.uid()));
-
-create policy "rate community playlists of others"
-  on public.ratings for insert to authenticated
-  with check (
-    user_id = (select auth.uid())
-    and exists (
-      select 1 from public.playlists p
-      where p.id = playlist_id
-        and p.visibility = 'public'
-        and not p.is_hidden
-        and p.owner_id <> (select auth.uid())
-    )
-  );
-
-create policy "update own ratings"
-  on public.ratings for update to authenticated
-  using (user_id = (select auth.uid()))
-  with check (user_id = (select auth.uid()));
-
-create policy "delete own ratings"
-  on public.ratings for delete to authenticated
-  using (user_id = (select auth.uid()));
-
-create policy "report community playlists of others"
-  on public.reports for insert to authenticated
-  with check (
-    reporter_id = (select auth.uid())
-    and exists (
-      select 1 from public.playlists p
-      where p.id = playlist_id
-        and p.visibility = 'public'
-        and p.owner_id <> (select auth.uid())
-    )
-  );
-
-create policy "admins read reports"
-  on public.reports for select to authenticated
-  using ((select public.is_admin()));
-
--- ===== 20261017000100_seed_labels.sql =====
-
-insert into public.labels (slug, name, sort_order) values
-  ('science',   'Science',   10),
-  ('nature',    'Nature',    20),
-  ('animals',   'Animals',   30),
-  ('football',  'Football',  40),
-  ('sports',    'Sports',    50),
-  ('music',     'Music',     60),
-  ('art',       'Art',       70),
-  ('languages', 'Languages', 80),
-  ('maths',     'Maths',     90),
-  ('stories',   'Stories',   100),
-  ('bedtime',   'Bedtime',   110),
-  ('cartoons',  'Cartoons',  120),
-  ('history',   'History',   130),
-  ('space',     'Space',     140),
-  ('cooking',   'Cooking',   150),
-  ('crafts',    'Crafts',    160)
-on conflict (slug) do nothing;
-
--- ===== 20261018000000_playlist_order_and_cover.sql =====
-
-alter table public.playlists
-  add column sort_index integer not null default 0;
-
-create index playlists_owner_sort_idx on public.playlists (owner_id, sort_index);
-
-create function public.playlists_set_sort_index()
-returns trigger
-language plpgsql
-security definer
-set search_path = ''
-as $$
-begin
-  select coalesce(min(sort_index), 0) - 1 into new.sort_index
-  from public.playlists
-  where owner_id = new.owner_id;
-  return new;
-end;
-$$;
-
-create trigger playlists_set_sort_index
-  before insert on public.playlists
-  for each row execute function public.playlists_set_sort_index();
-
-create function public.reorder_my_playlists(p_playlist_ids uuid[])
-returns void
-language sql
-security invoker
-set search_path = ''
-as $$
-  update public.playlists p
-  set sort_index = o.ord - 1
-  from unnest(p_playlist_ids) with ordinality as o(id, ord)
-  where p.id = o.id and p.owner_id = auth.uid();
-$$;
-
 grant update (sort_index) on public.playlists to authenticated;
-
-create function public.refresh_playlist_cover()
-returns trigger
-language plpgsql
-security definer
-set search_path = ''
-as $$
-declare
-  target uuid := coalesce(new.playlist_id, old.playlist_id);
-  first_thumb text;
-begin
-  select thumbnail_url into first_thumb
-  from public.playlist_videos
-  where playlist_id = target and is_available
-  order by position, added_at
-  limit 1;
-
-  update public.playlists
-  set cover_url = first_thumb
-  where id = target and cover_url is distinct from first_thumb;
-  return null;
-end;
-$$;
-
-create trigger playlist_videos_refresh_cover
-  after insert or delete or update of position, is_available, thumbnail_url
-  on public.playlist_videos
-  for each row execute function public.refresh_playlist_cover();
 
 revoke insert (cover_url), update (cover_url) on public.playlists from authenticated;
 
@@ -666,8 +389,6 @@ revoke all on function
 from public, anon, authenticated;
 
 grant execute on function public.reorder_my_playlists(uuid[]) to authenticated;
-
--- ===== 20261019000000_video_duration.sql =====
 
 grant update (duration_seconds) on public.playlist_videos to authenticated;
 
