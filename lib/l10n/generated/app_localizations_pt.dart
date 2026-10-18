@@ -902,4 +902,13 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get shareIntakeNoPlaylists =>
       'Crie primeiro uma lista e depois partilhe a ligação novamente.';
+
+  @override
+  String get kidSeekBack => 'Recuar 10 segundos';
+
+  @override
+  String get kidSeekForward => 'Avançar 10 segundos';
+
+  @override
+  String get kidSeekBar => 'Posição do vídeo';
 }

@@ -49,6 +49,7 @@ _pumpInKidMode(
   WidgetTester tester,
   FakeClock clock, {
   Duration limit = const Duration(minutes: 10),
+  EndBehaviour end = EndBehaviour.hardStop,
   FakeAuthRepository? auth,
 }) async {
   final player = FakeKidPlayer();
@@ -62,7 +63,7 @@ _pumpInKidMode(
     store: store,
     prefs: {
       'onboarding.complete': true,
-      KidSessionStore.key: _sessionJson(clock, limit: limit),
+      KidSessionStore.key: _sessionJson(clock, limit: limit, end: end),
     },
     clock: clock,
     player: player,
@@ -180,6 +181,71 @@ void main() {
     kid.player.emit(const PlayerEnded());
     await tester.pump();
     expect(kid.player.loaded.last, ('aaaaaaaaaaa', false));
+  });
+
+  testWidgets('kids can move back and forward through the video', (
+    tester,
+  ) async {
+    final clock = FakeClock();
+    final kid = await _pumpInKidMode(tester, clock);
+    kid.player.emitPosition(
+      const Duration(seconds: 30),
+      const Duration(minutes: 2),
+    );
+    await tester.pump();
+
+    await tester.tap(find.byKey(const Key('kid-seek-forward')));
+    await tester.pump();
+    expect(kid.player.seeks.last, const Duration(seconds: 40));
+    await tester.tap(find.byKey(const Key('kid-seek-back')));
+    await tester.tap(find.byKey(const Key('kid-seek-back')));
+    await tester.pump();
+    expect(kid.player.seeks.last, const Duration(seconds: 20));
+
+    // Never past the start, and never onto the very end.
+    kid.player.emitPosition(
+      const Duration(seconds: 4),
+      const Duration(minutes: 2),
+    );
+    await tester.tap(find.byKey(const Key('kid-seek-back')));
+    expect(kid.player.seeks.last, Duration.zero);
+    kid.player.emitPosition(
+      const Duration(seconds: 115),
+      const Duration(minutes: 2),
+    );
+    await tester.tap(find.byKey(const Key('kid-seek-forward')));
+    expect(kid.player.seeks.last, const Duration(seconds: 119));
+
+    // Drag the bar to about three quarters.
+    final bar = find.byKey(const Key('kid-seek-bar'));
+    final rect = tester.getRect(bar);
+    await tester.tapAt(Offset(rect.left + rect.width * 0.75, rect.center.dy));
+    await tester.pumpAndSettle();
+    expect(kid.player.seeks.last.inSeconds, inInclusiveRange(80, 100));
+  });
+
+  testWidgets('no seeking while the last video finishes after time is up', (
+    tester,
+  ) async {
+    final clock = FakeClock();
+    final kid = await _pumpInKidMode(
+      tester,
+      clock,
+      limit: const Duration(minutes: 1),
+      end: EndBehaviour.finishVideo,
+    );
+    kid.player
+      ..emit(const PlayerPlaying())
+      ..emitPosition(const Duration(seconds: 30), const Duration(minutes: 5));
+    await _elapse(tester, clock, const Duration(seconds: 61));
+    expect(find.text('Last video!'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('kid-seek-back')));
+    await tester.pump();
+    final bar = find.byKey(const Key('kid-seek-bar'));
+    await tester.tapAt(tester.getCenter(bar));
+    await tester.pump();
+    expect(kid.player.seeks, isEmpty);
   });
 
   testWidgets("time's up: almost-done hint, All done screen, PIN to extend", (
@@ -329,6 +395,8 @@ void main() {
     const controls = [
       'kid-play-pause',
       'kid-next',
+      'kid-seek-back',
+      'kid-seek-forward',
       'kid-pick-video',
       'kid-exit-fullscreen',
       'kid-exit-button',
@@ -379,6 +447,16 @@ void main() {
         await tester.tap(find.byKey(const Key('kid-next')));
         await tester.pump();
         expect(kid.player.loaded.last, ('bbbbbbbbbbb', true));
+
+        // Back and forward 10 seconds.
+        kid.player.emitPosition(
+          const Duration(seconds: 50),
+          const Duration(minutes: 3),
+        );
+        await tester.tap(find.byKey(const Key('kid-seek-back')));
+        expect(kid.player.seeks.last, const Duration(seconds: 40));
+        await tester.tap(find.byKey(const Key('kid-seek-forward')));
+        expect(kid.player.seeks.last, const Duration(seconds: 50));
 
         // Pick a video from the thumbnails.
         await tester.tap(find.byKey(const Key('kid-pick-video')));

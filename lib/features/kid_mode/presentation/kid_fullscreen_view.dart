@@ -14,7 +14,7 @@ import 'widgets/kid_thumbnail_strip.dart';
 ///
 /// The video sits on the left; one panel on the right holds everything,
 /// always visible: the countdown and parent lock, pause/play and next video,
-/// the video picker and exit full screen. Choosing a video turns the panel
+/// back/forward 10 seconds, the video picker and exit full screen. Choosing a video turns the panel
 /// into a list of thumbnails.
 ///
 /// Nothing is ever drawn over the YouTube player: it's a native web view, and
@@ -30,6 +30,7 @@ class KidFullscreenView extends StatefulWidget {
     required this.onPlayPause,
     required this.onNext,
     required this.onSelect,
+    required this.onSkip,
     required this.onExitFullscreen,
     super.key,
   });
@@ -40,6 +41,9 @@ class KidFullscreenView extends StatefulWidget {
   final VoidCallback onPlayPause;
   final VoidCallback onNext;
   final ValueChanged<int> onSelect;
+
+  /// Seconds to move through the video by (negative: back).
+  final ValueChanged<int> onSkip;
   final VoidCallback onExitFullscreen;
 
   /// The control panel is at least this wide.
@@ -101,14 +105,14 @@ class _KidFullscreenViewState extends State<KidFullscreenView> {
     );
   }
 
-  /// Three rows of two: countdown + lock, pause/play + next,
-  /// choose a video + exit full screen.
+  /// Four rows of two: countdown + lock, pause/play + next, back 10 s +
+  /// forward 10 s, choose a video + exit full screen.
   Widget _controls(double width, double height) {
     final l10n = context.l10n;
     final s = widget.state;
     final watching = s.session.status == KidSessionStatus.watching;
     final multiple = s.session.videos.length > 1;
-    final size = math.min(64.0, math.min((width - 36) / 2, (height - 48) / 3));
+    final size = math.min(64.0, math.min((width - 36) / 2, (height - 56) / 4));
 
     Widget button(
       String key,
@@ -166,6 +170,24 @@ class _KidFullscreenViewState extends State<KidFullscreenView> {
                   Icons.skip_next_rounded,
                   l10n.kidNextVideo,
                   widget.onNext,
+                )
+              : null,
+        ),
+        row(
+          watching
+              ? button(
+                  'kid-seek-back',
+                  Icons.replay_10_rounded,
+                  l10n.kidSeekBack,
+                  () => widget.onSkip(-10),
+                )
+              : const SizedBox.shrink(),
+          watching
+              ? button(
+                  'kid-seek-forward',
+                  Icons.forward_10_rounded,
+                  l10n.kidSeekForward,
+                  () => widget.onSkip(10),
                 )
               : null,
         ),

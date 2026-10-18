@@ -17,12 +17,23 @@ class FakeClock {
 /// Records commands; tests drive playback with [emit].
 class FakeKidPlayer implements KidPlayer {
   final _events = StreamController<KidPlayerEvent>.broadcast(sync: true);
+  final _positions = StreamController<PlaybackPosition>.broadcast(sync: true);
   final loaded = <(String, bool)>[];
+  final seeks = <Duration>[];
   var plays = 0;
   var pauses = 0;
   var disposed = false;
 
   void emit(KidPlayerEvent e) => _events.add(e);
+
+  void emitPosition(Duration position, Duration duration) =>
+      _positions.add(PlaybackPosition(position, duration));
+
+  @override
+  Stream<PlaybackPosition> get positions => _positions.stream;
+
+  @override
+  Future<void> seekTo(Duration position) async => seeks.add(position);
 
   @override
   Stream<KidPlayerEvent> get events => _events.stream;
@@ -51,6 +62,7 @@ class FakeKidPlayer implements KidPlayer {
   Future<void> dispose() async {
     disposed = true;
     await _events.close();
+    await _positions.close();
   }
 }
 

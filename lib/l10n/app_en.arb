@@ -458,5 +458,8 @@
   "shareIntakeTitle": "Add to a playlist",
   "shareIntakeBody": "Choose where to add this YouTube link.",
   "shareIntakeNotYouTube": "That link isn't a YouTube video or playlist.",
-  "shareIntakeNoPlaylists": "Create a playlist first, then share the link again."
+  "shareIntakeNoPlaylists": "Create a playlist first, then share the link again.",
+  "kidSeekBack": "Back 10 seconds",
+  "kidSeekForward": "Forward 10 seconds",
+  "kidSeekBar": "Video position"
 }

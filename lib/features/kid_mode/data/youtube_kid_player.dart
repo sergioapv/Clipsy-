@@ -48,11 +48,24 @@ class YoutubeKidPlayer implements KidPlayer {
       ),
     );
     _subscription = _controller.stream.listen(_onValue);
+    _stateSubscription = _controller.videoStateStream.listen(
+      (s) => _emitPosition(s.position),
+    );
   }
 
   late final YoutubePlayerController _controller;
   late final StreamSubscription<YoutubePlayerValue> _subscription;
+  late final StreamSubscription<YoutubeVideoState> _stateSubscription;
   final _events = StreamController<KidPlayerEvent>.broadcast();
+  final _positions = StreamController<PlaybackPosition>.broadcast();
+
+  void _emitPosition(Duration position) {
+    if (_positions.isClosed) return;
+    _positions.add(
+      PlaybackPosition(position, _controller.value.metaData.duration),
+    );
+  }
+
   PlayerState? _lastState;
   YoutubeError _lastError = YoutubeError.none;
   int? _lastDuration;
@@ -90,6 +103,9 @@ class YoutubeKidPlayer implements KidPlayer {
   Stream<KidPlayerEvent> get events => _events.stream;
 
   @override
+  Stream<PlaybackPosition> get positions => _positions.stream;
+
+  @override
   Widget buildView(BuildContext context) => YoutubePlayer(
     controller: _controller,
     enableFullScreenOnVerticalDrag: false,
@@ -99,6 +115,7 @@ class YoutubeKidPlayer implements KidPlayer {
   @override
   Future<void> load(String videoId, {required bool autoplay}) {
     _lastDuration = null;
+    _positions.add(PlaybackPosition.zero);
     return autoplay
         ? _controller.loadVideoById(videoId: videoId)
         : _controller.cueVideoById(videoId: videoId);
@@ -111,7 +128,19 @@ class YoutubeKidPlayer implements KidPlayer {
   Future<void> pause() => _controller.pauseVideo();
 
   @override
+  Future<void> seekTo(Duration position) async {
+    await _controller.seekTo(
+      seconds: position.inMilliseconds / 1000,
+      allowSeekAhead: true,
+    );
+    // The player only reports positions while playing; show the jump now.
+    _emitPosition(position);
+  }
+
+  @override
   Future<void> dispose() async {
+    await _stateSubscription.cancel();
+    await _positions.close();
     await _subscription.cancel();
     await _events.close();
     await _controller.close();

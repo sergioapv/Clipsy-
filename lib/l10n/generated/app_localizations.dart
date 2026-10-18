@@ -1561,6 +1561,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Create a playlist first, then share the link again.'**
   String get shareIntakeNoPlaylists;
+
+  /// No description provided for @kidSeekBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back 10 seconds'**
+  String get kidSeekBack;
+
+  /// No description provided for @kidSeekForward.
+  ///
+  /// In en, this message translates to:
+  /// **'Forward 10 seconds'**
+  String get kidSeekForward;
+
+  /// No description provided for @kidSeekBar.
+  ///
+  /// In en, this message translates to:
+  /// **'Video position'**
+  String get kidSeekBar;
 }
 
 class _AppLocalizationsDelegate

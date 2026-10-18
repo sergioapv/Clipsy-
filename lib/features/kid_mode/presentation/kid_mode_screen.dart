@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,6 +16,7 @@ import 'kid_mode_controller.dart';
 import 'time_up_view.dart';
 import 'widgets/hold_to_exit_button.dart';
 import 'widgets/kid_round_button.dart';
+import 'widgets/kid_seek_bar.dart';
 import 'widgets/kid_thumbnail_strip.dart';
 import 'widgets/time_badge.dart';
 
@@ -34,6 +36,8 @@ class _KidModeScreenState extends ConsumerState<KidModeScreen> {
   late final ProviderSubscription<KidPlayer> _playerSub;
   late final KidPlayer _player;
   StreamSubscription<KidPlayerEvent>? _events;
+  StreamSubscription<PlaybackPosition>? _positions;
+  final _position = ValueNotifier(PlaybackPosition.zero);
   Timer? _ticker;
   late final AppLifecycleListener _lifecycle;
   int _loaded = 0;
@@ -75,6 +79,7 @@ class _KidModeScreenState extends ConsumerState<KidModeScreen> {
     _playerSub = ref.listenManual(kidPlayerProvider, (_, _) {});
     _player = _playerSub.read();
     _events = _player.events.listen(_controller.onPlayerEvent);
+    _positions = _player.positions.listen((p) => _position.value = p);
     _ticker = Timer.periodic(
       const Duration(seconds: 1),
       (_) => _controller.tick(),
@@ -96,6 +101,8 @@ class _KidModeScreenState extends ConsumerState<KidModeScreen> {
   void dispose() {
     _ticker?.cancel();
     unawaited(_events?.cancel());
+    unawaited(_positions?.cancel());
+    _position.dispose();
     _lifecycle.dispose();
     _playerSub.close();
     unawaited(SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge));
@@ -110,8 +117,21 @@ class _KidModeScreenState extends ConsumerState<KidModeScreen> {
     final video = s?.session.currentVideo;
     if (s == null || video == null || s.loadRequest == _loaded) return;
     _loaded = s.loadRequest;
+    _position.value = PlaybackPosition.zero;
     unawaited(_player.load(video.youtubeId, autoplay: s.autoplay));
   }
+
+  /// Moves through the current video. Not while the last video is
+  /// finishing after time's up, so the session can't be stretched.
+  void _seekTo(Duration target) {
+    final s = ref.read(kidModeProvider);
+    if (s == null || s.session.status != KidSessionStatus.watching) return;
+    _position.value = PlaybackPosition(target, _position.value.duration);
+    unawaited(_player.seekTo(target));
+  }
+
+  void _skip(int seconds) =>
+      _seekTo(_position.value.movedBy(Duration(seconds: seconds)));
 
   Future<void> _askPinThen(Future<void> Function() action) async {
     await _player.pause();
@@ -172,6 +192,7 @@ class _KidModeScreenState extends ConsumerState<KidModeScreen> {
                 onPlayPause: playPause,
                 onNext: _controller.next,
                 onSelect: _controller.select,
+                onSkip: _skip,
                 onExitFullscreen: () => _setFullscreen(false),
               );
             }
@@ -184,6 +205,9 @@ class _KidModeScreenState extends ConsumerState<KidModeScreen> {
                   onPlayPause: playPause,
                   onFullscreen: () => _setFullscreen(true),
                   onSelect: _controller.select,
+                  position: _position,
+                  onSeek: _seekTo,
+                  onSkip: _skip,
                 ),
               ),
             );
@@ -202,6 +226,9 @@ class _KidLayout extends StatelessWidget {
     required this.onPlayPause,
     required this.onFullscreen,
     required this.onSelect,
+    required this.position,
+    required this.onSeek,
+    required this.onSkip,
   });
 
   final KidModeState state;
@@ -210,6 +237,11 @@ class _KidLayout extends StatelessWidget {
   final VoidCallback onPlayPause;
   final VoidCallback onFullscreen;
   final ValueChanged<int> onSelect;
+  final ValueListenable<PlaybackPosition> position;
+  final ValueChanged<Duration> onSeek;
+
+  /// Seconds to move by (negative: back).
+  final ValueChanged<int> onSkip;
 
   @override
   Widget build(BuildContext context) {
@@ -240,27 +272,52 @@ class _KidLayout extends StatelessWidget {
       borderRadius: BorderRadius.circular(24),
       child: AspectRatio(aspectRatio: 16 / 9, child: player),
     );
-    final playButton = Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        KidRoundButton(
-          key: const Key('kid-play-pause'),
-          icon: state.isPlaying
-              ? Icons.pause_rounded
-              : Icons.play_arrow_rounded,
-          label: state.isPlaying ? context.l10n.kidPause : context.l10n.kidPlay,
-          onPressed: onPlayPause,
-          size: 104,
-          primary: true,
-        ),
-        const SizedBox(width: 24),
-        KidRoundButton(
-          key: const Key('kid-fullscreen'),
-          icon: Icons.fullscreen_rounded,
-          label: context.l10n.kidFullscreen,
-          onPressed: onFullscreen,
-        ),
-      ],
+    final l10n = context.l10n;
+    final watching = session.status == KidSessionStatus.watching;
+    final seekBar = KidSeekBar(
+      position: position,
+      onSeek: onSeek,
+      enabled: watching,
+    );
+    final playButton = FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          KidRoundButton(
+            key: const Key('kid-seek-back'),
+            icon: Icons.replay_10_rounded,
+            label: l10n.kidSeekBack,
+            onPressed: watching ? () => onSkip(-10) : null,
+          ),
+          const SizedBox(width: 16),
+          KidRoundButton(
+            key: const Key('kid-play-pause'),
+            icon: state.isPlaying
+                ? Icons.pause_rounded
+                : Icons.play_arrow_rounded,
+            label: state.isPlaying ? l10n.kidPause : l10n.kidPlay,
+            onPressed: onPlayPause,
+            size: 96,
+            primary: true,
+          ),
+          const SizedBox(width: 16),
+          KidRoundButton(
+            key: const Key('kid-seek-forward'),
+            icon: Icons.forward_10_rounded,
+            label: l10n.kidSeekForward,
+            onPressed: watching ? () => onSkip(10) : null,
+          ),
+          const SizedBox(width: 28),
+          KidRoundButton(
+            key: const Key('kid-fullscreen'),
+            icon: Icons.fullscreen_rounded,
+            label: l10n.kidFullscreen,
+            onPressed: onFullscreen,
+            size: 56,
+          ),
+        ],
+      ),
     );
     final strip = KidThumbnailStrip(
       videos: session.videos,
@@ -280,7 +337,7 @@ class _KidLayout extends StatelessWidget {
               child: Column(
                 children: [
                   Expanded(child: Center(child: playerBox)),
-                  const SizedBox(height: 8),
+                  seekBar,
                   playButton,
                 ],
               ),
@@ -307,7 +364,9 @@ class _KidLayout extends StatelessWidget {
           topBar,
           const SizedBox(height: 12),
           playerBox,
-          const SizedBox(height: 20),
+          const SizedBox(height: 4),
+          seekBar,
+          const SizedBox(height: 4),
           playButton,
           const SizedBox(height: 20),
           Expanded(child: strip),

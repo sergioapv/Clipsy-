@@ -284,5 +284,8 @@
   "shareIntakeTitle": "Adicionar a uma lista",
   "shareIntakeBody": "Escolha onde adicionar esta ligação do YouTube.",
   "shareIntakeNotYouTube": "Essa ligação não é um vídeo nem uma lista do YouTube.",
-  "shareIntakeNoPlaylists": "Crie primeiro uma lista e depois partilhe a ligação novamente."
+  "shareIntakeNoPlaylists": "Crie primeiro uma lista e depois partilhe a ligação novamente.",
+  "kidSeekBack": "Recuar 10 segundos",
+  "kidSeekForward": "Avançar 10 segundos",
+  "kidSeekBar": "Posição do vídeo"
 }

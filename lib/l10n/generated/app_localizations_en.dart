@@ -895,4 +895,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get shareIntakeNoPlaylists =>
       'Create a playlist first, then share the link again.';
+
+  @override
+  String get kidSeekBack => 'Back 10 seconds';
+
+  @override
+  String get kidSeekForward => 'Forward 10 seconds';
+
+  @override
+  String get kidSeekBar => 'Video position';
 }

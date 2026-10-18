@@ -17,7 +17,9 @@ class KidRoundButton extends StatelessWidget {
 
   final IconData icon;
   final String label;
-  final VoidCallback onPressed;
+
+  /// `null` disables the button.
+  final VoidCallback? onPressed;
   final double size;
 
   /// Orange, for play/pause: the one thing a child should find first.
@@ -26,23 +28,28 @@ class KidRoundButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final enabled = onPressed != null;
     return Semantics(
       button: true,
+      enabled: enabled,
       label: label,
       child: Pressable(
         scale: 0.92,
-        child: Material(
-          color: primary ? scheme.primary : scheme.surfaceContainer,
-          shape: const CircleBorder(),
-          child: InkWell(
-            customBorder: const CircleBorder(),
-            onTap: onPressed,
-            child: SizedBox.square(
-              dimension: size,
-              child: Icon(
-                icon,
-                size: size * (primary ? 0.62 : 0.5),
-                color: primary ? scheme.onPrimary : scheme.onSurface,
+        child: Opacity(
+          opacity: enabled ? 1 : 0.4,
+          child: Material(
+            color: primary ? scheme.primary : scheme.surfaceContainer,
+            shape: const CircleBorder(),
+            child: InkWell(
+              customBorder: const CircleBorder(),
+              onTap: onPressed,
+              child: SizedBox.square(
+                dimension: size,
+                child: Icon(
+                  icon,
+                  size: size * (primary ? 0.62 : 0.5),
+                  color: primary ? scheme.onPrimary : scheme.onSurface,
+                ),
               ),
             ),
           ),
