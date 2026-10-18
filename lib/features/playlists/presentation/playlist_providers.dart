@@ -3,12 +3,14 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../core/network/http_providers.dart';
 import '../../../core/supabase/supabase_providers.dart';
 import '../data/oembed_client.dart';
+import '../data/platform_share_intake.dart';
 import '../data/playlist_repository.dart';
 import '../data/webview_in_app_browser.dart';
 import '../data/youtube_playlist_repository.dart';
 import '../domain/in_app_browser.dart';
 import '../domain/label.dart';
 import '../domain/playlist.dart';
+import '../domain/share_intake.dart';
 import '../domain/video_metadata.dart';
 import '../domain/youtube_url_parser.dart';
 
@@ -34,7 +36,7 @@ InAppBrowser inAppBrowser(Ref ref) {
   return browser;
 }
 
-/// Playlist import; holds a hidden player, so it lives with the import sheet.
+/// Playlist import; holds the preview player, so it lives with the import sheet.
 @riverpod
 YouTubePlaylistRepository youTubePlaylistRepository(Ref ref) {
   final ids = PlayerPlaylistIdsSource();
@@ -224,8 +226,31 @@ class PlaylistDetailController extends _$PlaylistDetailController {
           description: draft.trimmedDescription ?? '',
           ageRange: draft.ageRange,
           labelIds: draft.labelIds.toSet().toList(),
+          visibility: draft.visibility,
         ),
       ),
     );
   }
+
+  /// Shares the playlist with the community, or stops sharing it.
+  Future<void> setVisibility(PlaylistVisibility visibility) => updateDetails(
+    state.requireValue.playlist.toDraft(visibility: visibility),
+  );
+}
+
+@Riverpod(keepAlive: true)
+ShareIntake shareIntake(Ref ref) => PlatformShareIntake();
+
+/// The latest link shared to Clipsy, waiting for the parent to pick a
+/// playlist. Kept while parent mode is locked or Kid mode is on.
+@Riverpod(keepAlive: true)
+class PendingShare extends _$PendingShare {
+  @override
+  String? build() {
+    final sub = ref.watch(shareIntakeProvider).shares.listen((t) => state = t);
+    ref.onDispose(sub.cancel);
+    return null;
+  }
+
+  void clear() => state = null;
 }

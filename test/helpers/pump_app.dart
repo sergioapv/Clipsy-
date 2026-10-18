@@ -6,6 +6,7 @@ import 'package:clipsy/features/auth/data/auth_repository.dart';
 import 'package:clipsy/features/auth/data/pin_repository.dart';
 import 'package:clipsy/features/auth/domain/pin.dart';
 import 'package:clipsy/features/auth/presentation/auth_providers.dart';
+import 'package:clipsy/features/community/presentation/community_providers.dart';
 import 'package:clipsy/features/kid_mode/presentation/kid_mode_controller.dart';
 import 'package:clipsy/features/playlists/presentation/playlist_providers.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'fake_community.dart';
 import 'fake_kid_mode.dart';
 import 'fake_playlists.dart';
 
@@ -31,6 +33,9 @@ Future<void> pumpClipsy(
   FakeDeviceLock? deviceLock,
   FakeInAppBrowser? browser,
   FakeYouTubePlaylistRepository? youtubePlaylists,
+  FakeCommunityRepository? community,
+  FakeProfileRepository? profile,
+  FakeShareIntake? shares,
 }) async {
   SharedPreferences.setMockInitialValues(prefs);
   final sharedPrefs = await SharedPreferences.getInstance();
@@ -55,6 +60,13 @@ Future<void> pumpClipsy(
         youTubePlaylistRepositoryProvider.overrideWithValue(
           youtubePlaylists ?? FakeYouTubePlaylistRepository(),
         ),
+        communityRepositoryProvider.overrideWithValue(
+          community ?? FakeCommunityRepository(),
+        ),
+        profileRepositoryProvider.overrideWithValue(
+          profile ?? FakeProfileRepository(),
+        ),
+        shareIntakeProvider.overrideWithValue(shares ?? FakeShareIntake()),
         sharedPreferencesProvider.overrideWithValue(sharedPrefs),
         secureStoreProvider.overrideWithValue(secure),
         authRepositoryProvider.overrideWithValue(auth),
@@ -88,6 +100,9 @@ Future<void> pumpUnlockedClipsy(
   FakeDeviceLock? deviceLock,
   FakeInAppBrowser? browser,
   FakeYouTubePlaylistRepository? youtubePlaylists,
+  FakeCommunityRepository? community,
+  FakeProfileRepository? profile,
+  FakeShareIntake? shares,
   Map<String, Object> prefs = const {},
 }) async {
   final store = InMemorySecureStore({
@@ -105,6 +120,9 @@ Future<void> pumpUnlockedClipsy(
     deviceLock: deviceLock,
     browser: browser,
     youtubePlaylists: youtubePlaylists,
+    community: community,
+    profile: profile,
+    shares: shares,
   );
   await enterPin(tester, '2468');
 }

@@ -32,7 +32,11 @@ class FakePlaylistRepository implements PlaylistRepository {
     }
   }
 
-  Playlist seed(String title, {List<String> videoIds = const []}) {
+  Playlist seed(
+    String title, {
+    List<String> videoIds = const [],
+    List<int> labelIds = const [],
+  }) {
     final id = 'p${_nextId++}';
     videos[id] = [
       for (final (i, v) in videoIds.indexed)
@@ -51,6 +55,7 @@ class FakePlaylistRepository implements PlaylistRepository {
       title: title,
       ageRange: AgeRange.fallback,
       videoCount: videoIds.length,
+      labelIds: labelIds,
     );
     playlists.add(p);
     return p;
@@ -102,12 +107,22 @@ class FakePlaylistRepository implements PlaylistRepository {
   @override
   Future<void> update(String id, PlaylistDraft draft) async {
     _maybeFail('update');
+    // Mirrors the database's check on public playlists.
+    if (draft.isPublic) {
+      if (draft.labelIds.isEmpty) {
+        throw const PlaylistException(PlaylistError.needsLabel);
+      }
+      if (!(videos[id] ?? const []).any((v) => v.isAvailable)) {
+        throw const PlaylistException(PlaylistError.needsVideo);
+      }
+    }
     final i = playlists.indexWhere((p) => p.id == id);
     playlists[i] = playlists[i].copyWith(
       title: draft.trimmedTitle,
       description: draft.trimmedDescription,
       ageRange: draft.ageRange,
       labelIds: draft.labelIds,
+      visibility: draft.visibility,
     );
   }
 

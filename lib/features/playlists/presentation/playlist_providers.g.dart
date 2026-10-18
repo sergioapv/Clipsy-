@@ -193,12 +193,12 @@ final class InAppBrowserProvider
 
 String _$inAppBrowserHash() => r'20917f43ea6aae396e47f14716ab255989b77e70';
 
-/// Playlist import; holds a hidden player, so it lives with the import sheet.
+/// Playlist import; holds the preview player, so it lives with the import sheet.
 
 @ProviderFor(youTubePlaylistRepository)
 final youTubePlaylistRepositoryProvider = YouTubePlaylistRepositoryProvider._();
 
-/// Playlist import; holds a hidden player, so it lives with the import sheet.
+/// Playlist import; holds the preview player, so it lives with the import sheet.
 
 final class YouTubePlaylistRepositoryProvider
     extends
@@ -208,7 +208,7 @@ final class YouTubePlaylistRepositoryProvider
           YouTubePlaylistRepository
         >
     with $Provider<YouTubePlaylistRepository> {
-  /// Playlist import; holds a hidden player, so it lives with the import sheet.
+  /// Playlist import; holds the preview player, so it lives with the import sheet.
   YouTubePlaylistRepositoryProvider._()
     : super(
         from: null,
@@ -387,7 +387,7 @@ final class PlaylistDetailControllerProvider
 }
 
 String _$playlistDetailControllerHash() =>
-    r'58a61630fb35eff936c1433df19ab3b273393764';
+    r'6645406e21b61cd3a8a4774572008ebbbf97ffe6';
 
 /// One playlist with its videos, plus the edits made on its screen.
 
@@ -439,5 +439,108 @@ abstract class _$PlaylistDetailController
               Object?
             >;
     return element.handleCreate(ref, () => build(_$args));
+  }
+}
+
+@ProviderFor(shareIntake)
+final shareIntakeProvider = ShareIntakeProvider._();
+
+final class ShareIntakeProvider
+    extends $FunctionalProvider<ShareIntake, ShareIntake, ShareIntake>
+    with $Provider<ShareIntake> {
+  ShareIntakeProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'shareIntakeProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$shareIntakeHash();
+
+  @$internal
+  @override
+  $ProviderElement<ShareIntake> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  ShareIntake create(Ref ref) {
+    return shareIntake(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ShareIntake value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ShareIntake>(value),
+    );
+  }
+}
+
+String _$shareIntakeHash() => r'697b9dad406b080b15c7f0df59d2365513237f1e';
+
+/// The latest link shared to Clipsy, waiting for the parent to pick a
+/// playlist. Kept while parent mode is locked or Kid mode is on.
+
+@ProviderFor(PendingShare)
+final pendingShareProvider = PendingShareProvider._();
+
+/// The latest link shared to Clipsy, waiting for the parent to pick a
+/// playlist. Kept while parent mode is locked or Kid mode is on.
+final class PendingShareProvider
+    extends $NotifierProvider<PendingShare, String?> {
+  /// The latest link shared to Clipsy, waiting for the parent to pick a
+  /// playlist. Kept while parent mode is locked or Kid mode is on.
+  PendingShareProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'pendingShareProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$pendingShareHash();
+
+  @$internal
+  @override
+  PendingShare create() => PendingShare();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(String? value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<String?>(value),
+    );
+  }
+}
+
+String _$pendingShareHash() => r'0a24377de70f7c4be829efb70e84ae9c3f050d9d';
+
+/// The latest link shared to Clipsy, waiting for the parent to pick a
+/// playlist. Kept while parent mode is locked or Kid mode is on.
+
+abstract class _$PendingShare extends $Notifier<String?> {
+  String? build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<String?, String?>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<String?, String?>,
+              String?,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
   }
 }

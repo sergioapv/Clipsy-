@@ -10,6 +10,7 @@ import '../../../core/router/routes.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/error_view.dart';
 import '../../../core/widgets/skeleton.dart';
+import '../../community/presentation/widgets/star_rating.dart';
 import '../../kid_mode/presentation/start_kid_mode.dart';
 import '../domain/playlist.dart';
 import 'add_video_sheet.dart';
@@ -24,6 +25,31 @@ class PlaylistDetailScreen extends ConsumerWidget {
   const PlaylistDetailScreen({required this.playlistId, super.key});
 
   final String playlistId;
+
+  Future<void> _setShared(
+    BuildContext context,
+    WidgetRef ref,
+    bool shared,
+  ) async {
+    final l10n = context.l10n;
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await ref
+          .read(playlistDetailControllerProvider(playlistId).notifier)
+          .setVisibility(
+            shared ? PlaylistVisibility.public : PlaylistVisibility.private,
+          );
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(shared ? l10n.sharedStatus : l10n.unsharedSnack),
+          ),
+        );
+    } on Exception catch (e) {
+      if (context.mounted) showPlaylistError(context, e);
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -49,6 +75,8 @@ class PlaylistDetailScreen extends ConsumerWidget {
                         context.mounted) {
                       context.pop();
                     }
+                  case _Action.share || _Action.unshare:
+                    await _setShared(context, ref, a == _Action.share);
                 }
               },
               itemBuilder: (context) => [
@@ -56,6 +84,18 @@ class PlaylistDetailScreen extends ConsumerWidget {
                   value: _Action.edit,
                   child: Text(l10n.editDetails),
                 ),
+                if (playlist.isPublic)
+                  PopupMenuItem(
+                    key: const Key('menu-unshare'),
+                    value: _Action.unshare,
+                    child: Text(l10n.stopSharing),
+                  )
+                else
+                  PopupMenuItem(
+                    key: const Key('menu-share'),
+                    value: _Action.share,
+                    child: Text(l10n.shareWithCommunity),
+                  ),
                 PopupMenuItem(
                   value: _Action.delete,
                   child: Text(l10n.deletePlaylist),
@@ -84,7 +124,7 @@ class PlaylistDetailScreen extends ConsumerWidget {
   }
 }
 
-enum _Action { edit, delete }
+enum _Action { edit, share, unshare, delete }
 
 class _VideoList extends ConsumerWidget {
   const _VideoList({required this.detail});
@@ -250,6 +290,62 @@ class _Header extends StatelessWidget {
             const SizedBox(height: 12),
             LabelChips(labelIds: playlist.labelIds),
           ],
+          if (playlist.isPublic) ...[
+            const SizedBox(height: 14),
+            _SharedStatus(playlist: playlist),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Shown on a shared playlist: its community rating, or that reports have
+/// hidden it.
+class _SharedStatus extends StatelessWidget {
+  const _SharedStatus({required this.playlist});
+
+  final Playlist playlist;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    final hidden = playlist.isHidden;
+    return Container(
+      key: const Key('shared-status'),
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            hidden ? Icons.visibility_off_rounded : Icons.public_rounded,
+            size: 20,
+            color: hidden ? theme.colorScheme.error : theme.colorScheme.primary,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  hidden ? l10n.hiddenStatus : l10n.sharedStatus,
+                  style: theme.textTheme.titleSmall,
+                ),
+                if (!hidden) ...[
+                  const SizedBox(height: 2),
+                  RatingSummary(
+                    average: playlist.ratingAvg,
+                    count: playlist.ratingCount,
+                  ),
+                ],
+              ],
+            ),
+          ),
         ],
       ),
     );

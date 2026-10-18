@@ -13,6 +13,7 @@ abstract final class Routes {
   static String editPlaylist(String id) => '/playlists/$id/edit';
   static String browseYouTube(String id) => '/playlists/$id/browse';
   static const community = '/community';
+  static String communityPlaylist(String id) => '/community/$id';
   static const settings = '/settings';
   static const changePin = '/settings/pin';
 

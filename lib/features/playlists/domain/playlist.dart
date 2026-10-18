@@ -109,6 +109,17 @@ class Playlist {
   final int ratingCount;
   final int sortIndex;
 
+  bool get isPublic => visibility == PlaylistVisibility.public;
+
+  /// The editable fields as a draft, e.g. to change only the visibility.
+  PlaylistDraft toDraft({PlaylistVisibility? visibility}) => PlaylistDraft(
+    title: title,
+    description: description ?? '',
+    ageRange: ageRange,
+    labelIds: labelIds,
+    visibility: visibility ?? this.visibility,
+  );
+
   Playlist copyWith({
     String? title,
     String? description,
@@ -116,6 +127,7 @@ class Playlist {
     List<int>? labelIds,
     int? videoCount,
     String? coverUrl,
+    PlaylistVisibility? visibility,
   }) => Playlist(
     id: id,
     ownerId: ownerId,
@@ -123,7 +135,7 @@ class Playlist {
     description: description ?? this.description,
     coverUrl: coverUrl ?? this.coverUrl,
     ageRange: ageRange ?? this.ageRange,
-    visibility: visibility,
+    visibility: visibility ?? this.visibility,
     forkedFrom: forkedFrom,
     labelIds: labelIds ?? this.labelIds,
     videoCount: videoCount ?? this.videoCount,
@@ -210,6 +222,7 @@ class PlaylistDraft {
     this.description = '',
     this.ageRange = AgeRange.fallback,
     this.labelIds = const [],
+    this.visibility = PlaylistVisibility.private,
   });
 
   static const maxTitleLength = 80;
@@ -224,6 +237,12 @@ class PlaylistDraft {
   final AgeRange ageRange;
   final List<int> labelIds;
 
+  /// Public playlists appear in the community library. They need 1–3 labels
+  /// and at least one video (checked by the database too).
+  final PlaylistVisibility visibility;
+
+  bool get isPublic => visibility == PlaylistVisibility.public;
+
   String get trimmedTitle => title.trim();
   String? get trimmedDescription {
     final d = description.trim();
@@ -234,5 +253,6 @@ class PlaylistDraft {
       trimmedTitle.isNotEmpty &&
       trimmedTitle.length <= maxTitleLength &&
       description.trim().length <= maxDescriptionLength &&
-      labelIds.toSet().length <= maxLabels;
+      labelIds.toSet().length <= maxLabels &&
+      (!isPublic || labelIds.isNotEmpty);
 }

@@ -1243,6 +1243,324 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'min'**
   String get minutesUnit;
+
+  /// No description provided for @communityTopRated.
+  ///
+  /// In en, this message translates to:
+  /// **'Top rated'**
+  String get communityTopRated;
+
+  /// No description provided for @communityNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get communityNew;
+
+  /// No description provided for @communityByLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'By label'**
+  String get communityByLabel;
+
+  /// No description provided for @communitySearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search shared playlists'**
+  String get communitySearchHint;
+
+  /// No description provided for @communityAllAges.
+  ///
+  /// In en, this message translates to:
+  /// **'All ages'**
+  String get communityAllAges;
+
+  /// No description provided for @communityEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing here yet'**
+  String get communityEmptyTitle;
+
+  /// No description provided for @communityEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'No shared playlists match. Try another label or age, or share one of yours.'**
+  String get communityEmptyBody;
+
+  /// No description provided for @communityPickLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a topic'**
+  String get communityPickLabel;
+
+  /// No description provided for @communityByAuthor.
+  ///
+  /// In en, this message translates to:
+  /// **'by {name}'**
+  String communityByAuthor(String name);
+
+  /// No description provided for @communityYours.
+  ///
+  /// In en, this message translates to:
+  /// **'Yours'**
+  String get communityYours;
+
+  /// No description provided for @communityLoadMoreFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load more.'**
+  String get communityLoadMoreFailed;
+
+  /// No description provided for @ratingNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No ratings yet'**
+  String get ratingNone;
+
+  /// No description provided for @ratingCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 rating} other{{count} ratings}}'**
+  String ratingCount(int count);
+
+  /// No description provided for @ratingStars.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 star} other{{count} stars}}'**
+  String ratingStars(int count);
+
+  /// No description provided for @ratingAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Rated {average} out of 5'**
+  String ratingAverage(String average);
+
+  /// No description provided for @communitySaveToLibrary.
+  ///
+  /// In en, this message translates to:
+  /// **'Save to my playlists'**
+  String get communitySaveToLibrary;
+
+  /// No description provided for @communitySaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved to your playlists'**
+  String get communitySaved;
+
+  /// No description provided for @communityOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get communityOpen;
+
+  /// No description provided for @communityRateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your rating'**
+  String get communityRateTitle;
+
+  /// No description provided for @communityRateHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a star to rate this playlist.'**
+  String get communityRateHint;
+
+  /// No description provided for @communityRateThanks.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks for rating.'**
+  String get communityRateThanks;
+
+  /// No description provided for @communityOwnPlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'This is your playlist. Other parents can save and rate it.'**
+  String get communityOwnPlaylist;
+
+  /// No description provided for @communityBasedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Based on another parent\'s playlist'**
+  String get communityBasedOn;
+
+  /// No description provided for @communityVideos.
+  ///
+  /// In en, this message translates to:
+  /// **'Videos'**
+  String get communityVideos;
+
+  /// No description provided for @reportPlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'Report'**
+  String get reportPlaylist;
+
+  /// No description provided for @reportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Report this playlist'**
+  String get reportTitle;
+
+  /// No description provided for @reportBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell us what\'s wrong. After several reports, the playlist is hidden until it\'s reviewed.'**
+  String get reportBody;
+
+  /// No description provided for @reportReasonInappropriate.
+  ///
+  /// In en, this message translates to:
+  /// **'Inappropriate content'**
+  String get reportReasonInappropriate;
+
+  /// No description provided for @reportReasonViolent.
+  ///
+  /// In en, this message translates to:
+  /// **'Violent or scary'**
+  String get reportReasonViolent;
+
+  /// No description provided for @reportReasonNotForKids.
+  ///
+  /// In en, this message translates to:
+  /// **'Not suitable for children'**
+  String get reportReasonNotForKids;
+
+  /// No description provided for @reportReasonMisleading.
+  ///
+  /// In en, this message translates to:
+  /// **'Misleading title or labels'**
+  String get reportReasonMisleading;
+
+  /// No description provided for @reportReasonSpam.
+  ///
+  /// In en, this message translates to:
+  /// **'Spam or advertising'**
+  String get reportReasonSpam;
+
+  /// No description provided for @reportReasonOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Something else'**
+  String get reportReasonOther;
+
+  /// No description provided for @reportDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Details (optional)'**
+  String get reportDetails;
+
+  /// No description provided for @reportSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send report'**
+  String get reportSend;
+
+  /// No description provided for @reportSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks. We\'ll take a look.'**
+  String get reportSent;
+
+  /// No description provided for @playlistErrorNeedsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick at least one label to share this playlist.'**
+  String get playlistErrorNeedsLabel;
+
+  /// No description provided for @playlistErrorNeedsVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared playlists need at least one video.'**
+  String get playlistErrorNeedsVideo;
+
+  /// No description provided for @playlistErrorOwnPlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'You can\'t rate or report your own playlist.'**
+  String get playlistErrorOwnPlaylist;
+
+  /// No description provided for @playlistErrorAlreadyReported.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve already reported this playlist.'**
+  String get playlistErrorAlreadyReported;
+
+  /// No description provided for @shareWithCommunity.
+  ///
+  /// In en, this message translates to:
+  /// **'Share with the community'**
+  String get shareWithCommunity;
+
+  /// No description provided for @shareWithCommunityHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Other parents can find, save and rate it. They see your community name, never your email.'**
+  String get shareWithCommunityHint;
+
+  /// No description provided for @shareNeedsVideos.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a video first, then you can share it.'**
+  String get shareNeedsVideos;
+
+  /// No description provided for @sharedStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared with the community'**
+  String get sharedStatus;
+
+  /// No description provided for @hiddenStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden from the community after reports, until it\'s reviewed.'**
+  String get hiddenStatus;
+
+  /// No description provided for @stopSharing.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop sharing'**
+  String get stopSharing;
+
+  /// No description provided for @unsharedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'No longer shared'**
+  String get unsharedSnack;
+
+  /// No description provided for @communityName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name shown in the community'**
+  String get communityName;
+
+  /// No description provided for @communityNameInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Use 1 to 40 characters.'**
+  String get communityNameInvalid;
+
+  /// No description provided for @shareIntakeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to a playlist'**
+  String get shareIntakeTitle;
+
+  /// No description provided for @shareIntakeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose where to add this YouTube link.'**
+  String get shareIntakeBody;
+
+  /// No description provided for @shareIntakeNotYouTube.
+  ///
+  /// In en, this message translates to:
+  /// **'That link isn\'t a YouTube video or playlist.'**
+  String get shareIntakeNotYouTube;
+
+  /// No description provided for @shareIntakeNoPlaylists.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a playlist first, then share the link again.'**
+  String get shareIntakeNoPlaylists;
 }
 
 class _AppLocalizationsDelegate

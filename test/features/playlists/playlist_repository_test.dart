@@ -135,6 +135,57 @@ void main() {
     );
   });
 
+  test('publishing sets labels before making the playlist public', () async {
+    backend.reply = (_) => http.Response('', 204);
+    await repo.update(
+      'p1',
+      const PlaylistDraft(
+        title: 'Birds',
+        labelIds: [3],
+        visibility: PlaylistVisibility.public,
+      ),
+    );
+    expect(backend.requests.map((r) => r.url.path), [
+      '/rest/v1/rpc/set_playlist_labels',
+      '/rest/v1/playlists',
+    ]);
+    expect((jsonDecode(backend.last.body) as Map)['visibility'], 'public');
+  });
+
+  test(
+    'unpublishing makes the playlist private before changing labels',
+    () async {
+      backend.reply = (_) => http.Response('', 204);
+      await repo.update('p1', const PlaylistDraft(title: 'Birds'));
+      expect(backend.requests.map((r) => r.url.path), [
+        '/rest/v1/playlists',
+        '/rest/v1/rpc/set_playlist_labels',
+      ]);
+    },
+  );
+
+  test('database checks on shared playlists map to errors', () async {
+    backend.reply = (_) =>
+        _json({'code': '23514', 'message': 'public_playlist_needs_label'}, 400);
+    await expectLater(
+      repo.update(
+        'p1',
+        const PlaylistDraft(
+          title: 'Birds',
+          labelIds: [3],
+          visibility: PlaylistVisibility.public,
+        ),
+      ),
+      _failsWith(PlaylistError.needsLabel),
+    );
+    backend.reply = (_) =>
+        _json({'code': '23514', 'message': 'public_playlist_needs_video'}, 400);
+    await expectLater(
+      repo.removeVideo('v1'),
+      _failsWith(PlaylistError.needsVideo),
+    );
+  });
+
   test('create inserts trimmed fields, then sets labels', () async {
     backend.reply = (req) => req.url.path.endsWith('/playlists')
         ? _json({'id': 'new-id'}, 201)
@@ -157,6 +208,7 @@ void main() {
       'description': null,
       'age_min': 8,
       'age_max': 12,
+      'visibility': 'private',
     });
     final rpc = backend.requests.last;
     expect(rpc.url.path, '/rest/v1/rpc/set_playlist_labels');

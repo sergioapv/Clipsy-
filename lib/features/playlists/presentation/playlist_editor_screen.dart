@@ -56,6 +56,7 @@ class _EditorFormState extends ConsumerState<_EditorForm> {
   );
   late AgeRange _ageRange = widget.initial?.ageRange ?? AgeRange.fallback;
   late List<int> _labelIds = [...?widget.initial?.labelIds];
+  late bool _public = widget.initial?.isPublic ?? false;
   bool _saving = false;
 
   bool get _isNew => widget.initial == null;
@@ -67,13 +68,26 @@ class _EditorFormState extends ConsumerState<_EditorForm> {
     super.dispose();
   }
 
+  /// Only playlists with videos can be shared (new ones have none yet).
+  bool get _canShare => (widget.initial?.videoCount ?? 0) > 0;
+
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
+    final l10n = context.l10n;
+    if (_public && _labelIds.isEmpty) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(l10n.playlistErrorNeedsLabel)));
+      return;
+    }
     final draft = PlaylistDraft(
       title: _title.text,
       description: _description.text,
       ageRange: _ageRange,
       labelIds: _labelIds,
+      visibility: _public
+          ? PlaylistVisibility.public
+          : PlaylistVisibility.private,
     );
     setState(() => _saving = true);
     try {
@@ -161,6 +175,26 @@ class _EditorFormState extends ConsumerState<_EditorForm> {
             LabelPicker(
               selected: _labelIds,
               onChanged: (ids) => setState(() => _labelIds = ids),
+            ),
+            const SizedBox(height: 24),
+            Material(
+              color: theme.colorScheme.surfaceContainer,
+              borderRadius: BorderRadius.circular(20),
+              clipBehavior: Clip.antiAlias,
+              child: SwitchListTile(
+                key: const Key('share-switch'),
+                contentPadding: const EdgeInsets.fromLTRB(16, 6, 12, 6),
+                value: _public,
+                onChanged: _saving || (!_canShare && !_public)
+                    ? null
+                    : (v) => setState(() => _public = v),
+                title: Text(l10n.shareWithCommunity),
+                subtitle: Text(
+                  _canShare || _public
+                      ? l10n.shareWithCommunityHint
+                      : l10n.shareNeedsVideos,
+                ),
+              ),
             ),
             const SizedBox(height: 32),
             FilledButton(

@@ -3,6 +3,19 @@ enum PlaylistError {
   duplicateVideo,
   tooManyVideos,
   tooManyLabels,
+
+  /// Publishing needs at least one label.
+  needsLabel,
+
+  /// Publishing needs at least one available video (and a published
+  /// playlist can't lose its last one).
+  needsVideo,
+
+  /// Parents can't rate or report their own playlists.
+  ownPlaylist,
+
+  /// This parent has already reported the playlist.
+  alreadyReported,
   notFound,
   network,
   unknown,

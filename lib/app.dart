@@ -7,6 +7,7 @@ import 'core/l10n/l10n.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/presentation/auth_providers.dart';
+import 'features/playlists/presentation/playlist_providers.dart';
 
 class ClipsyApp extends ConsumerStatefulWidget {
   const ClipsyApp({super.key});
@@ -47,6 +48,9 @@ class _ClipsyAppState extends ConsumerState<ClipsyApp> {
 
   @override
   Widget build(BuildContext context) {
+    // Start listening for "Share to Clipsy" right away, so a link shared
+    // while parent mode is locked waits for the PIN instead of being lost.
+    ref.listen(pendingShareProvider, (_, _) {});
     return MaterialApp.router(
       onGenerateTitle: (context) => context.l10n.appTitle,
       debugShowCheckedModeBanner: false,

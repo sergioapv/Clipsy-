@@ -711,4 +711,195 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get minutesUnit => 'min';
+
+  @override
+  String get communityTopRated => 'Mais bem avaliadas';
+
+  @override
+  String get communityNew => 'Novas';
+
+  @override
+  String get communityByLabel => 'Por etiqueta';
+
+  @override
+  String get communitySearchHint => 'Pesquisar listas partilhadas';
+
+  @override
+  String get communityAllAges => 'Todas as idades';
+
+  @override
+  String get communityEmptyTitle => 'Ainda não há nada aqui';
+
+  @override
+  String get communityEmptyBody =>
+      'Nenhuma lista partilhada corresponde. Experimente outra etiqueta ou idade, ou partilhe uma das suas.';
+
+  @override
+  String get communityPickLabel => 'Escolha um tema';
+
+  @override
+  String communityByAuthor(String name) {
+    return 'por $name';
+  }
+
+  @override
+  String get communityYours => 'Sua';
+
+  @override
+  String get communityLoadMoreFailed => 'Não foi possível carregar mais.';
+
+  @override
+  String get ratingNone => 'Ainda sem avaliações';
+
+  @override
+  String ratingCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count avaliações',
+      one: '1 avaliação',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ratingStars(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count estrelas',
+      one: '1 estrela',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ratingAverage(String average) {
+    return 'Avaliada com $average em 5';
+  }
+
+  @override
+  String get communitySaveToLibrary => 'Guardar nas minhas listas';
+
+  @override
+  String get communitySaved => 'Guardada nas suas listas';
+
+  @override
+  String get communityOpen => 'Abrir';
+
+  @override
+  String get communityRateTitle => 'A sua avaliação';
+
+  @override
+  String get communityRateHint => 'Toque numa estrela para avaliar esta lista.';
+
+  @override
+  String get communityRateThanks => 'Obrigado pela avaliação.';
+
+  @override
+  String get communityOwnPlaylist =>
+      'Esta lista é sua. Outros pais podem guardá-la e avaliá-la.';
+
+  @override
+  String get communityBasedOn => 'Baseada na lista de outro pai ou mãe';
+
+  @override
+  String get communityVideos => 'Vídeos';
+
+  @override
+  String get reportPlaylist => 'Denunciar';
+
+  @override
+  String get reportTitle => 'Denunciar esta lista';
+
+  @override
+  String get reportBody =>
+      'Diga-nos o que está mal. Depois de várias denúncias, a lista fica escondida até ser analisada.';
+
+  @override
+  String get reportReasonInappropriate => 'Conteúdo impróprio';
+
+  @override
+  String get reportReasonViolent => 'Violento ou assustador';
+
+  @override
+  String get reportReasonNotForKids => 'Não adequado a crianças';
+
+  @override
+  String get reportReasonMisleading => 'Título ou etiquetas enganadores';
+
+  @override
+  String get reportReasonSpam => 'Spam ou publicidade';
+
+  @override
+  String get reportReasonOther => 'Outro motivo';
+
+  @override
+  String get reportDetails => 'Detalhes (opcional)';
+
+  @override
+  String get reportSend => 'Enviar denúncia';
+
+  @override
+  String get reportSent => 'Obrigado. Vamos analisar.';
+
+  @override
+  String get playlistErrorNeedsLabel =>
+      'Escolha pelo menos uma etiqueta para partilhar esta lista.';
+
+  @override
+  String get playlistErrorNeedsVideo =>
+      'As listas partilhadas precisam de pelo menos um vídeo.';
+
+  @override
+  String get playlistErrorOwnPlaylist =>
+      'Não pode avaliar nem denunciar a sua própria lista.';
+
+  @override
+  String get playlistErrorAlreadyReported => 'Já denunciou esta lista.';
+
+  @override
+  String get shareWithCommunity => 'Partilhar com a comunidade';
+
+  @override
+  String get shareWithCommunityHint =>
+      'Outros pais podem encontrá-la, guardá-la e avaliá-la. Veem o seu nome na comunidade, nunca o seu email.';
+
+  @override
+  String get shareNeedsVideos =>
+      'Adicione primeiro um vídeo e depois poderá partilhá-la.';
+
+  @override
+  String get sharedStatus => 'Partilhada com a comunidade';
+
+  @override
+  String get hiddenStatus =>
+      'Escondida da comunidade após denúncias, até ser analisada.';
+
+  @override
+  String get stopSharing => 'Deixar de partilhar';
+
+  @override
+  String get unsharedSnack => 'Deixou de estar partilhada';
+
+  @override
+  String get communityName => 'Nome mostrado na comunidade';
+
+  @override
+  String get communityNameInvalid => 'Use entre 1 e 40 caracteres.';
+
+  @override
+  String get shareIntakeTitle => 'Adicionar a uma lista';
+
+  @override
+  String get shareIntakeBody =>
+      'Escolha onde adicionar esta ligação do YouTube.';
+
+  @override
+  String get shareIntakeNotYouTube =>
+      'Essa ligação não é um vídeo nem uma lista do YouTube.';
+
+  @override
+  String get shareIntakeNoPlaylists =>
+      'Crie primeiro uma lista e depois partilhe a ligação novamente.';
 }

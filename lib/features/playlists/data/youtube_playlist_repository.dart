@@ -55,7 +55,7 @@ class PlayerPlaylistIdsSource implements PlaylistIdsSource {
       ),
     );
     final base = Uri.parse(_controller.params.host);
-    // Same lock as Kid mode: the hidden player can't navigate anywhere.
+    // Same lock as Kid mode: the preview player can't navigate anywhere.
     unawaited(
       _controller.webViewController.setNavigationDelegate(
         NavigationDelegate(

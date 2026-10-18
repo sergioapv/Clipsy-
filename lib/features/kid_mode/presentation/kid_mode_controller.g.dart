@@ -282,7 +282,7 @@ final class KidModeProvider extends $NotifierProvider<KidMode, KidModeState?> {
   }
 }
 
-String _$kidModeHash() => r'be4843ed3f485b3078298968e9fa5e4baab0daf3';
+String _$kidModeHash() => r'31de491096a6bc448a70add7420839a784ab6190';
 
 /// The active Kid mode session (or `null` in parent mode).
 ///

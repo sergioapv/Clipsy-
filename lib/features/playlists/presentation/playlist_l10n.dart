@@ -37,6 +37,14 @@ extension PlaylistL10n on AppLocalizations {
       playlistErrorTooManyVideos,
     PlaylistException(error: PlaylistError.tooManyLabels) =>
       playlistErrorTooManyLabels,
+    PlaylistException(error: PlaylistError.needsLabel) =>
+      playlistErrorNeedsLabel,
+    PlaylistException(error: PlaylistError.needsVideo) =>
+      playlistErrorNeedsVideo,
+    PlaylistException(error: PlaylistError.ownPlaylist) =>
+      playlistErrorOwnPlaylist,
+    PlaylistException(error: PlaylistError.alreadyReported) =>
+      playlistErrorAlreadyReported,
     PlaylistException(error: PlaylistError.notFound) => playlistErrorNotFound,
     PlaylistException(error: PlaylistError.network) => errorNetwork,
     _ => errorGeneric,

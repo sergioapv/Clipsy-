@@ -377,5 +377,86 @@
   },
   "kidNextVideo": "Next video",
   "kidPickVideo": "Choose a video",
-  "minutesUnit": "min"
+  "minutesUnit": "min",
+  "communityTopRated": "Top rated",
+  "communityNew": "New",
+  "communityByLabel": "By label",
+  "communitySearchHint": "Search shared playlists",
+  "communityAllAges": "All ages",
+  "communityEmptyTitle": "Nothing here yet",
+  "communityEmptyBody": "No shared playlists match. Try another label or age, or share one of yours.",
+  "communityPickLabel": "Pick a topic",
+  "communityByAuthor": "by {name}",
+  "@communityByAuthor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "communityYours": "Yours",
+  "communityLoadMoreFailed": "Couldn't load more.",
+  "ratingNone": "No ratings yet",
+  "ratingCount": "{count, plural, =1{1 rating} other{{count} ratings}}",
+  "@ratingCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ratingStars": "{count, plural, =1{1 star} other{{count} stars}}",
+  "@ratingStars": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ratingAverage": "Rated {average} out of 5",
+  "@ratingAverage": {
+    "placeholders": {
+      "average": {
+        "type": "String"
+      }
+    }
+  },
+  "communitySaveToLibrary": "Save to my playlists",
+  "communitySaved": "Saved to your playlists",
+  "communityOpen": "Open",
+  "communityRateTitle": "Your rating",
+  "communityRateHint": "Tap a star to rate this playlist.",
+  "communityRateThanks": "Thanks for rating.",
+  "communityOwnPlaylist": "This is your playlist. Other parents can save and rate it.",
+  "communityBasedOn": "Based on another parent's playlist",
+  "communityVideos": "Videos",
+  "reportPlaylist": "Report",
+  "reportTitle": "Report this playlist",
+  "reportBody": "Tell us what's wrong. After several reports, the playlist is hidden until it's reviewed.",
+  "reportReasonInappropriate": "Inappropriate content",
+  "reportReasonViolent": "Violent or scary",
+  "reportReasonNotForKids": "Not suitable for children",
+  "reportReasonMisleading": "Misleading title or labels",
+  "reportReasonSpam": "Spam or advertising",
+  "reportReasonOther": "Something else",
+  "reportDetails": "Details (optional)",
+  "reportSend": "Send report",
+  "reportSent": "Thanks. We'll take a look.",
+  "playlistErrorNeedsLabel": "Pick at least one label to share this playlist.",
+  "playlistErrorNeedsVideo": "Shared playlists need at least one video.",
+  "playlistErrorOwnPlaylist": "You can't rate or report your own playlist.",
+  "playlistErrorAlreadyReported": "You've already reported this playlist.",
+  "shareWithCommunity": "Share with the community",
+  "shareWithCommunityHint": "Other parents can find, save and rate it. They see your community name, never your email.",
+  "shareNeedsVideos": "Add a video first, then you can share it.",
+  "sharedStatus": "Shared with the community",
+  "hiddenStatus": "Hidden from the community after reports, until it's reviewed.",
+  "stopSharing": "Stop sharing",
+  "unsharedSnack": "No longer shared",
+  "communityName": "Name shown in the community",
+  "communityNameInvalid": "Use 1 to 40 characters.",
+  "shareIntakeTitle": "Add to a playlist",
+  "shareIntakeBody": "Choose where to add this YouTube link.",
+  "shareIntakeNotYouTube": "That link isn't a YouTube video or playlist.",
+  "shareIntakeNoPlaylists": "Create a playlist first, then share the link again."
 }

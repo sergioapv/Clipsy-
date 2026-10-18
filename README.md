@@ -20,7 +20,7 @@ Flutter (Android first, then iOS) · Riverpod (codegen) · go_router · Supabase
 | 1. Foundation | Project setup, theming, l10n (en, pt-PT), routing, Supabase auth, PIN, DB migrations + RLS + labels | ✅ |
 | 2. Playlists | CRUD, add by URL + oEmbed validation, reorder, labels, age range | ✅ |
 | 3. Kid mode | Player, Android screen pinning / iOS Guided Access detection, exit gesture + PIN, timers, time's-up, persistence | ✅ |
-| 4. Community | Publish, browse/filter/search, fork, ratings, reports + auto-hide, share-sheet intake, revalidation Edge Function | ⏳ |
+| 4. Community | Publish, browse/filter/search, fork, ratings, reports + auto-hide, share-sheet intake (Android), revalidation Edge Function | ✅ |
 | 5. Polish | Tests, accessibility, account deletion UI, privacy policy, Families checklist | ⏳ |
 
 ---
@@ -69,6 +69,16 @@ Localisations are generated automatically from `lib/l10n/*.arb` on
    ```sql
    update public.app_settings set report_hide_threshold = 5;
    ```
+7. Video revalidation (community playlists are rechecked hourly):
+   ```bash
+   supabase functions deploy revalidate-videos --no-verify-jwt
+   ```
+   Then, once, in the SQL editor (the cron job needs the project URL):
+   ```sql
+   select vault.create_secret('https://<project-ref>.supabase.co', 'project_url');
+   ```
+   The function only runs for pg_cron: the migration generates a secret in
+   Vault that the job sends and the function checks. Nothing to copy.
 
 #### Local Supabase instead
 
@@ -159,11 +169,12 @@ lib/
     auth/      data/ domain/ presentation/   sign-in, PIN, onboarding, unlock
     playlists/ data/ domain/ presentation/   library, editor, detail, add-video sheet
     kid_mode/  data/ domain/ presentation/   player, lock, timer, time's-up
-    community/ …                             (M4)
+    community/ data/ domain/ presentation/   library, shared playlist, ratings, reports
     settings/  …
   l10n/                      app_en.arb, app_pt.arb (+ generated/)
 supabase/
   config.toml                local stack config
+  functions/revalidate-videos/  hourly oEmbed recheck of community videos
   migrations/                schema, RLS, triggers, RPCs, label seed
   tests/                     database tests (+ stub for plain Postgres)
 tool/test_db.sh
@@ -222,11 +233,14 @@ pure function, and it is unit-tested.
   browser stays on YouTube (`YouTubeBrowsePolicy`): app hand-offs and other
   sites are blocked. Kid mode never gets a browser.
 - **Whole YouTube playlists, without the YouTube Data API**: from a playlist
-  page in the browser, or a pasted playlist link. An invisible, muted
-  official IFrame player (inside the import sheet) cues the playlist and
+  page in the browser, or a pasted playlist link. A muted official IFrame
+  player, shown as a preview in the import sheet, cues the playlist and
   `getPlaylist()` returns its video IDs. oEmbed then gives the playlist title
   and checks every video (4 at a time, with progress), so private, removed
   and non-embeddable ones are skipped. No API key and no server involved.
+  The player must be on screen: on Android, youtube_player_iframe hides the
+  web view of an unpainted player and it never loads (and YouTube's terms
+  forbid hidden players).
   - Tested against real YouTube in Chromium: a 41-video playlist listed in
     0.5 s; the player returns at most 200 IDs, which matches the 200-video
     limit, and a full list is flagged as possibly cut off.
@@ -281,6 +295,36 @@ pure function, and it is unit-tested.
   then Android Settings → Apps → Clipsy → Clear storage, and sign in again.
   A child can't reach this while the app is pinned. If they do it while
   unpinned, they still need the parent's account to sign back in.
+
+### Community
+- **Sharing**: a playlist with at least one video and 1–3 labels can be
+  shared from its menu or the editor. The database enforces both
+  (`check_public_playlist`), and the app sets labels before going public
+  (and goes private before removing labels) so each request commits valid.
+- **What others see** (`community_playlists` view): title, description,
+  labels, ages, video count, total length when every duration is known, the
+  author's community name (Settings → Account; "Parent" by default, never
+  the email) and the rating. Playlists hidden by reports, or left without
+  any available video, drop out.
+- **Browse**: Top rated, New, By label; an age filter (overlapping ranges)
+  and title search on every tab; 20 per page with infinite scroll.
+- **Save to my playlists** copies a playlist (`fork_playlist`): private,
+  available videos only, with `forked_from` pointing at the original.
+- **Ratings**: 1–5 stars, editable, through `rate_playlist` (an upsert
+  can't work with the column grants). Not on your own playlists (RLS +
+  trigger). The average and count are kept by a trigger.
+- **Reports**: reason + optional details, one per parent per playlist,
+  unreadable by parents. At 3 unresolved reports (configurable) the playlist
+  is hidden until an admin calls `admin_review_playlist`. Owners see
+  "Hidden … until it's reviewed" on their playlist.
+- **Revalidation**: the `revalidate-videos` Edge Function rechecks up to 100
+  community videos an hour with oEmbed (each at most weekly) and flags
+  removed, private or no-longer-embeddable ones; videos that come back are
+  restored.
+- **Share to Clipsy** (Android): YouTube's share sheet lists Clipsy. The
+  link waits until parent mode is unlocked, then the parent picks a
+  playlist and the add-video sheet opens with the link checked (video, or
+  whole playlist). iOS needs a share extension (not built yet).
 
 ### Compliance
 - Video playback only through the official YouTube IFrame player (M3). No

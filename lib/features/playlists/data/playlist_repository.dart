@@ -64,7 +64,7 @@ class SupabasePlaylistRepository implements PlaylistRepository {
   }
 
   @override
-  Future<List<Playlist>> fetchMine() => _guard(() async {
+  Future<List<Playlist>> fetchMine() => guardPlaylistCall(() async {
     // RLS also returns other parents' public playlists, so filter by owner.
     final rows = await _client
         .from('playlists')
@@ -76,7 +76,7 @@ class SupabasePlaylistRepository implements PlaylistRepository {
   });
 
   @override
-  Future<PlaylistDetail> fetchDetail(String id) => _guard(() async {
+  Future<PlaylistDetail> fetchDetail(String id) => guardPlaylistCall(() async {
     final row = await _client
         .from('playlists')
         .select(_detailSelect)
@@ -88,7 +88,7 @@ class SupabasePlaylistRepository implements PlaylistRepository {
   });
 
   @override
-  Future<String> create(PlaylistDraft draft) => _guard(() async {
+  Future<String> create(PlaylistDraft draft) => guardPlaylistCall(() async {
     final row = await _client
         .from('playlists')
         .insert(_fields(draft))
@@ -100,17 +100,26 @@ class SupabasePlaylistRepository implements PlaylistRepository {
   });
 
   @override
-  Future<void> update(String id, PlaylistDraft draft) => _guard(() async {
-    await _client.from('playlists').update(_fields(draft)).eq('id', id);
-    await _setLabels(id, draft.labelIds);
-  });
+  Future<void> update(String id, PlaylistDraft draft) =>
+      guardPlaylistCall(() async {
+        // Each call commits on its own, and the database checks a public
+        // playlist has labels at every commit. So when publishing, set the
+        // labels first; otherwise unpublish first, then change the labels.
+        if (draft.isPublic) {
+          await _setLabels(id, draft.labelIds);
+          await _client.from('playlists').update(_fields(draft)).eq('id', id);
+        } else {
+          await _client.from('playlists').update(_fields(draft)).eq('id', id);
+          await _setLabels(id, draft.labelIds);
+        }
+      });
 
   @override
   Future<void> delete(String id) =>
-      _guard(() => _client.from('playlists').delete().eq('id', id));
+      guardPlaylistCall(() => _client.from('playlists').delete().eq('id', id));
 
   @override
-  Future<void> reorderMine(List<String> playlistIds) => _guard(
+  Future<void> reorderMine(List<String> playlistIds) => guardPlaylistCall(
     () => _client.rpc<void>(
       'reorder_my_playlists',
       params: {'p_playlist_ids': playlistIds},
@@ -122,7 +131,7 @@ class SupabasePlaylistRepository implements PlaylistRepository {
     String playlistId,
     VideoMetadata video, {
     required int position,
-  }) => _guard(() async {
+  }) => guardPlaylistCall(() async {
     final row = await _client
         .from('playlist_videos')
         .insert({
@@ -144,7 +153,7 @@ class SupabasePlaylistRepository implements PlaylistRepository {
     String playlistId,
     List<VideoMetadata> videos, {
     required int startPosition,
-  }) => _guard(() async {
+  }) => guardPlaylistCall(() async {
     if (videos.isEmpty) return const <PlaylistVideo>[];
     final rows = await _client.from('playlist_videos').insert([
       for (final (i, v) in videos.indexed)
@@ -162,12 +171,13 @@ class SupabasePlaylistRepository implements PlaylistRepository {
   });
 
   @override
-  Future<void> removeVideo(String videoId) =>
-      _guard(() => _client.from('playlist_videos').delete().eq('id', videoId));
+  Future<void> removeVideo(String videoId) => guardPlaylistCall(
+    () => _client.from('playlist_videos').delete().eq('id', videoId),
+  );
 
   @override
   Future<void> reorderVideos(String playlistId, List<String> videoIds) =>
-      _guard(
+      guardPlaylistCall(
         () => _client.rpc<void>(
           'reorder_playlist_videos',
           params: {'p_playlist_id': playlistId, 'p_video_ids': videoIds},
@@ -175,7 +185,7 @@ class SupabasePlaylistRepository implements PlaylistRepository {
       );
 
   @override
-  Future<void> recordDuration(String videoId, int seconds) => _guard(
+  Future<void> recordDuration(String videoId, int seconds) => guardPlaylistCall(
     () => _client
         .from('playlist_videos')
         .update({'duration_seconds': seconds})
@@ -193,6 +203,7 @@ class SupabasePlaylistRepository implements PlaylistRepository {
     'description': d.trimmedDescription,
     'age_min': d.ageRange.min,
     'age_max': d.ageRange.max,
+    'visibility': d.visibility.name,
   };
 }
 
@@ -202,7 +213,7 @@ class SupabaseLabelRepository implements LabelRepository {
   final SupabaseClient _client;
 
   @override
-  Future<List<Label>> fetchAll() => _guard(() async {
+  Future<List<Label>> fetchAll() => guardPlaylistCall(() async {
     final rows = await _client
         .from('labels')
         .select('id, slug, name')
@@ -212,7 +223,7 @@ class SupabaseLabelRepository implements LabelRepository {
 }
 
 /// Maps transport and database errors to [PlaylistException].
-Future<T> _guard<T>(Future<T> Function() body) async {
+Future<T> guardPlaylistCall<T>(Future<T> Function() body) async {
   try {
     return await body();
   } on PlaylistException {
@@ -236,6 +247,21 @@ PlaylistError mapPostgrestError(PostgrestException e) {
   }
   if (message.contains('too_many_videos')) return PlaylistError.tooManyVideos;
   if (message.contains('too_many_labels')) return PlaylistError.tooManyLabels;
+  if (message.contains('public_playlist_needs_label')) {
+    return PlaylistError.needsLabel;
+  }
+  if (message.contains('public_playlist_needs_video')) {
+    return PlaylistError.needsVideo;
+  }
+  if (e.code == '23505' && message.contains('reports_one_per_parent')) {
+    return PlaylistError.alreadyReported;
+  }
+  if (message.contains('cannot_rate_own_playlist') ||
+      (e.code == '42501' && message.contains('row-level security'))) {
+    // RLS only refuses ratings and reports on the caller's own (or a
+    // hidden) playlist.
+    return PlaylistError.ownPlaylist;
+  }
   if (message.contains('playlist_not_found') || e.code == 'PGRST116') {
     return PlaylistError.notFound;
   }

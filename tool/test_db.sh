@@ -31,6 +31,8 @@ trap cleanup EXIT
 PSQL=(psql -h "$TMP" -p "$PORT" -U postgres -d postgres -X -q -v ON_ERROR_STOP=1 -P tuples_only=on -o /dev/null)
 "${PSQL[@]}" -f supabase/tests/support/stub_supabase.sql
 for f in supabase/migrations/*.sql; do
+  # Needs Vault, pg_cron and pg_net, which only exist on real Supabase.
+  [[ "$f" == *_revalidation_cron.sql ]] && continue
   "${PSQL[@]}" -f "$f"
 done
 "${PSQL[@]}" -f "$TESTS"

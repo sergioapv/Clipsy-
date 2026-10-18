@@ -7,6 +7,7 @@ import '../../features/auth/presentation/pin_setup_screen.dart';
 import '../../features/auth/presentation/sign_in_screen.dart';
 import '../../features/auth/presentation/splash_screen.dart';
 import '../../features/auth/presentation/unlock_screen.dart';
+import '../../features/community/presentation/community_playlist_screen.dart';
 import '../../features/community/presentation/community_screen.dart';
 import '../../features/kid_mode/presentation/kid_mode_screen.dart';
 import '../../features/playlists/presentation/playlist_detail_screen.dart';
@@ -104,6 +105,14 @@ GoRouter appRouter(Ref ref) {
               GoRoute(
                 path: Routes.community,
                 builder: (context, state) => const CommunityScreen(),
+                routes: [
+                  GoRoute(
+                    path: ':id',
+                    builder: (context, state) => CommunityPlaylistScreen(
+                      playlistId: state.pathParameters['id']!,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

@@ -270,6 +270,37 @@ select pg_temp.throws(
     values ('11111111-1111-1111-1111-111111111111', 5)$$,
   'row-level security|cannot_rate_own_playlist', 'cannot rate own playlist');
 
+-- rate_playlist: one call creates or edits the caller's rating.
+select pg_temp.login('00000000-0000-0000-0000-00000000000d');
+select public.rate_playlist('11111111-1111-1111-1111-111111111111', 5::smallint);
+select public.rate_playlist('11111111-1111-1111-1111-111111111111', 3::smallint);
+select pg_temp.ok(
+  (select count(*) = 1 and min(stars) = 3 from public.ratings),
+  'rate_playlist creates, then edits, a single rating');
+select pg_temp.ok(
+  (select rating_count = 3 from public.playlists
+   where id = '11111111-1111-1111-1111-111111111111'),
+  'rate_playlist updates the aggregate');
+delete from public.ratings
+where playlist_id = '11111111-1111-1111-1111-111111111111';
+select pg_temp.login('00000000-0000-0000-0000-00000000000a');
+select pg_temp.throws(
+  $$select public.rate_playlist('11111111-1111-1111-1111-111111111111', 5::smallint)$$,
+  'row-level security|cannot_rate_own_playlist', 'rate_playlist cannot rate own playlist');
+
+-- A public playlist with no available videos left drops out of the community.
+select pg_temp.logout();
+update public.playlist_videos set is_available = false
+where playlist_id = '11111111-1111-1111-1111-111111111111';
+select pg_temp.login('00000000-0000-0000-0000-00000000000b');
+select pg_temp.ok(
+  not exists (select 1 from public.community_playlists
+              where id = '11111111-1111-1111-1111-111111111111'),
+  'playlists without available videos leave the community');
+select pg_temp.logout();
+update public.playlist_videos set is_available = true
+where playlist_id = '11111111-1111-1111-1111-111111111111';
+
 -- Forking.
 select pg_temp.login('00000000-0000-0000-0000-00000000000d');
 create temp table forked as

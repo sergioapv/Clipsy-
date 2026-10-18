@@ -705,4 +705,194 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get minutesUnit => 'min';
+
+  @override
+  String get communityTopRated => 'Top rated';
+
+  @override
+  String get communityNew => 'New';
+
+  @override
+  String get communityByLabel => 'By label';
+
+  @override
+  String get communitySearchHint => 'Search shared playlists';
+
+  @override
+  String get communityAllAges => 'All ages';
+
+  @override
+  String get communityEmptyTitle => 'Nothing here yet';
+
+  @override
+  String get communityEmptyBody =>
+      'No shared playlists match. Try another label or age, or share one of yours.';
+
+  @override
+  String get communityPickLabel => 'Pick a topic';
+
+  @override
+  String communityByAuthor(String name) {
+    return 'by $name';
+  }
+
+  @override
+  String get communityYours => 'Yours';
+
+  @override
+  String get communityLoadMoreFailed => 'Couldn\'t load more.';
+
+  @override
+  String get ratingNone => 'No ratings yet';
+
+  @override
+  String ratingCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ratings',
+      one: '1 rating',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ratingStars(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count stars',
+      one: '1 star',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ratingAverage(String average) {
+    return 'Rated $average out of 5';
+  }
+
+  @override
+  String get communitySaveToLibrary => 'Save to my playlists';
+
+  @override
+  String get communitySaved => 'Saved to your playlists';
+
+  @override
+  String get communityOpen => 'Open';
+
+  @override
+  String get communityRateTitle => 'Your rating';
+
+  @override
+  String get communityRateHint => 'Tap a star to rate this playlist.';
+
+  @override
+  String get communityRateThanks => 'Thanks for rating.';
+
+  @override
+  String get communityOwnPlaylist =>
+      'This is your playlist. Other parents can save and rate it.';
+
+  @override
+  String get communityBasedOn => 'Based on another parent\'s playlist';
+
+  @override
+  String get communityVideos => 'Videos';
+
+  @override
+  String get reportPlaylist => 'Report';
+
+  @override
+  String get reportTitle => 'Report this playlist';
+
+  @override
+  String get reportBody =>
+      'Tell us what\'s wrong. After several reports, the playlist is hidden until it\'s reviewed.';
+
+  @override
+  String get reportReasonInappropriate => 'Inappropriate content';
+
+  @override
+  String get reportReasonViolent => 'Violent or scary';
+
+  @override
+  String get reportReasonNotForKids => 'Not suitable for children';
+
+  @override
+  String get reportReasonMisleading => 'Misleading title or labels';
+
+  @override
+  String get reportReasonSpam => 'Spam or advertising';
+
+  @override
+  String get reportReasonOther => 'Something else';
+
+  @override
+  String get reportDetails => 'Details (optional)';
+
+  @override
+  String get reportSend => 'Send report';
+
+  @override
+  String get reportSent => 'Thanks. We\'ll take a look.';
+
+  @override
+  String get playlistErrorNeedsLabel =>
+      'Pick at least one label to share this playlist.';
+
+  @override
+  String get playlistErrorNeedsVideo =>
+      'Shared playlists need at least one video.';
+
+  @override
+  String get playlistErrorOwnPlaylist =>
+      'You can\'t rate or report your own playlist.';
+
+  @override
+  String get playlistErrorAlreadyReported =>
+      'You\'ve already reported this playlist.';
+
+  @override
+  String get shareWithCommunity => 'Share with the community';
+
+  @override
+  String get shareWithCommunityHint =>
+      'Other parents can find, save and rate it. They see your community name, never your email.';
+
+  @override
+  String get shareNeedsVideos => 'Add a video first, then you can share it.';
+
+  @override
+  String get sharedStatus => 'Shared with the community';
+
+  @override
+  String get hiddenStatus =>
+      'Hidden from the community after reports, until it\'s reviewed.';
+
+  @override
+  String get stopSharing => 'Stop sharing';
+
+  @override
+  String get unsharedSnack => 'No longer shared';
+
+  @override
+  String get communityName => 'Name shown in the community';
+
+  @override
+  String get communityNameInvalid => 'Use 1 to 40 characters.';
+
+  @override
+  String get shareIntakeTitle => 'Add to a playlist';
+
+  @override
+  String get shareIntakeBody => 'Choose where to add this YouTube link.';
+
+  @override
+  String get shareIntakeNotYouTube =>
+      'That link isn\'t a YouTube video or playlist.';
+
+  @override
+  String get shareIntakeNoPlaylists =>
+      'Create a playlist first, then share the link again.';
 }

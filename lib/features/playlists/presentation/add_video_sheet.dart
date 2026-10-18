@@ -14,20 +14,26 @@ import 'playlist_l10n.dart';
 import 'playlist_providers.dart';
 import 'widgets/video_thumbnail.dart';
 
-Future<void> showAddVideoSheet(BuildContext context, String playlistId) =>
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      useSafeArea: true,
-      builder: (_) => AddVideoSheet(playlistId: playlistId),
-    );
+/// [initialLink] (e.g. shared from the YouTube app) is checked right away.
+Future<void> showAddVideoSheet(
+  BuildContext context,
+  String playlistId, {
+  String? initialLink,
+}) => showModalBottomSheet<void>(
+  context: context,
+  isScrollControlled: true,
+  showDragHandle: true,
+  useSafeArea: true,
+  builder: (_) =>
+      AddVideoSheet(playlistId: playlistId, initialLink: initialLink),
+);
 
 /// Paste a YouTube link → validate with oEmbed → preview → add.
 class AddVideoSheet extends ConsumerStatefulWidget {
-  const AddVideoSheet({required this.playlistId, super.key});
+  const AddVideoSheet({required this.playlistId, this.initialLink, super.key});
 
   final String playlistId;
+  final String? initialLink;
 
   @override
   ConsumerState<AddVideoSheet> createState() => _AddVideoSheetState();
@@ -42,6 +48,18 @@ class _AddVideoSheetState extends ConsumerState<AddVideoSheet> {
 
   /// Playlist (`list=`) of the checked link, offered as "add whole playlist".
   String? _playlistId;
+
+  @override
+  void initState() {
+    super.initState();
+    final link = widget.initialLink;
+    if (link != null) {
+      _input.text = link;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) unawaited(_check());
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -66,6 +84,17 @@ class _AddVideoSheetState extends ConsumerState<AddVideoSheet> {
     });
     if (text.trim().isEmpty) return;
 
+    // Opened from outside the playlist's screen (a shared link), the
+    // playlist may not be loaded yet.
+    try {
+      await ref.read(
+        playlistDetailControllerProvider(widget.playlistId).future,
+      );
+    } on Exception catch (e) {
+      if (mounted) setState(() => _error = l10n.playlistError(e));
+      return;
+    }
+    if (!mounted) return;
     final controller = ref.read(
       playlistDetailControllerProvider(widget.playlistId).notifier,
     );
@@ -140,6 +169,8 @@ class _AddVideoSheetState extends ConsumerState<AddVideoSheet> {
     final l10n = context.l10n;
     final theme = Theme.of(context);
     final preview = _preview;
+    // Keep the playlist loaded while the sheet is open.
+    ref.watch(playlistDetailControllerProvider(widget.playlistId));
     return Padding(
       padding: EdgeInsets.fromLTRB(
         20,

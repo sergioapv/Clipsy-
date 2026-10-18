@@ -46,7 +46,7 @@ class ImportPlaylistSheet extends ConsumerStatefulWidget {
 }
 
 class _ImportPlaylistSheetState extends ConsumerState<ImportPlaylistSheet> {
-  // Holding the subscription keeps the importer (and its hidden player)
+  // Holding the subscription keeps the importer (and its preview player)
   // alive while the sheet is open.
   late final ProviderSubscription<YouTubePlaylistRepository> _repoSub = ref
       .listenManual(youTubePlaylistRepositoryProvider, (_, _) {});

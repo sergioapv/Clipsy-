@@ -7,20 +7,26 @@ import '../../domain/playlist.dart';
 import '../playlist_l10n.dart';
 import '../playlist_providers.dart';
 
-/// Read-only chips for a playlist's labels.
+/// Read-only tags for a playlist's labels, given by id or (for community
+/// playlists) by slug.
 class LabelChips extends ConsumerWidget {
-  const LabelChips({required this.labelIds, super.key});
+  const LabelChips({
+    this.labelIds = const [],
+    this.labelSlugs = const [],
+    super.key,
+  });
 
   final List<int> labelIds;
+  final List<String> labelSlugs;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (labelIds.isEmpty) return const SizedBox.shrink();
+    if (labelIds.isEmpty && labelSlugs.isEmpty) return const SizedBox.shrink();
     final all = ref.watch(labelsProvider).value ?? const <Label>[];
     final l10n = context.l10n;
     final labels = [
       for (final l in all)
-        if (labelIds.contains(l.id)) l,
+        if (labelIds.contains(l.id) || labelSlugs.contains(l.slug)) l,
     ];
     final theme = Theme.of(context);
     return Wrap(
