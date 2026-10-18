@@ -280,6 +280,14 @@ void main() {
 
     await tester.tap(find.byKey(const Key('browser-add-playlist')));
     await tester.pumpAndSettle();
+    // The player that reads the playlist is on screen: on Android an
+    // unpainted player never loads.
+    final host = find.byKey(const Key('fake-playlist-host'));
+    expect(tester.getSize(host).width, greaterThanOrEqualTo(200));
+    expect(
+      find.ancestor(of: host, matching: find.byType(Opacity)),
+      findsNothing,
+    );
     expect(find.text('Dinosaur songs'), findsOneWidget);
     expect(find.text('1 video is already in this playlist'), findsOneWidget);
     expect(find.textContaining("1 video can't play in Clipsy"), findsOneWidget);

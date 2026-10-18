@@ -9,7 +9,6 @@ import '../domain/imported_playlist.dart';
 import '../domain/playlist.dart';
 import 'playlist_l10n.dart';
 import 'playlist_providers.dart';
-import 'widgets/video_thumbnail.dart';
 
 /// Shows what a YouTube playlist would add to [playlistId] and adds it.
 /// Resolves to the number of videos added (0 if cancelled).
@@ -99,12 +98,32 @@ class _ImportPlaylistSheetState extends ConsumerState<ImportPlaylistSheet> {
     // Rebuild when the target playlist changes.
     ref.watch(playlistDetailControllerProvider(widget.playlistId));
 
-    return Stack(
-      children: [
-        // Invisible YouTube player that lists the playlist's videos.
-        Positioned(left: 0, top: 0, child: _repoSub.read().buildHost(context)),
-        _content(context, l10n, theme, controller),
-      ],
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(l10n.importPlaylistTitle, style: theme.textTheme.titleLarge),
+          const SizedBox(height: 16),
+          // The YouTube player that lists the playlist's videos, shown as a
+          // preview. It must stay on screen until the list is read.
+          Align(
+            alignment: Alignment.centerLeft,
+            child: SizedBox(
+              // Small enough that the add button stays on screen.
+              width: 280,
+              child: ClipRRect(
+                key: const Key('import-preview'),
+                borderRadius: BorderRadius.circular(16),
+                child: _repoSub.read().buildHost(context),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          _content(context, l10n, theme, controller),
+        ],
+      ),
     );
   }
 
@@ -114,138 +133,107 @@ class _ImportPlaylistSheetState extends ConsumerState<ImportPlaylistSheet> {
     ThemeData theme,
     PlaylistDetailController controller,
   ) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-      child: FutureBuilder<ImportedPlaylist>(
-        future: _load,
-        builder: (context, snap) {
-          if (snap.connectionState != ConnectionState.done) {
-            final p = _progress;
-            return SizedBox(
-              height: 160,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 200,
-                    child: LinearProgressIndicator(
-                      minHeight: 6,
-                      borderRadius: BorderRadius.circular(3),
-                      value: p == null || p.total == 0
-                          ? null
-                          : p.checked / p.total,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    p == null
-                        ? l10n.importFindingVideos
-                        : l10n.importCheckingVideos(p.checked, p.total),
-                    key: const Key('import-progress'),
-                  ),
-                ],
-              ),
-            );
-          }
-          final error = snap.error;
-          if (error != null) {
-            final message = error is PlaylistImportException
-                ? l10n.playlistImportError(error.error)
-                : l10n.errorGeneric;
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+    return FutureBuilder<ImportedPlaylist>(
+      future: _load,
+      builder: (context, snap) {
+        if (snap.connectionState != ConnectionState.done) {
+          final p = _progress;
+          return SizedBox(
+            height: 72,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  l10n.importPlaylistTitle,
-                  style: theme.textTheme.titleLarge,
+                SizedBox(
+                  width: 200,
+                  child: LinearProgressIndicator(
+                    minHeight: 6,
+                    borderRadius: BorderRadius.circular(3),
+                    value: p == null || p.total == 0
+                        ? null
+                        : p.checked / p.total,
+                  ),
                 ),
-                const SizedBox(height: 12),
-                Text(message, key: const Key('import-error')),
                 const SizedBox(height: 16),
-                FilledButton.tonal(
-                  onPressed: () => setState(() => _load = _fetch()),
-                  child: Text(l10n.retry),
+                Text(
+                  p == null
+                      ? l10n.importFindingVideos
+                      : l10n.importCheckingVideos(p.checked, p.total),
+                  key: const Key('import-progress'),
                 ),
               ],
-            );
-          }
-          final playlist = snap.requireData;
-          final plan = ImportPlan.from(
-            playlist,
-            existingIds: controller.youtubeIds,
-            capacity: controller.remainingCapacity,
+            ),
           );
-          final first = playlist.videos.where((v) => v.playable).firstOrNull;
+        }
+        final error = snap.error;
+        if (error != null) {
+          final message = error is PlaylistImportException
+              ? l10n.playlistImportError(error.error)
+              : l10n.errorGeneric;
           return Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(l10n.importPlaylistTitle, style: theme.textTheme.titleLarge),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  if (first != null)
-                    VideoThumbnail(
-                      url: first.toMetadata().thumbnailUrl,
-                      width: 112,
-                      borderRadius: 12,
-                    ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          playlist.title,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: 2),
-                        if (playlist.channelName != null)
-                          Text(
-                            playlist.channelName!,
-                            style: theme.textTheme.bodySmall,
-                          ),
-                        Text(
-                          l10n.videoCount(playlist.videos.length),
-                          style: theme.textTheme.bodySmall,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              if (plan.alreadyThere > 0)
-                _Note(l10n.importAlreadyThere(plan.alreadyThere)),
-              if (plan.unavailable > 0)
-                _Note(l10n.importUnavailable(plan.unavailable)),
-              if (plan.overLimit > 0 || playlist.truncated)
-                _Note(l10n.importOverLimit(PlaylistDraft.maxVideos)),
+              Text(message, key: const Key('import-error')),
               const SizedBox(height: 16),
-              FilledButton.icon(
-                key: const Key('import-add'),
-                onPressed: plan.toAdd.isEmpty || _adding
-                    ? null
-                    : () => unawaited(_add(plan)),
-                icon: _adding
-                    ? const SizedBox.square(
-                        dimension: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2.5),
-                      )
-                    : const Icon(Icons.playlist_add_rounded),
-                label: Text(
-                  plan.toAdd.isEmpty
-                      ? l10n.importNothingToAdd
-                      : l10n.importAddVideos(plan.toAdd.length),
-                ),
+              FilledButton.tonal(
+                onPressed: () => setState(() => _load = _fetch()),
+                child: Text(l10n.retry),
               ),
             ],
           );
-        },
-      ),
+        }
+        final playlist = snap.requireData;
+        final plan = ImportPlan.from(
+          playlist,
+          existingIds: controller.youtubeIds,
+          capacity: controller.remainingCapacity,
+        );
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              playlist.title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.titleMedium,
+            ),
+            const SizedBox(height: 2),
+            Text(
+              [
+                ?playlist.channelName,
+                l10n.videoCount(playlist.videos.length),
+              ].join(' · '),
+              style: theme.textTheme.bodySmall,
+            ),
+            const SizedBox(height: 12),
+            if (plan.alreadyThere > 0)
+              _Note(l10n.importAlreadyThere(plan.alreadyThere)),
+            if (plan.unavailable > 0)
+              _Note(l10n.importUnavailable(plan.unavailable)),
+            if (plan.overLimit > 0 || playlist.truncated)
+              _Note(l10n.importOverLimit(PlaylistDraft.maxVideos)),
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              key: const Key('import-add'),
+              onPressed: plan.toAdd.isEmpty || _adding
+                  ? null
+                  : () => unawaited(_add(plan)),
+              icon: _adding
+                  ? const SizedBox.square(
+                      dimension: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2.5),
+                    )
+                  : const Icon(Icons.playlist_add_rounded),
+              label: Text(
+                plan.toAdd.isEmpty
+                    ? l10n.importNothingToAdd
+                    : l10n.importAddVideos(plan.toAdd.length),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

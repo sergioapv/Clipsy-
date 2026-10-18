@@ -289,8 +289,10 @@ class FakeYouTubePlaylistRepository implements YouTubePlaylistRepository {
   PlaylistImportError? error;
 
   @override
-  Widget buildHost(BuildContext context) =>
-      const SizedBox(key: Key('fake-playlist-host'));
+  Widget buildHost(BuildContext context) => const AspectRatio(
+    aspectRatio: 16 / 9,
+    child: SizedBox.expand(key: Key('fake-playlist-host')),
+  );
 
   @override
   Future<ImportedPlaylist> fetch(

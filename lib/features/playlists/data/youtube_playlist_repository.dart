@@ -13,8 +13,8 @@ import 'oembed_client.dart';
 
 /// Reads a YouTube playlist without the YouTube Data API.
 abstract interface class YouTubePlaylistRepository {
-  /// An invisible widget that must stay in the tree while [fetch] runs: it
-  /// hosts the YouTube player that lists the playlist's videos.
+  /// A visible preview player that must stay on screen while [fetch] runs:
+  /// it's the YouTube player that lists the playlist's videos.
   Widget buildHost(BuildContext context);
 
   /// The playlist's videos, each checked with oEmbed. [onProgress] reports
@@ -34,12 +34,15 @@ abstract interface class PlaylistIdsSource {
 
 /// Lists a playlist through the official YouTube IFrame player: cue the
 /// playlist, then ask the player for its video ids (`getPlaylist()`). No API
-/// key involved. The player is muted, never played, and invisible.
+/// key involved. The player is muted and never played, but it is shown as a
+/// preview: on Android the player only starts when its web view is on
+/// screen (youtube_player_iframe hides the web view of an unpainted player),
+/// and YouTube's terms don't allow hidden players anyway.
 class PlayerPlaylistIdsSource implements PlaylistIdsSource {
   PlayerPlaylistIdsSource({
     // Real playlists list within a second; lists the player can't read
     // (e.g. YouTube Music charts) never do.
-    this.timeout = const Duration(seconds: 12),
+    this.timeout = const Duration(seconds: 20),
     this.pollEvery = const Duration(milliseconds: 500),
   }) {
     _controller = YoutubePlayerController(
@@ -73,29 +76,23 @@ class PlayerPlaylistIdsSource implements PlaylistIdsSource {
   late final YoutubePlayerController _controller;
 
   @override
-  Widget buildHost(BuildContext context) => IgnorePointer(
-    child: Opacity(
-      opacity: 0,
-      // The IFrame player needs a real size (YouTube's minimum is 200×200)
-      // even though nobody sees it.
-      child: SizedBox(
-        width: 200,
-        height: 200,
-        child: YoutubePlayer(
-          controller: _controller,
-          autoFullScreen: false,
-          enableFullScreenOnVerticalDrag: false,
-        ),
-      ),
-    ),
+  Widget buildHost(BuildContext context) => YoutubePlayer(
+    controller: _controller,
+    autoFullScreen: false,
+    enableFullScreenOnVerticalDrag: false,
   );
 
   @override
   Future<List<String>> videoIds(String playlistId) async {
-    await _controller.cuePlaylist(
-      list: [playlistId],
-      listType: ListType.playlist,
-    );
+    try {
+      await _controller.cuePlaylist(
+        list: [playlistId],
+        listType: ListType.playlist,
+      );
+    } on TimeoutException {
+      // The player never loaded: almost always no (or a very slow) network.
+      throw const PlaylistImportException(PlaylistImportError.network);
+    }
     final deadline = DateTime.now().add(timeout);
     while (DateTime.now().isBefore(deadline)) {
       if (_controller.value.error != YoutubeError.none) {
