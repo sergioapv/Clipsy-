@@ -253,6 +253,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorGeneric => 'Something went wrong. Please try again.';
 
   @override
+  String get errorTitle => 'Couldn\'t load this';
+
+  @override
   String get delete => 'Delete';
 
   @override
@@ -350,7 +353,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Tap “Add video” and paste a YouTube link. You can also share videos to Clipsy from the YouTube app (coming soon).';
 
   @override
-  String get reorderHint => 'Drag ☰ to reorder · swipe left to remove';
+  String get reorderHint => 'Hold the dots to reorder · swipe left to remove';
 
   @override
   String get videoRemoved => 'Video removed';

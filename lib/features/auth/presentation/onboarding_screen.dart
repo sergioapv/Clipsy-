@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/l10n/l10n.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/clipsy_logo.dart';
 import 'auth_providers.dart';
 
@@ -28,7 +29,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     final isIOS = defaultTargetPlatform == TargetPlatform.iOS;
     return [
       _OnboardingPage(
-        hero: const ClipsyLogo(),
+        hero: const ClipsyMark(size: 80),
         title: l10n.onboardingWelcomeTitle,
         body: l10n.onboardingWelcomeBody,
       ),
@@ -87,27 +88,32 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             ),
             Semantics(
               label: l10n.onboardingPageOf(_page + 1, pages.length),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  for (var i = 0; i < pages.length; i++)
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      margin: const EdgeInsets.all(4),
-                      width: i == _page ? 24 : 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(4),
-                        color: i == _page
-                            ? Theme.of(context).colorScheme.primary
-                            : Theme.of(context).colorScheme.outlineVariant,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    for (var i = 0; i < pages.length; i++)
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        margin: const EdgeInsets.all(4),
+                        width: i == _page ? 24 : 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color: i == _page
+                              ? Theme.of(context).colorScheme.onSurface
+                              : Theme.of(context)
+                                    .colorScheme
+                                    .surfaceContainerHighest,
+                        ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
               child: SizedBox(
                 width: double.infinity,
                 child: FilledButton(
@@ -139,10 +145,17 @@ class _HeroIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return CircleAvatar(
-      radius: 56,
-      backgroundColor: scheme.primaryContainer,
-      child: Icon(icon, size: 56, color: scheme.onPrimaryContainer),
+    return DecoratedBox(
+      decoration: ShapeDecoration(
+        color: scheme.surfaceContainer,
+        shape: RoundedSuperellipseBorder(
+          borderRadius: BorderRadius.circular(26),
+        ),
+      ),
+      child: SizedBox.square(
+        dimension: 80,
+        child: Icon(icon, size: 38, color: scheme.onSurface),
+      ),
     );
   }
 }
@@ -164,46 +177,39 @@ class _OnboardingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+      padding: const EdgeInsets.fromLTRB(28, 24, 28, 16),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           hero,
-          const SizedBox(height: 32),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 36),
+          Text(title, style: theme.textTheme.headlineLarge),
+          const SizedBox(height: 14),
           Text(
             body,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyLarge,
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
           if (bullets.isNotEmpty) ...[
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
             for (final (i, b) in bullets.indexed)
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6),
+                padding: const EdgeInsets.symmetric(vertical: 8),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CircleAvatar(
-                      radius: 14,
+                    SizedBox(
+                      width: 32,
                       child: Text(
                         '${i + 1}',
-                        style: const TextStyle(fontWeight: FontWeight.w700),
+                        style: AppFonts.heading(
+                          26,
+                          theme.colorScheme.primary,
+                        ).copyWith(height: 1),
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 4),
-                        child: Text(b, style: theme.textTheme.bodyLarge),
-                      ),
-                    ),
+                    Expanded(child: Text(b, style: theme.textTheme.bodyLarge)),
                   ],
                 ),
               ),

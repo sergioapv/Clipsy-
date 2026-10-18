@@ -106,7 +106,7 @@ class _YouTubeBrowserScreenState extends ConsumerState<YouTubeBrowserScreen> {
         heroTag: 'browser-video',
         onPressed: null,
         backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-        icon: const Icon(Icons.check),
+        icon: const Icon(Icons.check_rounded),
         label: Text(l10n.inPlaylist),
       );
     }
@@ -121,7 +121,7 @@ class _YouTubeBrowserScreenState extends ConsumerState<YouTubeBrowserScreen> {
               dimension: 20,
               child: CircularProgressIndicator(strokeWidth: 2.5),
             )
-          : const Icon(Icons.playlist_add),
+          : const Icon(Icons.playlist_add_rounded),
       label: Text(
         playlistTitle == null
             ? l10n.addToPlaylist
@@ -149,14 +149,14 @@ class _YouTubeBrowserScreenState extends ConsumerState<YouTubeBrowserScreen> {
         appBar: AppBar(
           leading: IconButton(
             tooltip: l10n.close,
-            icon: const Icon(Icons.close),
+            icon: const Icon(Icons.close_rounded),
             onPressed: () => Navigator.of(context).pop(),
           ),
           title: Text(l10n.browseYouTube),
           actions: [
             IconButton(
               tooltip: l10n.back,
-              icon: const Icon(Icons.arrow_back),
+              icon: const Icon(Icons.arrow_back_rounded),
               onPressed: () => unawaited(_back()),
             ),
           ],
@@ -196,7 +196,7 @@ class _YouTubeBrowserScreenState extends ConsumerState<YouTubeBrowserScreen> {
                         .colorScheme
                         .onSecondaryContainer,
                     onPressed: () => unawaited(_importPlaylist(listId)),
-                    icon: const Icon(Icons.playlist_add_check),
+                    icon: const Icon(Icons.playlist_add_check_rounded),
                     label: Text(l10n.addWholePlaylist),
                   ),
                   if (videoId != null) const SizedBox(height: 12),

@@ -44,61 +44,108 @@ class SettingsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: Text(l10n.navSettings)),
       body: ListView(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
         children: [
-          _Header(l10n.settingsKidMode),
-          const KidModeSettingsSection(),
-          _Header(l10n.settingsSecurity),
-          ListTile(
-            leading: const Icon(Icons.pin_outlined),
-            title: Text(l10n.changePin),
-            onTap: () => context.push(Routes.changePin),
+          _Group(
+            title: l10n.settingsKidMode,
+            children: const [KidModeSettingsSection()],
           ),
-          ListTile(
-            leading: const Icon(Icons.lock_outline),
-            title: Text(l10n.lockParentMode),
-            subtitle: Text(l10n.lockParentModeHint),
-            onTap: () => ref.read(parentSessionProvider.notifier).lock(),
-          ),
-          _Header(l10n.settingsAccount),
-          ListTile(
-            leading: const Icon(Icons.person_outline),
-            title: Text(l10n.signedInAs),
-            subtitle: Text(user?.email ?? ''),
-          ),
-          ListTile(
-            leading: const Icon(Icons.logout),
-            title: Text(l10n.signOut),
-            onTap: () => unawaited(_signOut(context, ref)),
-          ),
-          _Header(l10n.settingsAbout),
-          if (Env.privacyPolicyUrl.isNotEmpty)
-            ListTile(
-              leading: const Icon(Icons.privacy_tip_outlined),
-              title: Text(l10n.privacyPolicy),
-              trailing: const Icon(Icons.open_in_new),
-              onTap: () => launchUrl(
-                Uri.parse(Env.privacyPolicyUrl),
-                mode: LaunchMode.externalApplication,
+          _Group(
+            title: l10n.settingsSecurity,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.pin_rounded),
+                title: Text(l10n.changePin),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => context.push(Routes.changePin),
               ),
-            ),
+              ListTile(
+                leading: const Icon(Icons.lock_rounded),
+                title: Text(l10n.lockParentMode),
+                subtitle: Text(l10n.lockParentModeHint),
+                onTap: () => ref.read(parentSessionProvider.notifier).lock(),
+              ),
+            ],
+          ),
+          _Group(
+            title: l10n.settingsAccount,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.person_rounded),
+                title: Text(l10n.signedInAs),
+                subtitle: Text(user?.email ?? ''),
+              ),
+              ListTile(
+                leading: const Icon(Icons.logout_rounded),
+                title: Text(l10n.signOut),
+                onTap: () => unawaited(_signOut(context, ref)),
+              ),
+            ],
+          ),
+          _Group(
+            title: l10n.settingsAbout,
+            children: [
+              if (Env.privacyPolicyUrl.isNotEmpty)
+                ListTile(
+                  leading: const Icon(Icons.privacy_tip_rounded),
+                  title: Text(l10n.privacyPolicy),
+                  trailing: const Icon(Icons.open_in_new_rounded),
+                  onTap: () => launchUrl(
+                    Uri.parse(Env.privacyPolicyUrl),
+                    mode: LaunchMode.externalApplication,
+                  ),
+                ),
+              ListTile(
+                leading: const Icon(Icons.description_rounded),
+                title: Text(
+                  MaterialLocalizations.of(context).licensesPageTitle,
+                ),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => showLicensePage(
+                  context: context,
+                  applicationName: 'Clipsy',
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
   }
 }
 
-class _Header extends StatelessWidget {
-  const _Header(this.text);
+/// A titled set of rows on one surface panel.
+class _Group extends StatelessWidget {
+  const _Group({required this.title, required this.children});
 
-  final String text;
+  final String title;
+  final List<Widget> children;
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
-    child: Text(
-      text,
-      style: Theme.of(context).textTheme.labelLarge
-          ?.copyWith(color: Theme.of(context).colorScheme.primary),
-    ),
-  );
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(4, 24, 4, 10),
+          child: Text(
+            title,
+            style: theme.textTheme.titleSmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+        Material(
+          color: theme.colorScheme.surfaceContainer,
+          borderRadius: BorderRadius.circular(20),
+          clipBehavior: Clip.antiAlias,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            child: Column(children: children),
+          ),
+        ),
+      ],
+    );
+  }
 }

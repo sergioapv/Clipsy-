@@ -50,6 +50,7 @@ class _HoldToExitButtonState extends State<HoldToExitButton>
 
   @override
   Widget build(BuildContext context) {
+    final ink = Theme.of(context).colorScheme.onSurface;
     return Semantics(
       button: true,
       label: context.l10n.kidExitHint(widget.holdDuration.inSeconds),
@@ -71,11 +72,15 @@ class _HoldToExitButtonState extends State<HoldToExitButton>
                   child: CircularProgressIndicator(
                     value: _progress.value,
                     strokeWidth: 3,
-                    color: Colors.black54,
-                    backgroundColor: Colors.black12,
+                    color: ink,
+                    backgroundColor: ink.withValues(alpha: 0.12),
                   ),
                 ),
-                const Icon(Icons.lock_rounded, size: 20, color: Colors.black45),
+                Icon(
+                  Icons.lock_rounded,
+                  size: 20,
+                  color: ink.withValues(alpha: 0.6),
+                ),
               ],
             ),
           ),

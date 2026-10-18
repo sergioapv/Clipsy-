@@ -54,7 +54,7 @@ Future<bool> _platformLockGuidance(BuildContext context, WidgetRef ref) async {
     final ok = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        icon: const Icon(Icons.push_pin_outlined),
+        icon: const Icon(Icons.push_pin_rounded),
         title: Text(l10n.pinningDialogTitle),
         content: Text(l10n.pinningDialogBody),
         actions: [
@@ -150,7 +150,7 @@ class _TimeLimitSheet extends ConsumerWidget {
             FilledButton.icon(
               key: const Key('use-default-limit'),
               onPressed: () => Navigator.pop(context, defaultLimit),
-              icon: const Icon(Icons.timer_outlined),
+              icon: const Icon(Icons.timer_rounded),
               label: Text(l10n.useDefaultLimit(defaultLimit.inMinutes)),
             ),
             const SizedBox(height: 20),
@@ -167,7 +167,7 @@ class _TimeLimitSheet extends ConsumerWidget {
                         Navigator.pop(context, Duration(minutes: m)),
                   ),
                 ActionChip(
-                  avatar: const Icon(Icons.tune, size: 18),
+                  avatar: const Icon(Icons.tune_rounded, size: 18),
                   label: Text(l10n.customLimit),
                   onPressed: () => _custom(context, defaultLimit),
                 ),

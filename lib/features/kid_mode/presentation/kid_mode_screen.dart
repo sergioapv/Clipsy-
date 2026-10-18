@@ -148,10 +148,13 @@ class _KidModeScreenState extends ConsumerState<KidModeScreen> {
               onHeld: () => unawaited(_askPinThen(_controller.exit)),
             );
             if (state.session.isTimeUp) {
-              return TimeUpView(
-                exitButton: exit,
-                onParent: () => unawaited(
-                  _askPinThen(() => showTimeUpParentOptions(context, ref)),
+              return Theme(
+                data: AppTheme.kidNight(),
+                child: TimeUpView(
+                  exitButton: exit,
+                  onParent: () => unawaited(
+                    _askPinThen(() => showTimeUpParentOptions(context, ref)),
+                  ),
                 ),
               );
             }
@@ -240,8 +243,17 @@ class _KidLayout extends StatelessWidget {
     final playButton = Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _PlayPauseButton(isPlaying: state.isPlaying, onPressed: onPlayPause),
-        const SizedBox(width: 20),
+        KidRoundButton(
+          key: const Key('kid-play-pause'),
+          icon: state.isPlaying
+              ? Icons.pause_rounded
+              : Icons.play_arrow_rounded,
+          label: state.isPlaying ? context.l10n.kidPause : context.l10n.kidPlay,
+          onPressed: onPlayPause,
+          size: 104,
+          primary: true,
+        ),
+        const SizedBox(width: 24),
         KidRoundButton(
           key: const Key('kid-fullscreen'),
           icon: Icons.fullscreen_rounded,
@@ -300,40 +312,6 @@ class _KidLayout extends StatelessWidget {
           const SizedBox(height: 20),
           Expanded(child: strip),
         ],
-      ),
-    );
-  }
-}
-
-class _PlayPauseButton extends StatelessWidget {
-  const _PlayPauseButton({required this.isPlaying, required this.onPressed});
-
-  final bool isPlaying;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    return Semantics(
-      button: true,
-      label: isPlaying ? l10n.kidPause : l10n.kidPlay,
-      child: Material(
-        key: const Key('kid-play-pause'),
-        color: BrandColors.coral,
-        shape: const CircleBorder(),
-        elevation: 4,
-        child: InkWell(
-          customBorder: const CircleBorder(),
-          onTap: onPressed,
-          child: SizedBox.square(
-            dimension: 96,
-            child: Icon(
-              isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
-              size: 64,
-              color: Colors.white,
-            ),
-          ),
-        ),
       ),
     );
   }

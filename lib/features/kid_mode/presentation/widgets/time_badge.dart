@@ -27,7 +27,8 @@ class TimeBadge extends StatelessWidget {
         : (remaining.inMilliseconds / limit.inMilliseconds).clamp(0.0, 1.0);
     final minutes = (remaining.inSeconds / 60).ceil();
     final highlight = almostDone || lastVideo;
-    final color = highlight ? BrandColors.coral : BrandColors.mint;
+    final scheme = Theme.of(context).colorScheme;
+    final color = highlight ? scheme.primary : scheme.onSurface;
     return Semantics(
       label: lastVideo
           ? l10n.kidLastVideo
@@ -37,17 +38,10 @@ class TimeBadge extends StatelessWidget {
       liveRegion: highlight,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 400),
-        padding: const EdgeInsets.fromLTRB(6, 6, 16, 6),
+        padding: const EdgeInsets.fromLTRB(8, 8, 20, 8),
         decoration: BoxDecoration(
-          color: highlight ? const Color(0xFFFFE3DA) : Colors.white,
+          color: scheme.surfaceContainer,
           borderRadius: BorderRadius.circular(40),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x14000000),
-              blurRadius: 8,
-              offset: Offset(0, 2),
-            ),
-          ],
         ),
         child: ExcludeSemantics(
           child: Row(
@@ -59,7 +53,7 @@ class TimeBadge extends StatelessWidget {
                   value: fraction,
                   strokeWidth: 7,
                   color: color,
-                  backgroundColor: color.withValues(alpha: 0.2),
+                  backgroundColor: scheme.surfaceContainerHighest,
                   strokeCap: StrokeCap.round,
                 ),
               ),
@@ -70,11 +64,10 @@ class TimeBadge extends StatelessWidget {
                     : almostDone
                     ? l10n.kidAlmostDone
                     : l10n.minutesShort(minutes),
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF1F2340),
-                ),
+                style: AppFonts.heading(
+                  24,
+                  scheme.onSurface,
+                ).copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
               ),
             ],
           ),

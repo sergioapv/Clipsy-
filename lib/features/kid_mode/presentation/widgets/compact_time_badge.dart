@@ -32,7 +32,8 @@ class CompactTimeBadge extends StatelessWidget {
     final minutes = (seconds / 60).ceil();
     final lastMinute = seconds <= 60;
     final highlight = almostDone || lastVideo;
-    final color = highlight ? BrandColors.coral : BrandColors.mint;
+    final scheme = Theme.of(context).colorScheme;
+    final color = highlight ? scheme.primary : scheme.onSurface;
     final big = lastMinute
         ? '${seconds ~/ 60}:${(seconds % 60).toString().padLeft(2, '0')}'
         : '$minutes';
@@ -56,7 +57,7 @@ class CompactTimeBadge extends StatelessWidget {
                   value: fraction,
                   strokeWidth: size * 0.1,
                   color: color,
-                  backgroundColor: Colors.white24,
+                  backgroundColor: scheme.surfaceContainerHighest,
                   strokeCap: StrokeCap.round,
                 ),
               ),
@@ -65,19 +66,22 @@ class CompactTimeBadge extends StatelessWidget {
                 children: [
                   Text(
                     big,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w800,
-                      fontSize: size * (lastMinute ? 0.26 : 0.34),
-                      height: 1,
-                    ),
+                    style:
+                        AppFonts.heading(
+                          size * (lastMinute ? 0.28 : 0.36),
+                          scheme.onSurface,
+                        ).copyWith(
+                          height: 1,
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                        ),
                   ),
                   if (!lastMinute)
                     Text(
                       l10n.minutesUnit,
                       style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: size * 0.16,
+                        color: scheme.onSurfaceVariant,
+                        fontSize: size * 0.15,
+                        fontWeight: FontWeight.w600,
                         height: 1.1,
                       ),
                     ),

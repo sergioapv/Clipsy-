@@ -8,6 +8,8 @@ import '../../../core/l10n/l10n.dart';
 import '../../../core/router/routes.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/error_view.dart';
+import '../../../core/widgets/pressable.dart';
+import '../../../core/widgets/skeleton.dart';
 import '../domain/playlist.dart';
 import 'playlist_dialogs.dart';
 import 'playlist_l10n.dart';
@@ -40,12 +42,12 @@ class PlaylistsScreen extends ConsumerWidget {
       appBar: AppBar(title: Text(l10n.navPlaylists)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push(Routes.newPlaylist),
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(l10n.newPlaylist),
       ),
       body: playlists.when(
         skipLoadingOnReload: true,
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const SkeletonList(),
         error: (e, _) => ErrorView(
           message: l10n.playlistError(e),
           onRetry: () => ref.invalidate(myPlaylistsProvider),
@@ -53,7 +55,7 @@ class PlaylistsScreen extends ConsumerWidget {
         data: (items) {
           if (items.isEmpty) {
             return EmptyState(
-              icon: Icons.video_library_outlined,
+              icon: Icons.video_library_rounded,
               title: l10n.playlistsEmptyTitle,
               message: l10n.playlistsEmptyBody,
             );
@@ -89,81 +91,98 @@ class _PlaylistCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final theme = Theme.of(context);
+    final muted = theme.colorScheme.onSurfaceVariant;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Card(
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: () => context.push(Routes.playlist(playlist.id)),
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              children: [
-                VideoThumbnail(url: playlist.coverUrl, width: 120),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        playlist.title,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.titleMedium,
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Pressable(
+        child: Card(
+          child: InkWell(
+            onTap: () => context.push(Routes.playlist(playlist.id)),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 10, 2, 10),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  VideoThumbnail(
+                    url: playlist.coverUrl,
+                    width: 128,
+                    borderRadius: 14,
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 2),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            playlist.title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.titleMedium,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '${l10n.videoCount(playlist.videoCount)} · '
+                            '${l10n.ageRangeLabel(playlist.ageRange)}',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: muted,
+                            ),
+                          ),
+                          if (playlist.labelIds.isNotEmpty) ...[
+                            const SizedBox(height: 8),
+                            LabelChips(labelIds: playlist.labelIds),
+                          ],
+                        ],
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${l10n.videoCount(playlist.videoCount)} · '
-                        '${l10n.ageRangeLabel(playlist.ageRange)}',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  Column(
+                    children: [
+                      PopupMenuButton<_Action>(
+                        tooltip: l10n.moreOptions,
+                        style: IconButton.styleFrom(
+                          visualDensity: VisualDensity.compact,
+                        ),
+                        icon: const Icon(Icons.more_vert_rounded),
+                        onSelected: (a) => switch (a) {
+                          _Action.edit => context.push(
+                            Routes.editPlaylist(playlist.id),
+                          ),
+                          _Action.delete => confirmDeletePlaylist(
+                            context,
+                            ref,
+                            playlist,
+                          ),
+                        },
+                        itemBuilder: (context) => [
+                          PopupMenuItem(
+                            value: _Action.edit,
+                            child: Text(l10n.editDetails),
+                          ),
+                          PopupMenuItem(
+                            value: _Action.delete,
+                            child: Text(l10n.deletePlaylist),
+                          ),
+                        ],
+                      ),
+                      ReorderableDragStartListener(
+                        index: index,
+                        child: Semantics(
+                          label: l10n.dragToReorder,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: Icon(
+                              Icons.drag_indicator_rounded,
+                              color: muted,
+                            ),
+                          ),
                         ),
                       ),
-                      if (playlist.labelIds.isNotEmpty) ...[
-                        const SizedBox(height: 6),
-                        LabelChips(labelIds: playlist.labelIds),
-                      ],
                     ],
                   ),
-                ),
-                Column(
-                  children: [
-                    PopupMenuButton<_Action>(
-                      tooltip: l10n.moreOptions,
-                      onSelected: (a) => switch (a) {
-                        _Action.edit => context.push(
-                          Routes.editPlaylist(playlist.id),
-                        ),
-                        _Action.delete => confirmDeletePlaylist(
-                          context,
-                          ref,
-                          playlist,
-                        ),
-                      },
-                      itemBuilder: (context) => [
-                        PopupMenuItem(
-                          value: _Action.edit,
-                          child: Text(l10n.editDetails),
-                        ),
-                        PopupMenuItem(
-                          value: _Action.delete,
-                          child: Text(l10n.deletePlaylist),
-                        ),
-                      ],
-                    ),
-                    ReorderableDragStartListener(
-                      index: index,
-                      child: Semantics(
-                        label: l10n.dragToReorder,
-                        child: const Padding(
-                          padding: EdgeInsets.all(12),
-                          child: Icon(Icons.drag_handle),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

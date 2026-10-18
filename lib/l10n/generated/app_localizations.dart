@@ -518,6 +518,12 @@ abstract class AppLocalizations {
   /// **'Something went wrong. Please try again.'**
   String get errorGeneric;
 
+  /// No description provided for @errorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load this'**
+  String get errorTitle;
+
   /// No description provided for @delete.
   ///
   /// In en, this message translates to:
@@ -677,7 +683,7 @@ abstract class AppLocalizations {
   /// No description provided for @reorderHint.
   ///
   /// In en, this message translates to:
-  /// **'Drag ☰ to reorder · swipe left to remove'**
+  /// **'Hold the dots to reorder · swipe left to remove'**
   String get reorderHint;
 
   /// No description provided for @videoRemoved.

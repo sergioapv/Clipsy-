@@ -12,8 +12,14 @@ class SplashScreen extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           ClipsyLogo(),
-          SizedBox(height: 32),
-          CircularProgressIndicator(),
+          SizedBox(height: 40),
+          SizedBox(
+            width: 96,
+            child: LinearProgressIndicator(
+              minHeight: 3,
+              borderRadius: BorderRadius.all(Radius.circular(2)),
+            ),
+          ),
         ],
       ),
     ),

@@ -67,9 +67,8 @@ class _PinPadState extends State<PinPad> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: i < _digits.length
-                        ? scheme.primary
-                        : Colors.transparent,
-                    border: Border.all(color: scheme.outline, width: 2),
+                        ? scheme.onSurface
+                        : scheme.surfaceContainerHighest,
                   ),
                 ),
             ],
@@ -107,7 +106,7 @@ class _PinPadState extends State<PinPad> {
               child: IconButton(
                 tooltip: l10n.pinBackspace,
                 onPressed: widget.enabled ? _backspace : null,
-                icon: const Icon(Icons.backspace_outlined),
+                icon: const Icon(Icons.backspace_rounded),
               ),
             ),
           ],
@@ -121,13 +120,22 @@ class _PinPadState extends State<PinPad> {
     child: SizedBox(
       width: 76,
       height: 68,
-      child: FilledButton.tonal(
+      child: FilledButton(
         key: ValueKey('pin-key-$digit'),
         onPressed: widget.enabled ? () => _press(digit) : null,
         style: FilledButton.styleFrom(
           padding: EdgeInsets.zero,
-          shape: const CircleBorder(),
-          textStyle: const TextStyle(fontSize: 26, fontWeight: FontWeight.w600),
+          minimumSize: Size.zero,
+          backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
+          foregroundColor: Theme.of(context).colorScheme.onSurface,
+          shape: RoundedSuperellipseBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          textStyle: const TextStyle(
+            fontSize: 26,
+            fontWeight: FontWeight.w500,
+            fontFeatures: [FontFeature.tabularFigures()],
+          ),
         ),
         child: Text(digit),
       ),

@@ -35,7 +35,7 @@ class _PinDialog extends ConsumerWidget {
         appBar: AppBar(
           leading: IconButton(
             tooltip: l10n.cancel,
-            icon: const Icon(Icons.close),
+            icon: const Icon(Icons.close_rounded),
             onPressed: () => Navigator.pop(context, false),
           ),
         ),

@@ -9,6 +9,7 @@ import '../../../core/l10n/l10n.dart';
 import '../../../core/router/routes.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/error_view.dart';
+import '../../../core/widgets/skeleton.dart';
 import '../../kid_mode/presentation/start_kid_mode.dart';
 import '../domain/playlist.dart';
 import 'add_video_sheet.dart';
@@ -33,11 +34,12 @@ class PlaylistDetailScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(playlist?.title ?? ''),
+        actionsPadding: const EdgeInsets.only(right: 4),
         actions: [
           if (playlist != null)
             PopupMenuButton<_Action>(
               tooltip: l10n.moreOptions,
+              icon: const Icon(Icons.more_vert_rounded),
               onSelected: (a) async {
                 switch (a) {
                   case _Action.edit:
@@ -65,13 +67,13 @@ class PlaylistDetailScreen extends ConsumerWidget {
       floatingActionButton: detail.hasValue
           ? FloatingActionButton.extended(
               onPressed: () => showAddVideoSheet(context, playlistId),
-              icon: const Icon(Icons.add_link),
+              icon: const Icon(Icons.add_rounded),
               label: Text(l10n.addVideo),
             )
           : null,
       body: detail.when(
         skipLoadingOnReload: true,
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const SkeletonList(thumbnailWidth: 112),
         error: (e, _) => ErrorView(
           message: l10n.playlistError(e),
           onRetry: () => ref.invalidate(provider),
@@ -147,8 +149,11 @@ class _VideoList extends ConsumerWidget {
         if (videos.isNotEmpty)
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
               child: FilledButton.icon(
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size.fromHeight(56),
+                ),
                 key: const Key('start-kid-mode'),
                 onPressed: () =>
                     unawaited(startKidModeFlow(context, ref, detail)),
@@ -161,7 +166,7 @@ class _VideoList extends ConsumerWidget {
           SliverFillRemaining(
             hasScrollBody: false,
             child: EmptyState(
-              icon: Icons.add_link,
+              icon: Icons.add_link_rounded,
               title: l10n.playlistEmptyTitle,
               message: l10n.playlistEmptyBody,
             ),
@@ -169,7 +174,7 @@ class _VideoList extends ConsumerWidget {
         else ...[
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 8),
               child: Text(
                 l10n.reorderHint,
                 style: Theme.of(context).textTheme.bodySmall,
@@ -188,10 +193,10 @@ class _VideoList extends ConsumerWidget {
                 background: Container(
                   alignment: AlignmentDirectional.centerEnd,
                   padding: const EdgeInsets.symmetric(horizontal: 24),
-                  color: Theme.of(context).colorScheme.errorContainer,
+                  color: Theme.of(context).colorScheme.error,
                   child: Icon(
-                    Icons.delete_outline,
-                    color: Theme.of(context).colorScheme.onErrorContainer,
+                    Icons.delete_rounded,
+                    color: Theme.of(context).colorScheme.onError,
                   ),
                 ),
                 onDismissed: (_) => unawaited(_remove(context, ref, video)),
@@ -221,10 +226,12 @@ class _Header extends StatelessWidget {
     final theme = Theme.of(context);
     final description = playlist.description;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      padding: const EdgeInsets.fromLTRB(20, 4, 20, 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Text(playlist.title, style: theme.textTheme.headlineMedium),
+          const SizedBox(height: 8),
           Text(
             '${l10n.videoCount(playlist.videoCount)} · '
             '${l10n.ageRangeLabel(playlist.ageRange)}',
@@ -233,11 +240,14 @@ class _Header extends StatelessWidget {
             ),
           ),
           if (description != null && description.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Text(description),
+            const SizedBox(height: 12),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 560),
+              child: Text(description, style: theme.textTheme.bodyLarge),
+            ),
           ],
           if (playlist.labelIds.isNotEmpty) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             LabelChips(labelIds: playlist.labelIds),
           ],
         ],
@@ -268,13 +278,13 @@ class _VideoTile extends StatelessWidget {
           CustomSemanticsAction(label: l10n.removeVideo): onRemove,
         },
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          padding: const EdgeInsets.fromLTRB(20, 6, 8, 6),
           child: Row(
             children: [
               VideoThumbnail(
                 url: video.thumbnailUrl,
                 width: 112,
-                borderRadius: 8,
+                borderRadius: 12,
                 dimmed: !video.isAvailable,
               ),
               const SizedBox(width: 12),
@@ -286,8 +296,11 @@ class _VideoTile extends StatelessWidget {
                       video.title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.bodyLarge,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
+                    const SizedBox(height: 2),
                     if (video.channelName != null)
                       Text(
                         video.channelName!,
@@ -326,9 +339,12 @@ class _VideoTile extends StatelessWidget {
                 index: index,
                 child: Semantics(
                   label: l10n.dragToReorder,
-                  child: const Padding(
-                    padding: EdgeInsets.all(12),
-                    child: Icon(Icons.drag_handle),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Icon(
+                      Icons.drag_indicator_rounded,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ),
               ),

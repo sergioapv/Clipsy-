@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/l10n/l10n.dart';
-import '../../../core/theme/app_theme.dart';
 import 'kid_mode_controller.dart';
 
 /// "All done for now!" Only a parent (PIN) can add time or exit.
@@ -22,37 +21,40 @@ class TimeUpView extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF3D6),
       body: SafeArea(
         child: Stack(
           children: [
             Center(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(32),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const _Sun(),
-                    const SizedBox(height: 32),
-                    Semantics(
-                      header: true,
-                      liveRegion: true,
-                      child: Text(
-                        l10n.timeUpTitle,
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.displaySmall?.copyWith(
-                          fontWeight: FontWeight.w800,
+                padding: const EdgeInsets.fromLTRB(32, 32, 32, 96),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 520),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const _Moon(),
+                      const SizedBox(height: 40),
+                      Semantics(
+                        header: true,
+                        liveRegion: true,
+                        child: Text(
+                          l10n.timeUpTitle,
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.displaySmall,
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      l10n.timeUpBody,
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.titleLarge,
-                    ),
-                  ],
+                      const SizedBox(height: 14),
+                      Text(
+                        l10n.timeUpBody,
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          color: scheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -65,10 +67,10 @@ class TimeUpView extends StatelessWidget {
                 child: TextButton.icon(
                   key: const Key('time-up-parent'),
                   onPressed: onParent,
-                  icon: const Icon(Icons.lock_outline, size: 18),
+                  icon: const Icon(Icons.lock_rounded, size: 18),
                   label: Text(l10n.timeUpParent),
                   style: TextButton.styleFrom(
-                    foregroundColor: Colors.black54,
+                    foregroundColor: scheme.onSurfaceVariant,
                     textStyle: theme.textTheme.bodyLarge,
                   ),
                 ),
@@ -81,30 +83,56 @@ class TimeUpView extends StatelessWidget {
   }
 }
 
-class _Sun extends StatelessWidget {
-  const _Sun();
+/// A crescent moon: the sky colour, bitten by the night.
+class _Moon extends StatelessWidget {
+  const _Moon();
 
   @override
-  Widget build(BuildContext context) => ExcludeSemantics(
-    child: Container(
-      width: 160,
-      height: 160,
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: RadialGradient(
-          colors: [BrandColors.sunshine, BrandColors.coral],
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return ExcludeSemantics(
+      child: SizedBox.square(
+        dimension: 168,
+        child: CustomPaint(
+          painter: _MoonPainter(moon: scheme.onSurface, star: scheme.primary),
         ),
-        boxShadow: [
-          BoxShadow(color: Color(0x55FFC94D), blurRadius: 40, spreadRadius: 12),
-        ],
       ),
-      child: const Icon(
-        Icons.sentiment_very_satisfied_rounded,
-        size: 96,
-        color: Colors.white,
-      ),
-    ),
-  );
+    );
+  }
+}
+
+class _MoonPainter extends CustomPainter {
+  const _MoonPainter({required this.moon, required this.star});
+
+  final Color moon;
+  final Color star;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final s = size.width;
+    final disc = Path()
+      ..addOval(
+        Rect.fromCircle(center: Offset(s * 0.46, s * 0.54), radius: s * 0.4),
+      );
+    final bite = Path()
+      ..addOval(
+        Rect.fromCircle(center: Offset(s * 0.68, s * 0.4), radius: s * 0.34),
+      );
+    canvas
+      ..drawPath(
+        Path.combine(PathOperation.difference, disc, bite),
+        Paint()..color = moon,
+      )
+      ..drawCircle(Offset(s * 0.86, s * 0.14), s * 0.045, Paint()..color = star)
+      ..drawCircle(
+        Offset(s * 0.9, s * 0.74),
+        s * 0.03,
+        Paint()..color = moon.withValues(alpha: 0.5),
+      );
+  }
+
+  @override
+  bool shouldRepaint(_MoonPainter old) => old.moon != moon || old.star != star;
 }
 
 /// After the PIN: add time or leave Kid mode.
@@ -117,8 +145,9 @@ Future<void> showTimeUpParentOptions(
   await showModalBottomSheet<void>(
     context: context,
     showDragHandle: true,
+    isScrollControlled: true,
     builder: (sheetContext) => SafeArea(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -135,7 +164,7 @@ Future<void> showTimeUpParentOptions(
               alignment: WrapAlignment.center,
               children: [
                 for (final m in const [5, 10, 15])
-                  FilledButton.tonal(
+                  FilledButton(
                     onPressed: () {
                       Navigator.pop(sheetContext);
                       unawaited(controller.extend(Duration(minutes: m)));
@@ -150,7 +179,7 @@ Future<void> showTimeUpParentOptions(
                 Navigator.pop(sheetContext);
                 unawaited(controller.exit());
               },
-              icon: const Icon(Icons.logout),
+              icon: const Icon(Icons.logout_rounded),
               label: Text(l10n.exitKidMode),
             ),
           ],

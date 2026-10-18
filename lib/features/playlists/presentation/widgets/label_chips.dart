@@ -22,16 +22,26 @@ class LabelChips extends ConsumerWidget {
       for (final l in all)
         if (labelIds.contains(l.id)) l,
     ];
+    final theme = Theme.of(context);
     return Wrap(
       spacing: 6,
       runSpacing: 6,
       children: [
         for (final l in labels)
-          Chip(
-            label: Text(l10n.labelName(l)),
-            visualDensity: VisualDensity.compact,
-            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            padding: EdgeInsets.zero,
+          DecoratedBox(
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              child: Text(
+                l10n.labelName(l),
+                style: theme.textTheme.labelMedium?.copyWith(
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
           ),
       ],
     );
@@ -60,7 +70,7 @@ class LabelPicker extends ConsumerWidget {
       ),
       error: (_, _) => TextButton.icon(
         onPressed: () => ref.invalidate(labelsProvider),
-        icon: const Icon(Icons.refresh),
+        icon: const Icon(Icons.refresh_rounded),
         label: Text(l10n.retry),
       ),
       data: (all) {

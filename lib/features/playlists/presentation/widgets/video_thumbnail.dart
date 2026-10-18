@@ -24,7 +24,7 @@ class VideoThumbnail extends StatelessWidget {
       color: scheme.surfaceContainerHighest,
       child: Center(
         child: Icon(
-          Icons.smart_display_outlined,
+          Icons.smart_display_rounded,
           color: scheme.onSurfaceVariant,
         ),
       ),

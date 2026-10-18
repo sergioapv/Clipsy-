@@ -153,8 +153,14 @@ class _AddVideoSheetState extends ConsumerState<AddVideoSheet> {
         children: [
           Text(l10n.addVideo, style: theme.textTheme.titleLarge),
           const SizedBox(height: 4),
-          Text(l10n.addVideoHint, style: theme.textTheme.bodyMedium),
-          const SizedBox(height: 12),
+          const SizedBox(height: 4),
+          Text(
+            l10n.addVideoHint,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 20),
           OutlinedButton.icon(
             key: const Key('browse-youtube'),
             onPressed: _busy
@@ -166,16 +172,16 @@ class _AddVideoSheetState extends ConsumerState<AddVideoSheet> {
                       router.push(Routes.browseYouTube(widget.playlistId)),
                     );
                   },
-            icon: const Icon(Icons.travel_explore),
+            icon: const Icon(Icons.travel_explore_rounded),
             label: Text(l10n.browseYouTube),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 20),
           Row(
             children: [
               const Expanded(child: Divider()),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Text(l10n.orPasteLink),
+                child: Text(l10n.orPasteLink, style: theme.textTheme.bodySmall),
               ),
               const Expanded(child: Divider()),
             ],
@@ -198,7 +204,7 @@ class _AddVideoSheetState extends ConsumerState<AddVideoSheet> {
               suffixIcon: IconButton(
                 tooltip: l10n.paste,
                 onPressed: _busy ? null : _paste,
-                icon: const Icon(Icons.content_paste),
+                icon: const Icon(Icons.content_paste_rounded),
               ),
             ),
           ),
@@ -211,13 +217,13 @@ class _AddVideoSheetState extends ConsumerState<AddVideoSheet> {
           else if (preview != null) ...[
             Card(
               child: Padding(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(10),
                 child: Row(
                   children: [
                     VideoThumbnail(
                       url: preview.thumbnailUrl,
                       width: 120,
-                      borderRadius: 8,
+                      borderRadius: 12,
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -245,14 +251,14 @@ class _AddVideoSheetState extends ConsumerState<AddVideoSheet> {
             const SizedBox(height: 12),
             FilledButton.icon(
               onPressed: _add,
-              icon: const Icon(Icons.add),
+              icon: const Icon(Icons.add_rounded),
               label: Text(l10n.addToPlaylist),
             ),
             if (_playlistId != null)
               TextButton.icon(
                 key: const Key('sheet-add-playlist'),
                 onPressed: () => unawaited(_importPlaylist(_playlistId!)),
-                icon: const Icon(Icons.playlist_add_check),
+                icon: const Icon(Icons.playlist_add_check_rounded),
                 label: Text(l10n.addWholePlaylistInstead),
               ),
           ] else

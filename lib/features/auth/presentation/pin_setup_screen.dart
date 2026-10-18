@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/l10n/l10n.dart';
+import '../../../core/widgets/clipsy_logo.dart';
 import '../../../core/widgets/pin_entry_view.dart';
 import '../../../core/widgets/pin_pad.dart';
 import 'auth_providers.dart';
@@ -81,12 +82,7 @@ class _PinSetupScreenState extends ConsumerState<PinSetupScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (!widget.isChange)
-                  Icon(
-                    Icons.lock_outline,
-                    size: 48,
-                    color: theme.colorScheme.primary,
-                  ),
+                if (!widget.isChange) const ClipsyMark(size: 56),
                 const SizedBox(height: 16),
                 if (_step == _Step.current)
                   PinEntryView(

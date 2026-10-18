@@ -13,7 +13,7 @@ class CommunityScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text(l10n.navCommunity)),
       body: EmptyState(
-        icon: Icons.public,
+        icon: Icons.public_rounded,
         title: l10n.communityComingTitle,
         message: l10n.communityComingBody,
       ),

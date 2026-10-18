@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 
-/// A round, high-contrast secondary control for Kid mode.
+import '../../../../core/widgets/pressable.dart';
+
+/// A round secondary control for Kid mode: a surface-tone disc with an ink
+/// icon, taking its colours from the Kid theme (sky by day, navy in full
+/// screen).
 class KidRoundButton extends StatelessWidget {
   const KidRoundButton({
     required this.icon,
     required this.label,
     required this.onPressed,
     this.size = 64,
-    this.dark = false,
+    this.primary = false,
     super.key,
   });
 
@@ -16,29 +20,34 @@ class KidRoundButton extends StatelessWidget {
   final VoidCallback onPressed;
   final double size;
 
-  /// White-on-translucent style for use over video.
-  final bool dark;
+  /// Orange, for play/pause: the one thing a child should find first.
+  final bool primary;
 
   @override
-  Widget build(BuildContext context) => Semantics(
-    button: true,
-    label: label,
-    child: Material(
-      color: dark ? Colors.black54 : Colors.white,
-      shape: const CircleBorder(),
-      elevation: dark ? 0 : 3,
-      child: InkWell(
-        customBorder: const CircleBorder(),
-        onTap: onPressed,
-        child: SizedBox.square(
-          dimension: size,
-          child: Icon(
-            icon,
-            size: size * 0.6,
-            color: dark ? Colors.white : const Color(0xFF1F2340),
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Semantics(
+      button: true,
+      label: label,
+      child: Pressable(
+        scale: 0.92,
+        child: Material(
+          color: primary ? scheme.primary : scheme.surfaceContainer,
+          shape: const CircleBorder(),
+          child: InkWell(
+            customBorder: const CircleBorder(),
+            onTap: onPressed,
+            child: SizedBox.square(
+              dimension: size,
+              child: Icon(
+                icon,
+                size: size * (primary ? 0.62 : 0.5),
+                color: primary ? scheme.onPrimary : scheme.onSurface,
+              ),
+            ),
           ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }

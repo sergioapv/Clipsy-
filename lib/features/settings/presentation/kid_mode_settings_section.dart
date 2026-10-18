@@ -34,7 +34,7 @@ class KidModeSettingsSection extends ConsumerWidget {
     return Column(
       children: [
         ListTile(
-          leading: const Icon(Icons.timer_outlined),
+          leading: const Icon(Icons.timer_rounded),
           title: Text(l10n.defaultTimeLimit),
           subtitle: Text(l10n.minutesShort(settings.defaultLimit.inMinutes)),
           onTap: () async {
@@ -84,7 +84,7 @@ class KidModeSettingsSection extends ConsumerWidget {
           },
         ),
         ListTile(
-          leading: const Icon(Icons.stop_circle_outlined),
+          leading: const Icon(Icons.stop_circle_rounded),
           title: Text(l10n.endBehaviourTitle),
           subtitle: Text(endLabel(settings.endBehaviour)),
           onTap: () async {
@@ -99,7 +99,7 @@ class KidModeSettingsSection extends ConsumerWidget {
           },
         ),
         ListTile(
-          leading: const Icon(Icons.touch_app_outlined),
+          leading: const Icon(Icons.touch_app_rounded),
           title: Text(l10n.exitGestureTitle),
           subtitle: Text(l10n.exitGestureValue(settings.exitHold.inSeconds)),
           onTap: () async {
@@ -136,7 +136,7 @@ Future<T?> _choose<T>(
       for (final v in values)
         ListTile(
           title: Text(label(v)),
-          trailing: v == selected ? const Icon(Icons.check) : null,
+          trailing: v == selected ? const Icon(Icons.check_rounded) : null,
           selected: v == selected,
           onTap: () => Navigator.pop(context, v),
         ),

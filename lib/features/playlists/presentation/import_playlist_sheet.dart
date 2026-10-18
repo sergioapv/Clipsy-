@@ -126,10 +126,15 @@ class _ImportPlaylistSheetState extends ConsumerState<ImportPlaylistSheet> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircularProgressIndicator(
-                    value: p == null || p.total == 0
-                        ? null
-                        : p.checked / p.total,
+                  SizedBox(
+                    width: 200,
+                    child: LinearProgressIndicator(
+                      minHeight: 6,
+                      borderRadius: BorderRadius.circular(3),
+                      value: p == null || p.total == 0
+                          ? null
+                          : p.checked / p.total,
+                    ),
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -184,7 +189,7 @@ class _ImportPlaylistSheetState extends ConsumerState<ImportPlaylistSheet> {
                     VideoThumbnail(
                       url: first.toMetadata().thumbnailUrl,
                       width: 112,
-                      borderRadius: 8,
+                      borderRadius: 12,
                     ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -197,6 +202,7 @@ class _ImportPlaylistSheetState extends ConsumerState<ImportPlaylistSheet> {
                           overflow: TextOverflow.ellipsis,
                           style: theme.textTheme.titleMedium,
                         ),
+                        const SizedBox(height: 2),
                         if (playlist.channelName != null)
                           Text(
                             playlist.channelName!,
@@ -229,7 +235,7 @@ class _ImportPlaylistSheetState extends ConsumerState<ImportPlaylistSheet> {
                         dimension: 20,
                         child: CircularProgressIndicator(strokeWidth: 2.5),
                       )
-                    : const Icon(Icons.playlist_add),
+                    : const Icon(Icons.playlist_add_rounded),
                 label: Text(
                   plan.toAdd.isEmpty
                       ? l10n.importNothingToAdd
@@ -256,7 +262,7 @@ class _Note extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Icon(
-          Icons.info_outline,
+          Icons.info_outline_rounded,
           size: 18,
           color: Theme.of(context).colorScheme.onSurfaceVariant,
         ),

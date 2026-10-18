@@ -63,89 +63,39 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final theme = Theme.of(context);
+    final muted = theme.colorScheme.onSurfaceVariant;
     return Scaffold(
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.fromLTRB(24, 32, 24, 40),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 420),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const ClipsyLogo(),
-                  const SizedBox(height: 16),
-                  Text(
-                    l10n.tagline,
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: ClipsyLogo(size: 56, showWordmark: false),
                   ),
-                  const SizedBox(height: 40),
-                  if (_sentTo != null)
-                    _LinkSent(
-                      email: _sentTo!,
-                      onUseDifferent: () => setState(() => _sentTo = null),
-                    )
-                  else ...[
-                    Text(
-                      l10n.signInParentsOnly,
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.bodyMedium,
-                    ),
-                    const SizedBox(height: 16),
-                    Form(
-                      key: _formKey,
-                      child: TextFormField(
-                        controller: _email,
-                        enabled: !_busy,
-                        keyboardType: TextInputType.emailAddress,
-                        autofillHints: const [AutofillHints.email],
-                        autocorrect: false,
-                        textInputAction: TextInputAction.send,
-                        onFieldSubmitted: (_) => unawaited(_sendLink()),
-                        decoration: InputDecoration(
-                          labelText: l10n.emailLabel,
-                          prefixIcon: const Icon(Icons.mail_outline),
-                        ),
-                        validator: (v) =>
-                            _emailPattern.hasMatch(v?.trim() ?? '')
-                            ? null
-                            : l10n.emailInvalid,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    FilledButton(
-                      onPressed: _busy ? null : _sendLink,
-                      child: Text(l10n.sendMagicLink),
-                    ),
-                    const SizedBox(height: 24),
-                    Row(
-                      children: [
-                        const Expanded(child: Divider()),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: Text(l10n.or),
-                        ),
-                        const Expanded(child: Divider()),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    OutlinedButton.icon(
-                      onPressed: _busy
-                          ? null
-                          : () => _run(
-                              ref.read(authRepositoryProvider).signInWithGoogle,
-                            ),
-                      icon: const Icon(Icons.account_circle_outlined),
-                      label: Text(l10n.continueWithGoogle),
-                    ),
-                  ],
-                  if (_busy) ...[
-                    const SizedBox(height: 24),
-                    const Center(child: CircularProgressIndicator()),
-                  ],
+                  const SizedBox(height: 28),
+                  Text(l10n.tagline, style: theme.textTheme.headlineMedium),
+                  const SizedBox(height: 12),
+                  Text(
+                    l10n.signInParentsOnly,
+                    style: theme.textTheme.bodyLarge?.copyWith(color: muted),
+                  ),
+                  const SizedBox(height: 36),
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 220),
+                    child: _sentTo != null
+                        ? _LinkSent(
+                            email: _sentTo!,
+                            onUseDifferent: () =>
+                                setState(() => _sentTo = null),
+                          )
+                        : _form(l10n, muted),
+                  ),
                 ],
               ),
             ),
@@ -154,6 +104,60 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
       ),
     );
   }
+
+  Widget _form(AppLocalizations l10n, Color muted) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      Form(
+        key: _formKey,
+        child: TextFormField(
+          controller: _email,
+          enabled: !_busy,
+          keyboardType: TextInputType.emailAddress,
+          autofillHints: const [AutofillHints.email],
+          autocorrect: false,
+          textInputAction: TextInputAction.send,
+          onFieldSubmitted: (_) => unawaited(_sendLink()),
+          decoration: InputDecoration(
+            labelText: l10n.emailLabel,
+            prefixIcon: const Icon(Icons.mail_outline_rounded),
+          ),
+          validator: (v) => _emailPattern.hasMatch(v?.trim() ?? '')
+              ? null
+              : l10n.emailInvalid,
+        ),
+      ),
+      const SizedBox(height: 12),
+      FilledButton(
+        onPressed: _busy ? null : _sendLink,
+        child: _busy
+            ? const SizedBox.square(
+                dimension: 22,
+                child: CircularProgressIndicator(strokeWidth: 2.5),
+              )
+            : Text(l10n.sendMagicLink),
+      ),
+      const SizedBox(height: 20),
+      Row(
+        children: [
+          const Expanded(child: Divider()),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Text(l10n.or, style: TextStyle(color: muted)),
+          ),
+          const Expanded(child: Divider()),
+        ],
+      ),
+      const SizedBox(height: 20),
+      OutlinedButton.icon(
+        onPressed: _busy
+            ? null
+            : () => _run(ref.read(authRepositoryProvider).signInWithGoogle),
+        icon: const Icon(Icons.account_circle_rounded),
+        label: Text(l10n.continueWithGoogle),
+      ),
+    ],
+  );
 }
 
 class _LinkSent extends StatelessWidget {
@@ -166,27 +170,31 @@ class _LinkSent extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final theme = Theme.of(context);
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            Icon(
-              Icons.mark_email_read_outlined,
-              size: 48,
-              color: theme.colorScheme.primary,
-            ),
-            const SizedBox(height: 12),
-            Text(l10n.checkYourEmail, style: theme.textTheme.titleLarge),
-            const SizedBox(height: 8),
-            Text(l10n.magicLinkSent(email), textAlign: TextAlign.center),
-            const SizedBox(height: 12),
-            TextButton(
-              onPressed: onUseDifferent,
-              child: Text(l10n.useDifferentEmail),
-            ),
-          ],
-        ),
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            Icons.mark_email_read_rounded,
+            size: 32,
+            color: theme.colorScheme.primary,
+          ),
+          const SizedBox(height: 16),
+          Text(l10n.checkYourEmail, style: theme.textTheme.titleLarge),
+          const SizedBox(height: 8),
+          Text(l10n.magicLinkSent(email), style: theme.textTheme.bodyLarge),
+          const SizedBox(height: 8),
+          TextButton(
+            style: TextButton.styleFrom(padding: EdgeInsets.zero),
+            onPressed: onUseDifferent,
+            child: Text(l10n.useDifferentEmail),
+          ),
+        ],
       ),
     );
   }

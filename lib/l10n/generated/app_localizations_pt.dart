@@ -257,6 +257,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get errorGeneric => 'Algo correu mal. Tente novamente.';
 
   @override
+  String get errorTitle => 'Não foi possível carregar';
+
+  @override
   String get delete => 'Eliminar';
 
   @override
@@ -355,7 +358,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get reorderHint =>
-      'Arraste ☰ para reordenar · deslize para a esquerda para remover';
+      'Arraste pelos pontos para reordenar · deslize para a esquerda para remover';
 
   @override
   String get videoRemoved => 'Vídeo removido';

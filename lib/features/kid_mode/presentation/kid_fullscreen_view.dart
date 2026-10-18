@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../../core/l10n/l10n.dart';
+import '../../../core/theme/app_theme.dart';
 import '../domain/kid_session.dart';
 import 'kid_mode_controller.dart';
 import 'widgets/compact_time_badge.dart';
@@ -58,38 +59,43 @@ class _KidFullscreenViewState extends State<KidFullscreenView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, c) {
-            final panel = math.max(
-              KidFullscreenView.panelMinWidth,
-              c.maxWidth - c.maxHeight * 16 / 9,
-            );
-            final videoWidth = math.max(0.0, c.maxWidth - panel);
-            final videoHeight = math.min(c.maxHeight, videoWidth * 9 / 16);
-            return Row(
-              children: [
-                Expanded(
-                  child: Center(
-                    child: SizedBox(
-                      width: videoWidth,
-                      height: videoHeight,
-                      child: widget.player,
+    return Theme(
+      data: AppTheme.kidNight(),
+      child: Scaffold(
+        body: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, c) {
+              final panel = math.max(
+                KidFullscreenView.panelMinWidth,
+                c.maxWidth - c.maxHeight * 16 / 9,
+              );
+              final videoWidth = math.max(0.0, c.maxWidth - panel);
+              final videoHeight = math.min(c.maxHeight, videoWidth * 9 / 16);
+              return Row(
+                children: [
+                  Expanded(
+                    child: Center(
+                      child: SizedBox(
+                        width: videoWidth,
+                        height: videoHeight,
+                        child: widget.player,
+                      ),
                     ),
                   ),
-                ),
-                SizedBox(
-                  width: panel,
-                  height: c.maxHeight,
-                  child: _pickerOpen
-                      ? _picker(panel)
-                      : _controls(panel, c.maxHeight),
-                ),
-              ],
-            );
-          },
+                  SizedBox(
+                    width: panel,
+                    height: c.maxHeight,
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 180),
+                      child: _pickerOpen
+                          ? _picker(panel)
+                          : _controls(panel, c.maxHeight),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
@@ -108,14 +114,15 @@ class _KidFullscreenViewState extends State<KidFullscreenView> {
       String key,
       IconData icon,
       String label,
-      VoidCallback onPressed,
-    ) => KidRoundButton(
+      VoidCallback onPressed, {
+      bool primary = false,
+    }) => KidRoundButton(
       key: Key(key),
       icon: icon,
       label: label,
       onPressed: onPressed,
       size: size,
-      dark: true,
+      primary: primary,
     );
 
     Widget row(Widget a, Widget? b) => Row(
@@ -151,6 +158,7 @@ class _KidFullscreenViewState extends State<KidFullscreenView> {
             s.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
             s.isPlaying ? l10n.kidPause : l10n.kidPlay,
             widget.onPlayPause,
+            primary: true,
           ),
           watching && multiple
               ? button(
@@ -186,16 +194,16 @@ class _KidFullscreenViewState extends State<KidFullscreenView> {
     final l10n = context.l10n;
     return Column(
       key: const Key('kid-video-picker'),
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Padding(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.fromLTRB(8, 10, 10, 8),
           child: KidRoundButton(
             key: const Key('kid-close-picker'),
             icon: Icons.close_rounded,
             label: l10n.close,
             onPressed: () => setState(() => _pickerOpen = false),
             size: 48,
-            dark: true,
           ),
         ),
         Expanded(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/pressable.dart';
 import '../../../playlists/presentation/widgets/video_thumbnail.dart';
 import '../../domain/kid_session.dart';
 
@@ -28,6 +28,7 @@ class KidThumbnailStrip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final horizontal = axis == Axis.horizontal;
+    final scheme = Theme.of(context).colorScheme;
     return ListView.separated(
       scrollDirection: axis,
       itemCount: videos.length,
@@ -40,30 +41,42 @@ class KidThumbnailStrip extends StatelessWidget {
           button: true,
           selected: selected,
           label: video.title,
-          child: GestureDetector(
-            key: ValueKey('kid-thumb-$i'),
-            onTap: enabled ? () => onSelect(i) : null,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              padding: const EdgeInsets.all(5),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(26),
-                color: selected ? BrandColors.sunshine : Colors.transparent,
-              ),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  VideoThumbnail(url: video.thumbnailUrl, borderRadius: 22),
-                  if (selected)
-                    const CircleAvatar(
-                      radius: 22,
-                      backgroundColor: Colors.white70,
-                      child: Icon(
-                        Icons.music_note_rounded,
-                        color: BrandColors.coral,
+          child: Pressable(
+            scale: 0.95,
+            child: GestureDetector(
+              key: ValueKey('kid-thumb-$i'),
+              onTap: enabled ? () => onSelect(i) : null,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(26),
+                  color: selected ? scheme.primary : Colors.transparent,
+                ),
+                child: Stack(
+                  children: [
+                    VideoThumbnail(url: video.thumbnailUrl, borderRadius: 21),
+                    if (selected)
+                      Positioned(
+                        left: 8,
+                        bottom: 8,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: scheme.primary,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(6),
+                            child: Icon(
+                              Icons.graphic_eq_rounded,
+                              size: 22,
+                              color: scheme.onPrimary,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
