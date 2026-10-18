@@ -287,5 +287,7 @@
   "shareIntakeNoPlaylists": "Crie primeiro uma lista e depois partilhe a ligação novamente.",
   "kidSeekBack": "Recuar 10 segundos",
   "kidSeekForward": "Avançar 10 segundos",
-  "kidSeekBar": "Posição do vídeo"
+  "kidSeekBar": "Posição do vídeo",
+  "kidSeekShow": "Andar pelo vídeo",
+  "kidSeekHide": "Esconder a barra do vídeo"
 }

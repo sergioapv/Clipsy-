@@ -1,20 +1,24 @@
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_theme.dart';
+import '../domain/kid_player.dart';
 import '../domain/kid_session.dart';
 import 'kid_mode_controller.dart';
 import 'widgets/compact_time_badge.dart';
 import 'widgets/kid_round_button.dart';
+import 'widgets/kid_seek_bar.dart';
 import 'widgets/kid_thumbnail_strip.dart';
 
 /// Full-screen playback in Kid mode (landscape).
 ///
 /// The video sits on the left; one panel on the right holds everything,
 /// always visible: the countdown and parent lock, pause/play and next video,
-/// back/forward 10 seconds, the video picker and exit full screen. Choosing a video turns the panel
+/// a button that shows or hides the seek strip (back 10 s, a bar to drag,
+/// forward 10 s, under the video), the video picker and exit full screen. Choosing a video turns the panel
 /// into a list of thumbnails.
 ///
 /// Nothing is ever drawn over the YouTube player: it's a native web view, and
@@ -31,6 +35,8 @@ class KidFullscreenView extends StatefulWidget {
     required this.onNext,
     required this.onSelect,
     required this.onSkip,
+    required this.position,
+    required this.onSeek,
     required this.onExitFullscreen,
     super.key,
   });
@@ -44,10 +50,15 @@ class KidFullscreenView extends StatefulWidget {
 
   /// Seconds to move through the video by (negative: back).
   final ValueChanged<int> onSkip;
+  final ValueListenable<PlaybackPosition> position;
+  final ValueChanged<Duration> onSeek;
   final VoidCallback onExitFullscreen;
 
   /// The control panel is at least this wide.
   static const panelMinWidth = 160.0;
+
+  /// Height of the seek strip under the video, when it's open.
+  static const seekStripHeight = 76.0;
 
   @override
   State<KidFullscreenView> createState() => _KidFullscreenViewState();
@@ -55,6 +66,7 @@ class KidFullscreenView extends StatefulWidget {
 
 class _KidFullscreenViewState extends State<KidFullscreenView> {
   bool _pickerOpen = false;
+  bool _seekOpen = false;
 
   void _pick(int index) {
     widget.onSelect(index);
@@ -73,17 +85,34 @@ class _KidFullscreenViewState extends State<KidFullscreenView> {
                 KidFullscreenView.panelMinWidth,
                 c.maxWidth - c.maxHeight * 16 / 9,
               );
-              final videoWidth = math.max(0.0, c.maxWidth - panel);
-              final videoHeight = math.min(c.maxHeight, videoWidth * 9 / 16);
+              // The seek strip takes room from the video rather than sitting
+              // on top of it.
+              final seeking = _seekOpen && _canSeek;
+              final videoArea = math.max(
+                0.0,
+                c.maxHeight - (seeking ? KidFullscreenView.seekStripHeight : 0),
+              );
+              final videoWidth = math.min(
+                math.max(0.0, c.maxWidth - panel),
+                videoArea * 16 / 9,
+              );
+              final videoHeight = math.min(videoArea, videoWidth * 9 / 16);
               return Row(
                 children: [
                   Expanded(
-                    child: Center(
-                      child: SizedBox(
-                        width: videoWidth,
-                        height: videoHeight,
-                        child: widget.player,
-                      ),
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: Center(
+                            child: SizedBox(
+                              width: videoWidth,
+                              height: videoHeight,
+                              child: widget.player,
+                            ),
+                          ),
+                        ),
+                        if (seeking) _seekStrip(),
+                      ],
                     ),
                   ),
                   SizedBox(
@@ -105,8 +134,46 @@ class _KidFullscreenViewState extends State<KidFullscreenView> {
     );
   }
 
-  /// Four rows of two: countdown + lock, pause/play + next, back 10 s +
-  /// forward 10 s, choose a video + exit full screen.
+  bool get _canSeek => widget.state.session.status == KidSessionStatus.watching;
+
+  /// Under the video: back 10 s, a bar to drag, forward 10 s.
+  Widget _seekStrip() {
+    final l10n = context.l10n;
+    return SizedBox(
+      key: const Key('kid-seek-strip'),
+      height: KidFullscreenView.seekStripHeight,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 6, 8, 14),
+        child: Row(
+          children: [
+            KidRoundButton(
+              key: const Key('kid-seek-back'),
+              icon: Icons.replay_10_rounded,
+              label: l10n.kidSeekBack,
+              onPressed: () => widget.onSkip(-10),
+              size: 56,
+            ),
+            Expanded(
+              child: KidSeekBar(
+                position: widget.position,
+                onSeek: widget.onSeek,
+              ),
+            ),
+            KidRoundButton(
+              key: const Key('kid-seek-forward'),
+              icon: Icons.forward_10_rounded,
+              label: l10n.kidSeekForward,
+              onPressed: () => widget.onSkip(10),
+              size: 56,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Four rows of two: countdown + lock, pause/play + next, show/hide the
+  /// seek strip + choose a video, exit full screen.
   Widget _controls(double width, double height) {
     final l10n = context.l10n;
     final s = widget.state;
@@ -175,23 +242,15 @@ class _KidFullscreenViewState extends State<KidFullscreenView> {
         ),
         row(
           watching
-              ? button(
-                  'kid-seek-back',
-                  Icons.replay_10_rounded,
-                  l10n.kidSeekBack,
-                  () => widget.onSkip(-10),
+              ? KidRoundButton(
+                  key: const Key('kid-seek-toggle'),
+                  icon: Icons.linear_scale_rounded,
+                  label: _seekOpen ? l10n.kidSeekHide : l10n.kidSeekShow,
+                  onPressed: () => setState(() => _seekOpen = !_seekOpen),
+                  size: size,
+                  selected: _seekOpen,
                 )
               : const SizedBox.shrink(),
-          watching
-              ? button(
-                  'kid-seek-forward',
-                  Icons.forward_10_rounded,
-                  l10n.kidSeekForward,
-                  () => widget.onSkip(10),
-                )
-              : null,
-        ),
-        row(
           watching && multiple
               ? button(
                   'kid-pick-video',
@@ -199,13 +258,16 @@ class _KidFullscreenViewState extends State<KidFullscreenView> {
                   l10n.kidPickVideo,
                   () => setState(() => _pickerOpen = true),
                 )
-              : const SizedBox.shrink(),
+              : null,
+        ),
+        row(
           button(
             'kid-exit-fullscreen',
             Icons.fullscreen_exit_rounded,
             l10n.kidExitFullscreen,
             widget.onExitFullscreen,
           ),
+          null,
         ),
       ],
     );

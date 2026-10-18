@@ -1579,6 +1579,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Video position'**
   String get kidSeekBar;
+
+  /// No description provided for @kidSeekShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Move through the video'**
+  String get kidSeekShow;
+
+  /// No description provided for @kidSeekHide.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide the video bar'**
+  String get kidSeekHide;
 }
 
 class _AppLocalizationsDelegate

@@ -277,7 +277,9 @@ pure function, and it is unit-tested.
   - Ads and YouTube branding are never covered.
 - **Moving through a video**: taps never reach YouTube's own seek bar, so
   Kid mode has its own: a thick bar under the video to drag, and back/forward
-  10 s buttons beside play (also in the full-screen panel). Disabled while
+  10 s buttons beside play. In full screen one panel button shows or hides
+  the same controls in a strip under the video (the video shrinks to make
+  room, without reloading). Disabled while
   the last video finishes after time's up, so the session can't stretch.
 - **Leaving Kid mode**: hold the corner lock (3 s by default, configurable),
   then enter the PIN. The time's-up screen has a "Parent" button that asks
@@ -286,8 +288,8 @@ pure function, and it is unit-tested.
   screen without reloading the video (the player is moved with a GlobalKey).
   - Everything sits in one panel to the right of the video, always visible:
     countdown (minutes in a ring, m:ss in the last minute) and parent lock,
-    pause/play and next, back/forward 10 s, choose a video and exit full
-    screen. "Choose a
+    pause/play and next, show/hide the seek strip, choose a video and exit
+    full screen. "Choose a
     video" turns the panel into a scrolling list of thumbnails.
   - Nothing is ever drawn over the YouTube player. It's a native web view,
     and overlays on it are unreliable on some Android devices. Where the

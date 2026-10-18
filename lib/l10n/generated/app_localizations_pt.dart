@@ -911,4 +911,10 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get kidSeekBar => 'Posição do vídeo';
+
+  @override
+  String get kidSeekShow => 'Andar pelo vídeo';
+
+  @override
+  String get kidSeekHide => 'Esconder a barra do vídeo';
 }

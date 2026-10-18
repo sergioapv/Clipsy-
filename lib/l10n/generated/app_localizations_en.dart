@@ -904,4 +904,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get kidSeekBar => 'Video position';
+
+  @override
+  String get kidSeekShow => 'Move through the video';
+
+  @override
+  String get kidSeekHide => 'Hide the video bar';
 }

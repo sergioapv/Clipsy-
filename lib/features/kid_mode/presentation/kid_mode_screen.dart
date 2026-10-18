@@ -193,6 +193,8 @@ class _KidModeScreenState extends ConsumerState<KidModeScreen> {
                 onNext: _controller.next,
                 onSelect: _controller.select,
                 onSkip: _skip,
+                position: _position,
+                onSeek: _seekTo,
                 onExitFullscreen: () => _setFullscreen(false),
               );
             }

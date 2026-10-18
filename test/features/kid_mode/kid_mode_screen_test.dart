@@ -395,8 +395,7 @@ void main() {
     const controls = [
       'kid-play-pause',
       'kid-next',
-      'kid-seek-back',
-      'kid-seek-forward',
+      'kid-seek-toggle',
       'kid-pick-video',
       'kid-exit-fullscreen',
       'kid-exit-button',
@@ -448,7 +447,25 @@ void main() {
         await tester.pump();
         expect(kid.player.loaded.last, ('bbbbbbbbbbb', true));
 
-        // Back and forward 10 seconds.
+        // The seek strip is hidden until asked for.
+        expect(find.byKey(const Key('kid-seek-strip')), findsNothing);
+        expect(find.byKey(const Key('kid-seek-back')), findsNothing);
+        final loadsBefore = kid.player.loaded.length;
+        await tester.tap(find.byKey(const Key('kid-seek-toggle')));
+        await tester.pumpAndSettle();
+        final strip = tester.getRect(find.byKey(const Key('kid-seek-strip')));
+        final smaller = tester.getRect(find.byKey(const Key('fake-player')));
+        expect(strip.overlaps(smaller), isFalse, reason: 'strip covers video');
+        expect(strip.top, greaterThanOrEqualTo(smaller.bottom));
+        expect(strip.right, lessThanOrEqualTo(video.right + 1));
+        expect(
+          screen.contains(strip.bottomCenter - const Offset(0, 1)),
+          isTrue,
+        );
+        expect(smaller.height, lessThanOrEqualTo(video.height));
+        expect(kid.player.loaded.length, loadsBefore, reason: 'no reload');
+
+        // Back and forward 10 seconds, and the bar.
         kid.player.emitPosition(
           const Duration(seconds: 50),
           const Duration(minutes: 3),
@@ -457,6 +474,18 @@ void main() {
         expect(kid.player.seeks.last, const Duration(seconds: 40));
         await tester.tap(find.byKey(const Key('kid-seek-forward')));
         expect(kid.player.seeks.last, const Duration(seconds: 50));
+        await tester.pump(const Duration(milliseconds: 200));
+        await tester.tapAt(
+          tester.getCenter(find.byKey(const Key('kid-seek-bar'))),
+        );
+        await tester.pumpAndSettle();
+        expect(kid.player.seeks.last.inSeconds, inInclusiveRange(80, 100));
+
+        // Hide it again: the video gets its room back.
+        await tester.tap(find.byKey(const Key('kid-seek-toggle')));
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('kid-seek-strip')), findsNothing);
+        expect(tester.getRect(find.byKey(const Key('fake-player'))), video);
 
         // Pick a video from the thumbnails.
         await tester.tap(find.byKey(const Key('kid-pick-video')));

@@ -461,5 +461,7 @@
   "shareIntakeNoPlaylists": "Create a playlist first, then share the link again.",
   "kidSeekBack": "Back 10 seconds",
   "kidSeekForward": "Forward 10 seconds",
-  "kidSeekBar": "Video position"
+  "kidSeekBar": "Video position",
+  "kidSeekShow": "Move through the video",
+  "kidSeekHide": "Hide the video bar"
 }

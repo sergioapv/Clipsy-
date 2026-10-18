@@ -12,6 +12,7 @@ class KidRoundButton extends StatelessWidget {
     required this.onPressed,
     this.size = 64,
     this.primary = false,
+    this.selected = false,
     super.key,
   });
 
@@ -25,6 +26,9 @@ class KidRoundButton extends StatelessWidget {
   /// Orange, for play/pause: the one thing a child should find first.
   final bool primary;
 
+  /// A toggle that's on: drawn in ink, like a pressed key.
+  final bool selected;
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -32,13 +36,18 @@ class KidRoundButton extends StatelessWidget {
     return Semantics(
       button: true,
       enabled: enabled,
+      toggled: selected ? true : null,
       label: label,
       child: Pressable(
         scale: 0.92,
         child: Opacity(
           opacity: enabled ? 1 : 0.4,
           child: Material(
-            color: primary ? scheme.primary : scheme.surfaceContainer,
+            color: primary
+                ? scheme.primary
+                : selected
+                ? scheme.onSurface
+                : scheme.surfaceContainer,
             shape: const CircleBorder(),
             child: InkWell(
               customBorder: const CircleBorder(),
@@ -48,7 +57,11 @@ class KidRoundButton extends StatelessWidget {
                 child: Icon(
                   icon,
                   size: size * (primary ? 0.62 : 0.5),
-                  color: primary ? scheme.onPrimary : scheme.onSurface,
+                  color: primary
+                      ? scheme.onPrimary
+                      : selected
+                      ? scheme.surface
+                      : scheme.onSurface,
                 ),
               ),
             ),
