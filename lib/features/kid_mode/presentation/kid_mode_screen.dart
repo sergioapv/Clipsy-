@@ -188,7 +188,6 @@ class _KidModeScreenState extends ConsumerState<KidModeScreen> {
               return KidFullscreenView(
                 state: state,
                 player: player,
-                exitButton: exit,
                 onPlayPause: playPause,
                 onNext: _controller.next,
                 onSelect: _controller.select,

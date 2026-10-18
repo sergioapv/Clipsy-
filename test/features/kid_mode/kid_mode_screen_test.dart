@@ -398,7 +398,6 @@ void main() {
       'kid-seek-toggle',
       'kid-pick-video',
       'kid-exit-fullscreen',
-      'kid-exit-button',
       'kid-countdown',
     ];
 
@@ -433,6 +432,26 @@ void main() {
           expect(screen.contains(r.center), isTrue, reason: '$key off screen');
           expect(r.left, greaterThanOrEqualTo(inset), reason: '$key in cutout');
         }
+
+        // No parent lock in full screen: leave full screen first.
+        expect(find.byKey(const Key('kid-exit-button')), findsNothing);
+
+        // The panel is symmetric about its centre line.
+        double centreX(String key) => tester.getCenter(find.byKey(Key(key))).dx;
+        final axis = centreX('kid-countdown');
+        expect(centreX('kid-exit-fullscreen'), closeTo(axis, 0.5));
+        expect(
+          (centreX('kid-play-pause') + centreX('kid-next')) / 2,
+          closeTo(axis, 0.5),
+        );
+        expect(
+          (centreX('kid-seek-toggle') + centreX('kid-pick-video')) / 2,
+          closeTo(axis, 0.5),
+        );
+        expect(
+          centreX('kid-play-pause'),
+          closeTo(centreX('kid-seek-toggle'), 0.5),
+        );
 
         // Play, then pause ("stop").
         await tester.tap(find.byKey(const Key('kid-play-pause')));

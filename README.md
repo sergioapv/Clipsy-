@@ -286,10 +286,12 @@ pure function, and it is unit-tested.
   for the PIN, then offers +5/+10/+15 minutes or exit.
 - **Full screen**: a button next to play/pause switches to landscape full
   screen without reloading the video (the player is moved with a GlobalKey).
-  - Everything sits in one panel to the right of the video, always visible:
-    countdown (minutes in a ring, m:ss in the last minute) and parent lock,
-    pause/play and next, show/hide the seek strip, choose a video and exit
-    full screen. "Choose a
+  - Everything sits in one symmetric panel to the right of the video,
+    always visible: the countdown (minutes in a ring, m:ss in the last
+    minute) on top, then pause/play and next, show/hide the seek strip and
+    choose a video, and exit full screen at the bottom. The parent lock
+    isn't in full screen: a parent leaves full screen (button or system
+    back), then holds the lock. "Choose a
     video" turns the panel into a scrolling list of thumbnails.
   - Nothing is ever drawn over the YouTube player. It's a native web view,
     and overlays on it are unreliable on some Android devices. Where the

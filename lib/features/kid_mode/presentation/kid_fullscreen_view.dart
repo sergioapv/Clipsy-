@@ -16,9 +16,10 @@ import 'widgets/kid_thumbnail_strip.dart';
 /// Full-screen playback in Kid mode (landscape).
 ///
 /// The video sits on the left; one panel on the right holds everything,
-/// always visible: the countdown and parent lock, pause/play and next video,
-/// a button that shows or hides the seek strip (back 10 s, a bar to drag,
-/// forward 10 s, under the video), the video picker and exit full screen. Choosing a video turns the panel
+/// always visible: the countdown, pause/play and next video, a button that
+/// shows or hides the seek strip (back 10 s, a bar to drag, forward 10 s,
+/// under the video), the video picker and exit full screen. The parent lock
+/// isn't here: a parent leaves full screen first, then holds the lock. Choosing a video turns the panel
 /// into a list of thumbnails.
 ///
 /// Nothing is ever drawn over the YouTube player: it's a native web view, and
@@ -30,7 +31,6 @@ class KidFullscreenView extends StatefulWidget {
   const KidFullscreenView({
     required this.state,
     required this.player,
-    required this.exitButton,
     required this.onPlayPause,
     required this.onNext,
     required this.onSelect,
@@ -43,7 +43,6 @@ class KidFullscreenView extends StatefulWidget {
 
   final KidModeState state;
   final Widget player;
-  final Widget exitButton;
   final VoidCallback onPlayPause;
   final VoidCallback onNext;
   final ValueChanged<int> onSelect;
@@ -172,14 +171,15 @@ class _KidFullscreenViewState extends State<KidFullscreenView> {
     );
   }
 
-  /// Four rows of two: countdown + lock, pause/play + next, show/hide the
-  /// seek strip + choose a video, exit full screen.
+  /// Symmetric about the panel's centre line: the countdown on top,
+  /// pause/play + next and seek + choose a video in the middle, exit full
+  /// screen at the bottom. A row with one button centres it.
   Widget _controls(double width, double height) {
     final l10n = context.l10n;
     final s = widget.state;
     final watching = s.session.status == KidSessionStatus.watching;
     final multiple = s.session.videos.length > 1;
-    final size = math.min(64.0, math.min((width - 36) / 2, (height - 56) / 4));
+    final size = math.min(64.0, math.min((width - 36) / 2, (height - 64) / 4));
 
     Widget button(
       String key,
@@ -196,34 +196,22 @@ class _KidFullscreenViewState extends State<KidFullscreenView> {
       primary: primary,
     );
 
-    Widget row(Widget a, Widget? b) => Row(
+    Widget row(List<Widget> buttons) => Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        SizedBox(
-          width: size,
-          child: Center(child: a),
-        ),
-        SizedBox(
-          width: size,
-          child: b == null ? null : Center(child: b),
-        ),
-      ],
+      children: buttons,
     );
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        row(
-          CompactTimeBadge(
-            remaining: s.remaining,
-            limit: s.session.clock.limit,
-            almostDone: s.isAlmostDone,
-            lastVideo: s.session.status == KidSessionStatus.finishingVideo,
-            size: size,
-          ),
-          widget.exitButton,
+        CompactTimeBadge(
+          remaining: s.remaining,
+          limit: s.session.clock.limit,
+          almostDone: s.isAlmostDone,
+          lastVideo: s.session.status == KidSessionStatus.finishingVideo,
+          size: size,
         ),
-        row(
+        row([
           button(
             'kid-play-pause',
             s.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
@@ -231,43 +219,37 @@ class _KidFullscreenViewState extends State<KidFullscreenView> {
             widget.onPlayPause,
             primary: true,
           ),
-          watching && multiple
-              ? button(
-                  'kid-next',
-                  Icons.skip_next_rounded,
-                  l10n.kidNextVideo,
-                  widget.onNext,
-                )
-              : null,
-        ),
-        row(
-          watching
-              ? KidRoundButton(
-                  key: const Key('kid-seek-toggle'),
-                  icon: Icons.linear_scale_rounded,
-                  label: _seekOpen ? l10n.kidSeekHide : l10n.kidSeekShow,
-                  onPressed: () => setState(() => _seekOpen = !_seekOpen),
-                  size: size,
-                  selected: _seekOpen,
-                )
-              : const SizedBox.shrink(),
-          watching && multiple
-              ? button(
-                  'kid-pick-video',
-                  Icons.video_library_rounded,
-                  l10n.kidPickVideo,
-                  () => setState(() => _pickerOpen = true),
-                )
-              : null,
-        ),
-        row(
-          button(
-            'kid-exit-fullscreen',
-            Icons.fullscreen_exit_rounded,
-            l10n.kidExitFullscreen,
-            widget.onExitFullscreen,
-          ),
-          null,
+          if (watching && multiple)
+            button(
+              'kid-next',
+              Icons.skip_next_rounded,
+              l10n.kidNextVideo,
+              widget.onNext,
+            ),
+        ]),
+        if (watching)
+          row([
+            KidRoundButton(
+              key: const Key('kid-seek-toggle'),
+              icon: Icons.linear_scale_rounded,
+              label: _seekOpen ? l10n.kidSeekHide : l10n.kidSeekShow,
+              onPressed: () => setState(() => _seekOpen = !_seekOpen),
+              size: size,
+              selected: _seekOpen,
+            ),
+            if (multiple)
+              button(
+                'kid-pick-video',
+                Icons.video_library_rounded,
+                l10n.kidPickVideo,
+                () => setState(() => _pickerOpen = true),
+              ),
+          ]),
+        button(
+          'kid-exit-fullscreen',
+          Icons.fullscreen_exit_rounded,
+          l10n.kidExitFullscreen,
+          widget.onExitFullscreen,
         ),
       ],
     );
