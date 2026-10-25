@@ -18,6 +18,7 @@ import 'playlist_dialogs.dart';
 import 'playlist_l10n.dart';
 import 'playlist_providers.dart';
 import 'widgets/label_chips.dart';
+import 'widgets/language_picker.dart';
 import 'widgets/video_thumbnail.dart';
 
 /// One playlist: drag to reorder videos, swipe to remove, add by URL.
@@ -273,8 +274,12 @@ class _Header extends StatelessWidget {
           Text(playlist.title, style: theme.textTheme.headlineMedium),
           const SizedBox(height: 8),
           Text(
-            '${l10n.videoCount(playlist.videoCount)} · '
-            '${l10n.ageRangeLabel(playlist.ageRange)}',
+            [
+              l10n.videoCount(playlist.videoCount),
+              l10n.ageRangeLabel(playlist.ageRange),
+              if (playlist.languages.isNotEmpty)
+                languagesLabel(playlist.languages, show: 3),
+            ].join(' · '),
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),

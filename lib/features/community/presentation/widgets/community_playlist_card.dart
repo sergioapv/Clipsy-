@@ -6,6 +6,7 @@ import '../../../../core/router/routes.dart';
 import '../../../../core/widgets/pressable.dart';
 import '../../../playlists/presentation/playlist_l10n.dart';
 import '../../../playlists/presentation/widgets/label_chips.dart';
+import '../../../playlists/presentation/widgets/language_picker.dart';
 import '../../../playlists/presentation/widgets/video_thumbnail.dart';
 import '../../domain/community_playlist.dart';
 import 'star_rating.dart';
@@ -76,6 +77,8 @@ class CommunityPlaylistCard extends StatelessWidget {
                             l10n.videoCount(playlist.videoCount),
                             if (minutes != null) l10n.minutesShort(minutes),
                             l10n.ageRangeLabel(playlist.ageRange),
+                            if (playlist.languages.isNotEmpty)
+                              languagesLabel(playlist.languages),
                           ].join(' · '),
                           style: muted,
                         ),

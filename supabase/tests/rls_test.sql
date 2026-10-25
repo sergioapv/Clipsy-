@@ -155,10 +155,51 @@ select pg_temp.throws(
 select public.set_playlist_labels('11111111-1111-1111-1111-111111111111',
   array(select id from public.labels where slug in ('space', 'science')));
 
+-- Languages: valid BCP 47 tags only, at most 3, no repeats.
+select pg_temp.throws(
+  $$update public.playlists set languages = '{pt_PT}'
+    where id = '11111111-1111-1111-1111-111111111111'$$,
+  'check', 'malformed language tags are rejected');
+select pg_temp.throws(
+  $$update public.playlists set languages = '{pt-PT,pt-BR,en-GB,fr}'
+    where id = '11111111-1111-1111-1111-111111111111'$$,
+  'check', 'at most 3 languages');
+select pg_temp.throws(
+  $$update public.playlists set languages = '{pt-PT,pt-PT}'
+    where id = '11111111-1111-1111-1111-111111111111'$$,
+  'check', 'no repeated languages');
+
+-- Sharing needs a language too.
+savepoint before_language;
+select pg_temp.throws(
+  $$update public.playlists set visibility = 'public'
+    where id = '11111111-1111-1111-1111-111111111111';
+    set constraints all immediate$$,
+  'public_playlist_needs_language', 'publishing without a language fails');
+rollback to savepoint before_language;
+select pg_temp.login('00000000-0000-0000-0000-00000000000a');
+
+update public.playlists set languages = '{pt-PT,es-419,zh-Hant}'
+where id = '11111111-1111-1111-1111-111111111111';
+select pg_temp.ok(
+  (select language_bases @> '{pt,es,zh}' and cardinality(language_bases) = 3
+   from public.playlists where id = '11111111-1111-1111-1111-111111111111'),
+  'language_bases holds the language of each tag');
+
 update public.playlists set visibility = 'public'
 where id = '11111111-1111-1111-1111-111111111111';
 set constraints all immediate;
 set constraints all deferred;
+
+-- Removing every language of a shared playlist fails.
+savepoint before_unlanguage;
+select pg_temp.throws(
+  $$update public.playlists set languages = '{}'
+    where id = '11111111-1111-1111-1111-111111111111';
+    set constraints all immediate$$,
+  'public_playlist_needs_language', 'a shared playlist keeps a language');
+rollback to savepoint before_unlanguage;
+select pg_temp.login('00000000-0000-0000-0000-00000000000a');
 
 select pg_temp.ok(
   (select published_at is not null from public.playlists
@@ -226,6 +267,13 @@ select pg_temp.ok(
    from public.community_playlists
    where id = '11111111-1111-1111-1111-111111111111'),
   'community view aggregates counts, duration, labels and author');
+select pg_temp.ok(
+  (select count(*) = 1 from public.community_playlists
+   where id = '11111111-1111-1111-1111-111111111111'
+     and languages && '{pt-PT,pt}' and language_bases @> '{zh}')
+  and not exists (select 1 from public.community_playlists
+                  where languages && '{pt-BR,pt}'),
+  'community view filters by language and by variant');
 select pg_temp.ok(
   not exists (
     select 1 from information_schema.columns
@@ -316,6 +364,10 @@ select pg_temp.ok(
    join public.playlists p on p.id = v.playlist_id
    where p.owner_id = '00000000-0000-0000-0000-00000000000d') = 2,
   'fork copies the videos');
+select pg_temp.ok(
+  (select languages = '{pt-PT,es-419,zh-Hant}' from public.playlists
+   where id = (select id from forked)),
+  'fork copies the languages');
 select pg_temp.throws(
   $$select public.fork_playlist('22222222-2222-2222-2222-222222222222')$$,
   'playlist_not_found', 'cannot fork a private playlist of someone else');

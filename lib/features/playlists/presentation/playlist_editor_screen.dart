@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/l10n/l10n.dart';
+import '../../../core/l10n/languages.dart';
 import '../../../core/router/routes.dart';
 import '../../../core/widgets/error_view.dart';
 import '../domain/playlist.dart';
@@ -11,6 +12,7 @@ import 'playlist_l10n.dart';
 import 'playlist_providers.dart';
 import 'widgets/age_range_picker.dart';
 import 'widgets/label_chips.dart';
+import 'widgets/language_picker.dart';
 
 /// Create a playlist, or edit one's title, description, ages and labels.
 class PlaylistEditorScreen extends ConsumerWidget {
@@ -56,6 +58,7 @@ class _EditorFormState extends ConsumerState<_EditorForm> {
   );
   late AgeRange _ageRange = widget.initial?.ageRange ?? AgeRange.fallback;
   late List<int> _labelIds = [...?widget.initial?.labelIds];
+  late List<String> _languages = [...?widget.initial?.languages];
   late bool _public = widget.initial?.isPublic ?? false;
   bool _saving = false;
 
@@ -68,16 +71,29 @@ class _EditorFormState extends ConsumerState<_EditorForm> {
     super.dispose();
   }
 
+  Future<void> _addLanguage() async {
+    final tag = await showLanguageChooser(context, exclude: _languages);
+    if (tag == null || !mounted || _languages.contains(tag)) return;
+    setState(() => _languages = [..._languages, tag]);
+  }
+
   /// Only playlists with videos can be shared (new ones have none yet).
   bool get _canShare => (widget.initial?.videoCount ?? 0) > 0;
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
     final l10n = context.l10n;
-    if (_public && _labelIds.isEmpty) {
+    final missing = !_public
+        ? null
+        : _labelIds.isEmpty
+        ? l10n.playlistErrorNeedsLabel
+        : _languages.isEmpty
+        ? l10n.playlistErrorNeedsLanguage
+        : null;
+    if (missing != null) {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text(l10n.playlistErrorNeedsLabel)));
+        ..showSnackBar(SnackBar(content: Text(missing)));
       return;
     }
     final draft = PlaylistDraft(
@@ -85,6 +101,7 @@ class _EditorFormState extends ConsumerState<_EditorForm> {
       description: _description.text,
       ageRange: _ageRange,
       labelIds: _labelIds,
+      languages: _languages,
       visibility: _public
           ? PlaylistVisibility.public
           : PlaylistVisibility.private,
@@ -175,6 +192,45 @@ class _EditorFormState extends ConsumerState<_EditorForm> {
             LabelPicker(
               selected: _labelIds,
               onChanged: (ids) => setState(() => _labelIds = ids),
+            ),
+            const SizedBox(height: 24),
+            Text(l10n.languagesTitle, style: theme.textTheme.titleMedium),
+            const SizedBox(height: 4),
+            Text(
+              l10n.languagesHint(PlaylistDraft.maxLanguages),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final tag in _languages)
+                  InputChip(
+                    key: Key('language-chip-$tag'),
+                    label: Text(Language.of(tag).name),
+                    deleteIcon: const Icon(Icons.close_rounded, size: 18),
+                    deleteButtonTooltipMessage: l10n.removeLanguage(
+                      Language.of(tag).name,
+                    ),
+                    onDeleted: _saving
+                        ? null
+                        : () => setState(
+                            () => _languages = [
+                              ..._languages.where((t) => t != tag),
+                            ],
+                          ),
+                  ),
+                if (_languages.length < PlaylistDraft.maxLanguages)
+                  ActionChip(
+                    key: const Key('add-language'),
+                    avatar: const Icon(Icons.add_rounded, size: 18),
+                    label: Text(l10n.addLanguage),
+                    onPressed: _saving ? null : _addLanguage,
+                  ),
+              ],
             ),
             const SizedBox(height: 24),
             Material(

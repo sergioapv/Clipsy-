@@ -348,11 +348,19 @@ abstract final class AppTheme {
         disabledColor: p.surface,
         checkmarkColor: p.ground,
         side: BorderSide.none,
+        // Selected chips are ink, so their text turns light. Chips resolve
+        // only the colour by state.
         labelStyle: TextStyle(
           fontFamily: AppFonts.text,
           fontSize: 14,
           fontWeight: FontWeight.w500,
-          color: p.ink,
+          color: WidgetStateColor.resolveWith(
+            (states) =>
+                states.contains(WidgetState.selected) ? p.ground : p.ink,
+          ),
+        ),
+        deleteIconColor: WidgetStateColor.resolveWith(
+          (states) => states.contains(WidgetState.selected) ? p.ground : p.ink,
         ),
         secondaryLabelStyle: TextStyle(
           fontFamily: AppFonts.text,

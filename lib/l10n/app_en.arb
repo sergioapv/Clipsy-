@@ -463,5 +463,39 @@
   "kidSeekForward": "Forward 10 seconds",
   "kidSeekBar": "Video position",
   "kidSeekShow": "Move through the video",
-  "kidSeekHide": "Hide the video bar"
+  "kidSeekHide": "Hide the video bar",
+  "languagesTitle": "Languages",
+  "languagesHint": "Up to {count}. Needed to share a playlist.",
+  "@languagesHint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "addLanguage": "Add language",
+  "languageAny": "Any language",
+  "languageAllVariants": "All variants",
+  "languageSearchHint": "Search, or type a code like pt-BR",
+  "languageNoMatch": "No language matches.",
+  "languageFilter": "Language",
+  "languagesFull": "You can pick up to {count} languages.",
+  "@languagesFull": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "playlistErrorNeedsLanguage": "Pick at least one language to share this playlist.",
+  "playlistsNoneInLanguageTitle": "No playlists in this language",
+  "playlistsNoneInLanguageBody": "Pick another language, or show them all.",
+  "removeLanguage": "Remove {language}",
+  "@removeLanguage": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  }
 }

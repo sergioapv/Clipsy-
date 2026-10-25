@@ -289,5 +289,18 @@
   "kidSeekForward": "Avançar 10 segundos",
   "kidSeekBar": "Posição do vídeo",
   "kidSeekShow": "Andar pelo vídeo",
-  "kidSeekHide": "Esconder a barra do vídeo"
+  "kidSeekHide": "Esconder a barra do vídeo",
+  "languagesTitle": "Idiomas",
+  "languagesHint": "Até {count}. Necessário para partilhar uma lista.",
+  "addLanguage": "Adicionar idioma",
+  "languageAny": "Qualquer idioma",
+  "languageAllVariants": "Todas as variantes",
+  "languageSearchHint": "Pesquise ou escreva um código como pt-BR",
+  "languageNoMatch": "Nenhum idioma corresponde.",
+  "languageFilter": "Idioma",
+  "languagesFull": "Pode escolher até {count} idiomas.",
+  "playlistErrorNeedsLanguage": "Escolha pelo menos um idioma para partilhar esta lista.",
+  "playlistsNoneInLanguageTitle": "Nenhuma lista neste idioma",
+  "playlistsNoneInLanguageBody": "Escolha outro idioma ou mostre todas.",
+  "removeLanguage": "Remover {language}"
 }

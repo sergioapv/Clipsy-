@@ -226,6 +226,7 @@ class PlaylistDetailController extends _$PlaylistDetailController {
           description: draft.trimmedDescription ?? '',
           ageRange: draft.ageRange,
           labelIds: draft.labelIds.toSet().toList(),
+          languages: draft.languages.toSet().toList(),
           visibility: draft.visibility,
         ),
       ),

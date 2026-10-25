@@ -1591,6 +1591,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hide the video bar'**
   String get kidSeekHide;
+
+  /// No description provided for @languagesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Languages'**
+  String get languagesTitle;
+
+  /// No description provided for @languagesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to {count}. Needed to share a playlist.'**
+  String languagesHint(int count);
+
+  /// No description provided for @addLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Add language'**
+  String get addLanguage;
+
+  /// No description provided for @languageAny.
+  ///
+  /// In en, this message translates to:
+  /// **'Any language'**
+  String get languageAny;
+
+  /// No description provided for @languageAllVariants.
+  ///
+  /// In en, this message translates to:
+  /// **'All variants'**
+  String get languageAllVariants;
+
+  /// No description provided for @languageSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search, or type a code like pt-BR'**
+  String get languageSearchHint;
+
+  /// No description provided for @languageNoMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No language matches.'**
+  String get languageNoMatch;
+
+  /// No description provided for @languageFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get languageFilter;
+
+  /// No description provided for @languagesFull.
+  ///
+  /// In en, this message translates to:
+  /// **'You can pick up to {count} languages.'**
+  String languagesFull(int count);
+
+  /// No description provided for @playlistErrorNeedsLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick at least one language to share this playlist.'**
+  String get playlistErrorNeedsLanguage;
+
+  /// No description provided for @playlistsNoneInLanguageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No playlists in this language'**
+  String get playlistsNoneInLanguageTitle;
+
+  /// No description provided for @playlistsNoneInLanguageBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick another language, or show them all.'**
+  String get playlistsNoneInLanguageBody;
+
+  /// No description provided for @removeLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {language}'**
+  String removeLanguage(String language);
 }
 
 class _AppLocalizationsDelegate

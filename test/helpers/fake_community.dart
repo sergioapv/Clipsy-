@@ -41,6 +41,7 @@ class FakeCommunityRepository implements CommunityRepository {
     List<String> labels = const ['animals'],
     AgeRange ageRange = AgeRange.young,
     List<String> videoIds = const ['aaaaaaaaaaa', 'bbbbbbbbbbb'],
+    List<String> languages = const [],
   }) {
     final p = CommunityPlaylist(
       id: id,
@@ -52,6 +53,7 @@ class FakeCommunityRepository implements CommunityRepository {
       ratingAvg: ratingAvg,
       ratingCount: ratingCount,
       labelSlugs: labels,
+      languages: languages,
       publishedAt: DateTime(2026, 10, 1).add(Duration(hours: playlists.length)),
     );
     playlists.add(p);
@@ -86,7 +88,8 @@ class FakeCommunityRepository implements CommunityRepository {
                   p.labelSlugs.contains(query.labelSlug)) &&
               (age == null ||
                   (p.ageRange.min <= age.max && p.ageRange.max >= age.min)) &&
-              (search.isEmpty || p.title.toLowerCase().contains(search)),
+              (search.isEmpty || p.title.toLowerCase().contains(search)) &&
+              (query.language?.matches(p.languages) ?? true),
         )
         .toList();
     switch (query.sort) {

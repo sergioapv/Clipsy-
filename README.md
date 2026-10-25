@@ -315,8 +315,18 @@ pure function, and it is unit-tested.
   author's community name (Settings → Account; "Parent" by default, never
   the email) and the rating. Playlists hidden by reports, or left without
   any available video, drop out.
-- **Browse**: Top rated, New, By label; an age filter (overlapping ranges)
-  and title search on every tab; 20 per page with infinite scroll.
+- **Browse**: Top rated, New, By label; language and age filters
+  (overlapping ranges) and title search on every tab; 20 per page with
+  infinite scroll.
+- **Languages**: each playlist has 1–3 BCP 47 tags (`pt-PT`, `pt-BR`,
+  `en-GB`, `es-419`, `zh-Hant`…), set by the parent: oEmbed doesn't say what
+  language a video is in. Sharing needs at least one. The picker lists
+  languages by their own names (Português (Portugal), English (UK), 日本語),
+  accepts typed codes ("en-uk" becomes `en-GB`) and allows unlisted valid
+  tags. Filtering by a language ("Português, all variants") matches every
+  variant; a variant ("Português (Portugal)") matches itself and playlists
+  tagged only with the language. The library has the same filter, over the
+  languages it uses (reordering pauses while it's on).
 - **Save to my playlists** copies a playlist (`fork_playlist`): private,
   available videos only, with `forked_from` pointing at the original.
 - **Ratings**: 1–5 stars, editable, through `rate_playlist` (an upsert

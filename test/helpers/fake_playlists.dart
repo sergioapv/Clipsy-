@@ -36,6 +36,7 @@ class FakePlaylistRepository implements PlaylistRepository {
     String title, {
     List<String> videoIds = const [],
     List<int> labelIds = const [],
+    List<String> languages = const [],
   }) {
     final id = 'p${_nextId++}';
     videos[id] = [
@@ -56,6 +57,7 @@ class FakePlaylistRepository implements PlaylistRepository {
       ageRange: AgeRange.fallback,
       videoCount: videoIds.length,
       labelIds: labelIds,
+      languages: languages,
     );
     playlists.add(p);
     return p;
@@ -98,6 +100,7 @@ class FakePlaylistRepository implements PlaylistRepository {
         description: draft.trimmedDescription,
         ageRange: draft.ageRange,
         labelIds: draft.labelIds,
+        languages: draft.languages,
       ),
     );
     videos[id] = [];
@@ -112,6 +115,9 @@ class FakePlaylistRepository implements PlaylistRepository {
       if (draft.labelIds.isEmpty) {
         throw const PlaylistException(PlaylistError.needsLabel);
       }
+      if (draft.languages.isEmpty) {
+        throw const PlaylistException(PlaylistError.needsLanguage);
+      }
       if (!(videos[id] ?? const []).any((v) => v.isAvailable)) {
         throw const PlaylistException(PlaylistError.needsVideo);
       }
@@ -122,6 +128,7 @@ class FakePlaylistRepository implements PlaylistRepository {
       description: draft.trimmedDescription,
       ageRange: draft.ageRange,
       labelIds: draft.labelIds,
+      languages: draft.languages,
       visibility: draft.visibility,
     );
   }

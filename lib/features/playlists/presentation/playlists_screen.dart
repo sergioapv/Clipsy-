@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/l10n/l10n.dart';
+import '../../../core/l10n/languages.dart';
 import '../../../core/router/routes.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/error_view.dart';
@@ -15,11 +16,29 @@ import 'playlist_dialogs.dart';
 import 'playlist_l10n.dart';
 import 'playlist_providers.dart';
 import 'widgets/label_chips.dart';
+import 'widgets/language_picker.dart';
 import 'widgets/video_thumbnail.dart';
 
-/// Parent home: the library of playlists, drag to reorder.
-class PlaylistsScreen extends ConsumerWidget {
+/// Parent home: the library of playlists, drag to reorder, filter by
+/// language.
+class PlaylistsScreen extends ConsumerStatefulWidget {
   const PlaylistsScreen({super.key});
+
+  @override
+  ConsumerState<PlaylistsScreen> createState() => _PlaylistsScreenState();
+}
+
+class _PlaylistsScreenState extends ConsumerState<PlaylistsScreen> {
+  LanguageFilter? _language;
+
+  Future<void> _pickLanguage(List<Playlist> items) async {
+    final pick = await showLanguageFilterPicker(
+      context,
+      current: _language,
+      available: {for (final p in items) ...p.languages},
+    );
+    if (pick != null && mounted) setState(() => _language = pick.filter);
+  }
 
   Future<void> _reorder(
     BuildContext context,
@@ -35,7 +54,7 @@ class PlaylistsScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final l10n = context.l10n;
     final playlists = ref.watch(myPlaylistsProvider);
     return Scaffold(
@@ -60,20 +79,59 @@ class PlaylistsScreen extends ConsumerWidget {
               message: l10n.playlistsEmptyBody,
             );
           }
-          return RefreshIndicator(
-            onRefresh: () => ref.refresh(myPlaylistsProvider.future),
-            child: ReorderableListView.builder(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
-              itemCount: items.length,
-              buildDefaultDragHandles: false,
-              onReorderItem: (oldIndex, newIndex) =>
-                  unawaited(_reorder(context, ref, oldIndex, newIndex)),
-              itemBuilder: (context, i) => _PlaylistCard(
-                key: ValueKey(items[i].id),
-                playlist: items[i],
-                index: i,
+          final language = _language;
+          final hasLanguages = items.any((p) => p.languages.isNotEmpty);
+          // Reordering a filtered list would scramble the full order.
+          final shown = language == null
+              ? items
+              : [
+                  for (final p in items)
+                    if (language.matches(p.languages)) p,
+                ];
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (hasLanguages || language != null)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+                  child: LanguageFilterChip(
+                    key: const Key('library-language-filter'),
+                    filter: language,
+                    onPressed: () => unawaited(_pickLanguage(items)),
+                    onClear: () => setState(() => _language = null),
+                  ),
+                ),
+              Expanded(
+                child: shown.isEmpty
+                    ? EmptyState(
+                        icon: Icons.translate_rounded,
+                        title: l10n.playlistsNoneInLanguageTitle,
+                        message: l10n.playlistsNoneInLanguageBody,
+                        action: TextButton(
+                          onPressed: () => setState(() => _language = null),
+                          child: Text(l10n.languageAny),
+                        ),
+                      )
+                    : RefreshIndicator(
+                        onRefresh: () =>
+                            ref.refresh(myPlaylistsProvider.future),
+                        child: ReorderableListView.builder(
+                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
+                          itemCount: shown.length,
+                          buildDefaultDragHandles: false,
+                          onReorderItem: (oldIndex, newIndex) => unawaited(
+                            _reorder(context, ref, oldIndex, newIndex),
+                          ),
+                          itemBuilder: (context, i) => _PlaylistCard(
+                            key: ValueKey(shown[i].id),
+                            playlist: shown[i],
+                            index: i,
+                            reorderable: language == null,
+                          ),
+                        ),
+                      ),
               ),
-            ),
+            ],
           );
         },
       ),
@@ -82,10 +140,16 @@ class PlaylistsScreen extends ConsumerWidget {
 }
 
 class _PlaylistCard extends ConsumerWidget {
-  const _PlaylistCard({required this.playlist, required this.index, super.key});
+  const _PlaylistCard({
+    required this.playlist,
+    required this.index,
+    this.reorderable = true,
+    super.key,
+  });
 
   final Playlist playlist;
   final int index;
+  final bool reorderable;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -123,8 +187,12 @@ class _PlaylistCard extends ConsumerWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            '${l10n.videoCount(playlist.videoCount)} · '
-                            '${l10n.ageRangeLabel(playlist.ageRange)}',
+                            [
+                              l10n.videoCount(playlist.videoCount),
+                              l10n.ageRangeLabel(playlist.ageRange),
+                              if (playlist.languages.isNotEmpty)
+                                languagesLabel(playlist.languages),
+                            ].join(' · '),
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: muted,
                             ),
@@ -166,19 +234,20 @@ class _PlaylistCard extends ConsumerWidget {
                           ),
                         ],
                       ),
-                      ReorderableDragStartListener(
-                        index: index,
-                        child: Semantics(
-                          label: l10n.dragToReorder,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8),
-                            child: Icon(
-                              Icons.drag_indicator_rounded,
-                              color: muted,
+                      if (reorderable)
+                        ReorderableDragStartListener(
+                          index: index,
+                          child: Semantics(
+                            label: l10n.dragToReorder,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8),
+                              child: Icon(
+                                Icons.drag_indicator_rounded,
+                                color: muted,
+                              ),
                             ),
                           ),
                         ),
-                      ),
                     ],
                   ),
                 ],

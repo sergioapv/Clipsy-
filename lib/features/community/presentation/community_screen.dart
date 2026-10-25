@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/l10n/l10n.dart';
+import '../../../core/l10n/languages.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/error_view.dart';
 import '../../../core/widgets/skeleton.dart';
@@ -12,6 +13,7 @@ import '../../playlists/domain/label.dart';
 import '../../playlists/domain/playlist.dart';
 import '../../playlists/presentation/playlist_l10n.dart';
 import '../../playlists/presentation/playlist_providers.dart';
+import '../../playlists/presentation/widgets/language_picker.dart';
 import '../domain/community_playlist.dart';
 import 'community_providers.dart';
 import 'widgets/community_playlist_card.dart';
@@ -33,6 +35,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
   _Tab _tab = _Tab.topRated;
   String? _label;
   AgeRange? _age;
+  LanguageFilter? _language;
   String _query = '';
 
   @override
@@ -40,6 +43,11 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
     _debounce?.cancel();
     _search.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickLanguage() async {
+    final pick = await showLanguageFilterPicker(context, current: _language);
+    if (pick != null && mounted) setState(() => _language = pick.filter);
   }
 
   void _onSearchChanged(String text) {
@@ -53,6 +61,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
     sort: _tab == _Tab.newest ? CommunitySort.newest : CommunitySort.topRated,
     labelSlug: _tab == _Tab.byLabel ? _label : null,
     ageRange: _age,
+    language: _language,
     search: _query,
   );
 
@@ -114,6 +123,12 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
           ),
           const SizedBox(height: 10),
           _AgeFilter(
+            leading: LanguageFilterChip(
+              key: const Key('community-language-filter'),
+              filter: _language,
+              onPressed: () => unawaited(_pickLanguage()),
+              onClear: () => setState(() => _language = null),
+            ),
             value: _age,
             onChanged: (age) => setState(() => _age = age),
           ),
@@ -135,10 +150,17 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
 }
 
 class _AgeFilter extends StatelessWidget {
-  const _AgeFilter({required this.value, required this.onChanged});
+  const _AgeFilter({
+    required this.value,
+    required this.onChanged,
+    this.leading,
+  });
 
   final AgeRange? value;
   final ValueChanged<AgeRange?> onChanged;
+
+  /// Shown before the age chips (the language filter).
+  final Widget? leading;
 
   @override
   Widget build(BuildContext context) {
@@ -148,6 +170,8 @@ class _AgeFilter extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
+          if (leading != null)
+            Padding(padding: const EdgeInsets.only(right: 8), child: leading),
           for (final age in <AgeRange?>[null, ...AgeRange.presets])
             Padding(
               padding: const EdgeInsets.only(right: 8),

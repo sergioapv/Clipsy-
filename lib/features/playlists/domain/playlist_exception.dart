@@ -7,6 +7,9 @@ enum PlaylistError {
   /// Publishing needs at least one label.
   needsLabel,
 
+  /// Publishing needs at least one language.
+  needsLanguage,
+
   /// Publishing needs at least one available video (and a published
   /// playlist can't lose its last one).
   needsVideo,

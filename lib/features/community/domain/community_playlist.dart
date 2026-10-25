@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import '../../../core/l10n/languages.dart';
 import '../../playlists/domain/playlist.dart';
 
 enum CommunitySort { topRated, newest }
@@ -12,6 +13,7 @@ class CommunityQuery {
     this.sort = CommunitySort.topRated,
     this.labelSlug,
     this.ageRange,
+    this.language,
     this.search = '',
   });
 
@@ -20,6 +22,10 @@ class CommunityQuery {
 
   /// Playlists whose age range overlaps this one.
   final AgeRange? ageRange;
+
+  /// A language (`pt`, any variant) or a variant (`pt-PT`, plus playlists
+  /// tagged only `pt`).
+  final LanguageFilter? language;
 
   /// Matched against the title, case-insensitively.
   final String search;
@@ -32,10 +38,12 @@ class CommunityQuery {
       other.sort == sort &&
       other.labelSlug == labelSlug &&
       other.ageRange == ageRange &&
+      other.language == language &&
       other.trimmedSearch == trimmedSearch;
 
   @override
-  int get hashCode => Object.hash(sort, labelSlug, ageRange, trimmedSearch);
+  int get hashCode =>
+      Object.hash(sort, labelSlug, ageRange, language, trimmedSearch);
 }
 
 /// A published playlist as other parents see it (`community_playlists` view).
@@ -56,6 +64,7 @@ class CommunityPlaylist {
     this.forkedFrom,
     this.totalDurationSeconds,
     this.labelSlugs = const [],
+    this.languages = const [],
   });
 
   factory CommunityPlaylist.fromJson(Map<String, Object?> json) =>
@@ -83,6 +92,10 @@ class CommunityPlaylist {
           for (final s in (json['label_slugs'] as List<Object?>?) ?? const [])
             s! as String,
         ],
+        languages: [
+          for (final l in (json['languages'] as List<Object?>?) ?? const [])
+            l! as String,
+        ],
       );
 
   final String id;
@@ -101,6 +114,7 @@ class CommunityPlaylist {
   /// Known only once every video's length has been recorded.
   final int? totalDurationSeconds;
   final List<String> labelSlugs;
+  final List<String> languages;
 
   CommunityPlaylist withRating(double? avg, int count) => CommunityPlaylist(
     id: id,
@@ -117,6 +131,7 @@ class CommunityPlaylist {
     videoCount: videoCount,
     totalDurationSeconds: totalDurationSeconds,
     labelSlugs: labelSlugs,
+    languages: languages,
   );
 }
 

@@ -910,4 +910,51 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get kidSeekHide => 'Hide the video bar';
+
+  @override
+  String get languagesTitle => 'Languages';
+
+  @override
+  String languagesHint(int count) {
+    return 'Up to $count. Needed to share a playlist.';
+  }
+
+  @override
+  String get addLanguage => 'Add language';
+
+  @override
+  String get languageAny => 'Any language';
+
+  @override
+  String get languageAllVariants => 'All variants';
+
+  @override
+  String get languageSearchHint => 'Search, or type a code like pt-BR';
+
+  @override
+  String get languageNoMatch => 'No language matches.';
+
+  @override
+  String get languageFilter => 'Language';
+
+  @override
+  String languagesFull(int count) {
+    return 'You can pick up to $count languages.';
+  }
+
+  @override
+  String get playlistErrorNeedsLanguage =>
+      'Pick at least one language to share this playlist.';
+
+  @override
+  String get playlistsNoneInLanguageTitle => 'No playlists in this language';
+
+  @override
+  String get playlistsNoneInLanguageBody =>
+      'Pick another language, or show them all.';
+
+  @override
+  String removeLanguage(String language) {
+    return 'Remove $language';
+  }
 }

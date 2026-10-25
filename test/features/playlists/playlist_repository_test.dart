@@ -208,6 +208,7 @@ void main() {
       'description': null,
       'age_min': 8,
       'age_max': 12,
+      'languages': <String>[],
       'visibility': 'private',
     });
     final rpc = backend.requests.last;

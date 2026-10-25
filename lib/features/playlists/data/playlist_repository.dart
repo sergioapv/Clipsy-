@@ -203,6 +203,7 @@ class SupabasePlaylistRepository implements PlaylistRepository {
     'description': d.trimmedDescription,
     'age_min': d.ageRange.min,
     'age_max': d.ageRange.max,
+    'languages': d.languages.toSet().toList(),
     'visibility': d.visibility.name,
   };
 }
@@ -252,6 +253,9 @@ PlaylistError mapPostgrestError(PostgrestException e) {
   }
   if (message.contains('public_playlist_needs_video')) {
     return PlaylistError.needsVideo;
+  }
+  if (message.contains('public_playlist_needs_language')) {
+    return PlaylistError.needsLanguage;
   }
   if (e.code == '23505' && message.contains('reports_one_per_parent')) {
     return PlaylistError.alreadyReported;

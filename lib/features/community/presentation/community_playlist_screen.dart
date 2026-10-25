@@ -11,6 +11,7 @@ import '../../../core/widgets/skeleton.dart';
 import '../../playlists/domain/playlist.dart';
 import '../../playlists/presentation/playlist_l10n.dart';
 import '../../playlists/presentation/widgets/label_chips.dart';
+import '../../playlists/presentation/widgets/language_picker.dart';
 import '../../playlists/presentation/widgets/video_thumbnail.dart';
 import '../domain/community_playlist.dart';
 import 'community_providers.dart';
@@ -173,6 +174,7 @@ class _BodyState extends ConsumerState<_Body> {
             l10n.videoCount(p.videoCount),
             if (minutes != null) l10n.minutesShort(minutes),
             l10n.ageRangeLabel(p.ageRange),
+            if (p.languages.isNotEmpty) languagesLabel(p.languages, show: 3),
           ].join(' · '),
           style: theme.textTheme.bodyMedium?.copyWith(color: muted),
         ),

@@ -917,4 +917,51 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get kidSeekHide => 'Esconder a barra do vídeo';
+
+  @override
+  String get languagesTitle => 'Idiomas';
+
+  @override
+  String languagesHint(int count) {
+    return 'Até $count. Necessário para partilhar uma lista.';
+  }
+
+  @override
+  String get addLanguage => 'Adicionar idioma';
+
+  @override
+  String get languageAny => 'Qualquer idioma';
+
+  @override
+  String get languageAllVariants => 'Todas as variantes';
+
+  @override
+  String get languageSearchHint => 'Pesquise ou escreva um código como pt-BR';
+
+  @override
+  String get languageNoMatch => 'Nenhum idioma corresponde.';
+
+  @override
+  String get languageFilter => 'Idioma';
+
+  @override
+  String languagesFull(int count) {
+    return 'Pode escolher até $count idiomas.';
+  }
+
+  @override
+  String get playlistErrorNeedsLanguage =>
+      'Escolha pelo menos um idioma para partilhar esta lista.';
+
+  @override
+  String get playlistsNoneInLanguageTitle => 'Nenhuma lista neste idioma';
+
+  @override
+  String get playlistsNoneInLanguageBody =>
+      'Escolha outro idioma ou mostre todas.';
+
+  @override
+  String removeLanguage(String language) {
+    return 'Remover $language';
+  }
 }

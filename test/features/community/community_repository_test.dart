@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:clipsy/core/l10n/languages.dart';
 import 'package:clipsy/features/community/data/community_repository.dart';
 import 'package:clipsy/features/community/data/profile_repository.dart';
 import 'package:clipsy/features/community/domain/community_playlist.dart';
@@ -59,6 +60,8 @@ Map<String, Object?> _row(String id, {String owner = 'u2'}) => {
   'video_count': 3,
   'total_duration_seconds': 610,
   'label_slugs': ['animals', 'nature'],
+  'languages': ['pt-PT', 'en-GB'],
+  'language_bases': ['pt', 'en'],
 };
 
 void main() {
@@ -106,6 +109,19 @@ void main() {
     expect(p.ratingCount, 12);
     expect(p.totalDurationSeconds, 610);
     expect(p.labelSlugs, ['animals', 'nature']);
+    expect(p.languages, ['pt-PT', 'en-GB']);
+  });
+
+  test('language: any variant, or one variant plus untagged ones', () async {
+    await repo.browse(const CommunityQuery(language: LanguageFilter('pt')));
+    var q = backend.last.url.queryParameters;
+    expect(q['language_bases'], 'cs.{"pt"}');
+    expect(q.containsKey('languages'), isFalse);
+
+    await repo.browse(const CommunityQuery(language: LanguageFilter('pt-PT')));
+    q = backend.last.url.queryParameters;
+    expect(q['languages'], 'ov.{"pt-PT","pt"}');
+    expect(q.containsKey('language_bases'), isFalse);
   });
 
   test('new: newest first, no filters', () async {

@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../core/l10n/languages.dart';
 import '../../playlists/data/playlist_repository.dart';
 import '../../playlists/domain/playlist.dart';
 import '../../playlists/domain/playlist_exception.dart';
@@ -55,6 +56,15 @@ class SupabaseCommunityRepository implements CommunityRepository {
     if (age != null) {
       // Overlapping ranges.
       filter = filter.lte('age_min', age.max).gte('age_max', age.min);
+    }
+    final language = query.language;
+    if (language != null) {
+      filter = language.anyVariant
+          ? filter.contains('language_bases', [language.tag])
+          : filter.overlaps('languages', [
+              language.tag,
+              Language.baseOf(language.tag),
+            ]);
     }
     final search = query.trimmedSearch;
     if (search.isNotEmpty) {

@@ -51,6 +51,7 @@ class Playlist {
     this.visibility = PlaylistVisibility.private,
     this.forkedFrom,
     this.labelIds = const [],
+    this.languages = const [],
     this.videoCount = 0,
     this.isHidden = false,
     this.ratingAvg,
@@ -84,6 +85,10 @@ class Playlist {
         for (final l in labels)
           ((l! as Map<String, Object?>)['label_id']! as num).toInt(),
       ],
+      languages: [
+        for (final l in (json['languages'] as List<Object?>?) ?? const [])
+          l! as String,
+      ],
       videoCount: countRow is num ? countRow.toInt() : (videos?.length ?? 0),
       isHidden: json['is_hidden'] as bool? ?? false,
       ratingAvg: (json['rating_avg'] as num?)?.toDouble(),
@@ -103,6 +108,9 @@ class Playlist {
   final PlaylistVisibility visibility;
   final String? forkedFrom;
   final List<int> labelIds;
+
+  /// BCP 47 tags (`pt-PT`, `en-GB`…), set by the parent.
+  final List<String> languages;
   final int videoCount;
   final bool isHidden;
   final double? ratingAvg;
@@ -117,6 +125,7 @@ class Playlist {
     description: description ?? '',
     ageRange: ageRange,
     labelIds: labelIds,
+    languages: languages,
     visibility: visibility ?? this.visibility,
   );
 
@@ -125,6 +134,7 @@ class Playlist {
     String? description,
     AgeRange? ageRange,
     List<int>? labelIds,
+    List<String>? languages,
     int? videoCount,
     String? coverUrl,
     PlaylistVisibility? visibility,
@@ -138,6 +148,7 @@ class Playlist {
     visibility: visibility ?? this.visibility,
     forkedFrom: forkedFrom,
     labelIds: labelIds ?? this.labelIds,
+    languages: languages ?? this.languages,
     videoCount: videoCount ?? this.videoCount,
     isHidden: isHidden,
     ratingAvg: ratingAvg,
@@ -222,6 +233,7 @@ class PlaylistDraft {
     this.description = '',
     this.ageRange = AgeRange.fallback,
     this.labelIds = const [],
+    this.languages = const [],
     this.visibility = PlaylistVisibility.private,
   });
 
@@ -231,14 +243,17 @@ class PlaylistDraft {
   static const maxVideos = 200;
   static const maxDescriptionLength = 500;
   static const maxLabels = 3;
+  static const maxLanguages = 3;
 
   final String title;
   final String description;
   final AgeRange ageRange;
   final List<int> labelIds;
+  final List<String> languages;
 
-  /// Public playlists appear in the community library. They need 1–3 labels
-  /// and at least one video (checked by the database too).
+  /// Public playlists appear in the community library. They need 1–3
+  /// labels, 1–3 languages and at least one video (checked by the database
+  /// too).
   final PlaylistVisibility visibility;
 
   bool get isPublic => visibility == PlaylistVisibility.public;
@@ -254,5 +269,6 @@ class PlaylistDraft {
       trimmedTitle.length <= maxTitleLength &&
       description.trim().length <= maxDescriptionLength &&
       labelIds.toSet().length <= maxLabels &&
-      (!isPublic || labelIds.isNotEmpty);
+      languages.toSet().length <= maxLanguages &&
+      (!isPublic || (labelIds.isNotEmpty && languages.isNotEmpty));
 }

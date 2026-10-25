@@ -96,9 +96,13 @@ void main() {
     ]);
 
     // Ages 5–7.
+    await tester.ensureVisible(find.byKey(Key('age-filter-${AgeRange.young}')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(Key('age-filter-${AgeRange.young}')));
     await tester.pumpAndSettle();
     expect(_titles(tester), ['Ocean animals']);
+    await tester.ensureVisible(find.byKey(const Key('age-filter-all')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('age-filter-all')));
     await tester.pumpAndSettle();
 
@@ -126,6 +130,97 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
     await tester.pumpAndSettle();
     expect(find.text('Nothing here yet'), findsOneWidget);
+  });
+
+  testWidgets('community: filter by language or by variant', (tester) async {
+    _tallPhone(tester);
+    final community = FakeCommunityRepository()
+      ..publish('Canções', id: 'pt', languages: ['pt-PT'])
+      ..publish('Músicas', id: 'br', languages: ['pt-BR'])
+      ..publish('Fado', id: 'any', languages: ['pt'])
+      ..publish('Songs', id: 'en', languages: ['en-GB']);
+    await pumpUnlockedClipsy(
+      tester,
+      auth: FakeAuthRepository(user: _parent),
+      community: community,
+    );
+    await _openCommunity(tester);
+    final all = ['Canções', 'Músicas', 'Fado', 'Songs'];
+    List<String> shown() => [
+      for (final t in all)
+        if (find.text(t).evaluate().isNotEmpty) t,
+    ];
+    expect(shown(), all);
+
+    Future<void> pick(String tag) async {
+      await tester.tap(find.byKey(const Key('community-language-filter')));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(const Key('language-search')), tag);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(Key('language-$tag')));
+      await tester.pumpAndSettle();
+    }
+
+    // Português (Portugal): pt-PT, plus the one tagged just "pt".
+    await pick('pt-PT');
+    expect(shown(), ['Canções', 'Fado']);
+    expect(find.text('Português (Portugal)'), findsWidgets);
+
+    // Português, all variants.
+    await pick('pt');
+    expect(shown(), ['Canções', 'Músicas', 'Fado']);
+
+    // Clear the filter.
+    await tester.tap(
+      find.descendant(
+        of: find.byKey(const Key('community-language-filter')),
+        matching: find.byIcon(Icons.close_rounded),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(shown(), all);
+  });
+
+  testWidgets('my playlists: filter by the languages they use', (tester) async {
+    _tallPhone(tester);
+    final repo = FakePlaylistRepository()
+      ..seed('Contos', languages: ['pt-PT'])
+      ..seed('Stories', languages: ['en-GB', 'pt-BR'])
+      ..seed('Untagged');
+    await pumpUnlockedClipsy(
+      tester,
+      auth: FakeAuthRepository(user: _parent),
+      playlists: repo,
+    );
+    expect(find.byIcon(Icons.drag_indicator_rounded), findsNWidgets(3));
+
+    await tester.tap(find.byKey(const Key('library-language-filter')));
+    await tester.pumpAndSettle();
+    // Only the languages in use (and their "all variants" entries).
+    expect(find.byKey(const Key('language-pt-PT')), findsOneWidget);
+    expect(find.byKey(const Key('language-pt')), findsOneWidget);
+    expect(find.byKey(const Key('language-en-GB')), findsOneWidget);
+    expect(find.byKey(const Key('language-fr')), findsNothing);
+    await tester.tap(find.byKey(const Key('language-pt')));
+    await tester.pumpAndSettle();
+    expect(find.text('Contos'), findsOneWidget);
+    expect(find.text('Stories'), findsOneWidget);
+    expect(find.text('Untagged'), findsNothing);
+    // No reordering while filtered.
+    expect(find.byIcon(Icons.drag_indicator_rounded), findsNothing);
+
+    await tester.tap(find.byKey(const Key('library-language-filter')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('language-en-GB')));
+    await tester.pumpAndSettle();
+    expect(find.text('Contos'), findsNothing);
+    expect(find.text('Stories'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('library-language-filter')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('language-any')));
+    await tester.pumpAndSettle();
+    expect(find.text('Untagged'), findsOneWidget);
   });
 
   testWidgets('save a copy to my playlists, then open it', (tester) async {
@@ -253,7 +348,12 @@ void main() {
     _tallPhone(tester);
     final repo = FakePlaylistRepository()
       ..seed('No labels', videoIds: ['aaaaaaaaaaa'])
-      ..seed('Ready', videoIds: ['bbbbbbbbbbb'], labelIds: [3]);
+      ..seed(
+        'Ready',
+        videoIds: ['bbbbbbbbbbb'],
+        labelIds: [3],
+        languages: ['pt-PT'],
+      );
     await pumpUnlockedClipsy(
       tester,
       auth: FakeAuthRepository(user: _parent),
@@ -315,7 +415,11 @@ void main() {
 
     await edit('Empty');
     final empty = find.byKey(const Key('share-switch'));
-    await tester.ensureVisible(empty);
+    await tester.scrollUntilVisible(
+      empty,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(tester.widget<SwitchListTile>(empty).onChanged, isNull);
     expect(
       find.text('Add a video first, then you can share it.'),
@@ -328,14 +432,41 @@ void main() {
 
     await edit('Birds');
     final share = find.byKey(const Key('share-switch'));
-    await tester.ensureVisible(share);
+    await tester.scrollUntilVisible(
+      share,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.pumpAndSettle();
     await tester.tap(share);
     await tester.pump();
     expect(tester.widget<SwitchListTile>(share).value, isTrue);
+
+    // Sharing needs a language.
+    await tester.tap(find.widgetWithText(TextButton, 'Save'));
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Pick at least one language to share this playlist.'),
+      findsOneWidget,
+    );
+    expect(repo.playlists.last.visibility, PlaylistVisibility.private);
+
+    // Typed as people write it: "pt-br".
+    final add = find.byKey(const Key('add-language'));
+    await tester.ensureVisible(add);
+    await tester.pumpAndSettle();
+    await tester.tap(add);
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('language-search')), 'pt-br');
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('language-pt-BR')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('language-chip-pt-BR')), findsOneWidget);
+
     await tester.tap(find.widgetWithText(TextButton, 'Save'));
     await tester.pumpAndSettle();
     expect(repo.playlists.last.visibility, PlaylistVisibility.public);
+    expect(repo.playlists.last.languages, ['pt-BR']);
   });
 
   testWidgets('change the name shown in the community', (tester) async {
