@@ -232,6 +232,12 @@ pure function, and it is unit-tested.
   every video page and runs the same oEmbed checks as a pasted link. The
   browser stays on YouTube (`YouTubeBrowsePolicy`): app hand-offs and other
   sites are blocked. Kid mode never gets a browser.
+- **Browser language**: YouTube has no "only this language" filter, so the
+  browser sets YouTube's interface language and region (`hl`/`gl`) instead,
+  which YouTube uses to rank home and search results and keeps in a cookie.
+  It starts in the playlist's first language, else the last one picked
+  there; "Any language" resets YouTube to the app's language. YouTube's
+  codes differ slightly (`pt-BR` → `hl=pt`, `zh-Hant` → `zh-TW`).
 - **Whole YouTube playlists, without the YouTube Data API**: from a playlist
   page in the browser, or a pasted playlist link. A muted official IFrame
   player, shown as a preview in the import sheet, cues the playlist and

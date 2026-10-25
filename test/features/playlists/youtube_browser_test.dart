@@ -5,6 +5,7 @@ import 'package:clipsy/features/playlists/presentation/playlist_detail_screen.da
 import 'package:clipsy/features/playlists/presentation/youtube_browser_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../helpers/fake_playlists.dart';
 import '../../helpers/fakes.dart';
@@ -50,9 +51,15 @@ void main() {
   Future<(FakePlaylistRepository, FakeInAppBrowser, String)> openBrowser(
     WidgetTester tester, {
     FakeVideoLookupRepository? lookup,
+    List<String> languages = const [],
+    Map<String, Object> prefs = const {},
   }) async {
     final repo = FakePlaylistRepository();
-    final p = repo.seed('Animals', videoIds: ['aaaaaaaaaaa']);
+    final p = repo.seed(
+      'Animals',
+      videoIds: ['aaaaaaaaaaa'],
+      languages: languages,
+    );
     final browser = FakeInAppBrowser();
     await pumpUnlockedClipsy(
       tester,
@@ -60,6 +67,7 @@ void main() {
       playlists: repo,
       lookup: lookup,
       browser: browser,
+      prefs: prefs,
     );
     await tester.tap(find.text('Animals'));
     await tester.pumpAndSettle();
@@ -70,13 +78,69 @@ void main() {
     return (repo, browser, p.id);
   }
 
+  testWidgets('YouTube opens in the playlist language; the choice is kept', (
+    tester,
+  ) async {
+    final (_, browser, _) = await openBrowser(tester, languages: ['pt-PT']);
+    expect(
+      browser.loads.single,
+      Uri.parse('https://m.youtube.com/?hl=pt-PT&gl=PT'),
+    );
+    expect(find.text('pt-PT'), findsOneWidget);
+
+    // Switch to Brazilian Portuguese (YouTube calls it plain "pt").
+    await tester.tap(find.byKey(const Key('browser-language')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('language-search')), 'pt-br');
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('language-pt-BR')));
+    await tester.pumpAndSettle();
+    expect(browser.loads.last, Uri.parse('https://m.youtube.com/?hl=pt&gl=BR'));
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getString('browser.language'), 'pt-BR');
+
+    // Any language: back to the app's, which also resets YouTube's cookie.
+    await tester.tap(find.byKey(const Key('browser-language')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('language-any')));
+    await tester.pumpAndSettle();
+    expect(browser.loads.last, Uri.parse('https://m.youtube.com/?hl=en'));
+    expect(prefs.getString('browser.language'), isNull);
+  });
+
+  testWidgets('a playlist without a language uses the last choice', (
+    tester,
+  ) async {
+    final (_, browser, _) = await openBrowser(
+      tester,
+      prefs: {'browser.language': 'en-GB'},
+    );
+    expect(
+      browser.loads.single,
+      Uri.parse('https://m.youtube.com/?hl=en-GB&gl=GB'),
+    );
+  });
+
+  test('BCP 47 tags map onto YouTube hl/gl', () {
+    expect(YouTubeBrowsePolicy.youTubeLocale('pt-PT'), ('pt-PT', 'PT'));
+    expect(YouTubeBrowsePolicy.youTubeLocale('pt-BR'), ('pt', 'BR'));
+    expect(YouTubeBrowsePolicy.youTubeLocale('pt'), ('pt', null));
+    expect(YouTubeBrowsePolicy.youTubeLocale('en-GB'), ('en-GB', 'GB'));
+    expect(YouTubeBrowsePolicy.youTubeLocale('es-ES'), ('es', 'ES'));
+    expect(YouTubeBrowsePolicy.youTubeLocale('es-419'), ('es-419', null));
+    expect(YouTubeBrowsePolicy.youTubeLocale('zh-Hant'), ('zh-TW', 'TW'));
+    expect(YouTubeBrowsePolicy.youTubeLocale('zh-Hans'), ('zh-CN', null));
+    expect(YouTubeBrowsePolicy.youTubeLocale('fr-CA'), ('fr-CA', 'CA'));
+  });
+
   testWidgets('browse, open a video, add it to the playlist', (tester) async {
     final lookup = FakeVideoLookupRepository()
       ..addKnown('dQw4w9WgXcQ', 'Lions roar');
     final (repo, browser, id) = await openBrowser(tester, lookup: lookup);
 
     expect(find.byType(YouTubeBrowserScreen), findsOneWidget);
-    expect(browser.loads.single, YouTubeBrowsePolicy.home);
+    // No language on the playlist: YouTube in the app's language.
+    expect(browser.loads.single, Uri.parse('https://m.youtube.com/?hl=en'));
     // Not on a video page: nothing to add.
     expect(find.byKey(const Key('browser-add')), findsNothing);
 

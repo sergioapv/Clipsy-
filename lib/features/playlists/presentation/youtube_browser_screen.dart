@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/l10n/l10n.dart';
+import '../../../core/l10n/languages.dart';
+import '../../../core/storage/storage_providers.dart';
 import '../domain/in_app_browser.dart';
 import '../domain/video_metadata.dart';
 import '../domain/youtube_browse_policy.dart';
@@ -11,6 +13,7 @@ import '../domain/youtube_url_parser.dart';
 import 'import_playlist_sheet.dart';
 import 'playlist_l10n.dart';
 import 'playlist_providers.dart';
+import 'widgets/language_picker.dart';
 
 /// Parent-mode YouTube browser for finding videos. On any video page an
 /// "Add to playlist" button adds it (after the usual oEmbed checks) without
@@ -32,13 +35,57 @@ class _YouTubeBrowserScreenState extends ConsumerState<YouTubeBrowserScreen> {
   late final InAppBrowser _browser;
   var _addState = _AddState.idle;
 
+  /// The language YouTube is set to (BCP 47), or `null` for the app's.
+  String? _language;
+
+  static const _languageKey = 'browser.language';
+
   @override
   void initState() {
     super.initState();
     // Holding the subscription keeps the auto-dispose browser alive.
     _browserSub = ref.listenManual(inAppBrowserProvider, (_, _) {});
     _browser = _browserSub.read();
-    unawaited(_browser.load(YouTubeBrowsePolicy.home));
+    unawaited(_start());
+  }
+
+  /// Opens YouTube in the playlist's language, or the last one picked here.
+  Future<void> _start() async {
+    String? language;
+    try {
+      final detail = await ref.read(
+        playlistDetailControllerProvider(widget.playlistId).future,
+      );
+      language = detail.playlist.languages.firstOrNull;
+    } on Exception {
+      // Browse anyway; adding will show the error.
+    }
+    language ??= ref.read(sharedPreferencesProvider).getString(_languageKey);
+    if (!mounted) return;
+    setState(() => _language = language);
+    await _browser.load(_home());
+  }
+
+  Uri _home() => YouTubeBrowsePolicy.homeFor(
+    _language,
+    fallbackHl: Localizations.localeOf(context).languageCode,
+  );
+
+  Future<void> _pickLanguage() async {
+    final language = _language;
+    final pick = await showLanguageFilterPicker(
+      context,
+      current: language == null ? null : LanguageFilter(language),
+    );
+    if (pick == null || !mounted) return;
+    final tag = pick.filter?.tag;
+    final prefs = ref.read(sharedPreferencesProvider);
+    await (tag == null
+        ? prefs.remove(_languageKey)
+        : prefs.setString(_languageKey, tag));
+    if (!mounted) return;
+    setState(() => _language = tag);
+    await _browser.load(_home());
   }
 
   @override
@@ -154,6 +201,18 @@ class _YouTubeBrowserScreenState extends ConsumerState<YouTubeBrowserScreen> {
           ),
           title: Text(l10n.browseYouTube),
           actions: [
+            TextButton.icon(
+              key: const Key('browser-language'),
+              onPressed: () => unawaited(_pickLanguage()),
+              icon: const Icon(Icons.translate_rounded, size: 20),
+              label: Text(
+                _language ?? l10n.languageAny,
+                semanticsLabel: _language == null
+                    ? '${l10n.languageFilter}: ${l10n.languageAny}'
+                    : '${l10n.languageFilter}: '
+                          '${Language.of(_language!).name}',
+              ),
+            ),
             IconButton(
               tooltip: l10n.back,
               icon: const Icon(Icons.arrow_back_rounded),
